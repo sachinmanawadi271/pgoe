@@ -9,7 +9,7 @@
 int main(int argc, char** argv){
 
 
-//Callgraph cg;
+Callgraph cg;
 // The cube documentation says one should always use a try/catch thing around
 try{
 	// Create cube instance
@@ -21,7 +21,7 @@ try{
 
 	const std::vector<cube::Cnode*>& cnodes = cube.get_cnodev();
 
-#if 0
+#if 1
 	std::cout << cnodes[0]->get_callee()->get_name() << std::endl;
 //	std::cout << cnodes[0]->get_callee()->get_mod() << std::endl;
 
@@ -39,7 +39,7 @@ try{
 	for(auto node : cg.getNodesToMark())
 		node->printMinimal();
 #endif
-
+#if 0
 	/** JP: This is code to estimate the generated overhead via call-graph guided hook placement. */
 	bool once = true;
 	std::vector<double> calls;
@@ -48,6 +48,7 @@ try{
 	for( auto node : cnodes){
 		std::cout << node->get_mod() << " : " << node->get_callee()->get_name() << " : " << cube.get_sev(metric, node, threads.at(0)) << std::endl;
 	}
+#endif
 #if 0
 //		calls.push_back(cube.get_sev(metric, node, threads.at(0)));
 		if(!once){

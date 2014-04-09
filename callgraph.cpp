@@ -10,6 +10,8 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string full
 
 	int returnCode = 0;
 
+	
+
 	if(graph.find(fullQualifiedNameCaller) != graph.end()){
 		// A node representing the caller already exists
 		caller = graph.find(fullQualifiedNameCaller)->second;
@@ -30,7 +32,7 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string full
 		returnCode++;
 	}
 
-	std::cout << "Caller: " << fullQualifiedNameCaller << "\nCalee: " << fullQualifiedNameCallee << std::endl;
+	std::cout << "Caller: " << fullQualifiedNameCaller << caller.get() << "\nCalee: " << fullQualifiedNameCallee << callee.get() << std::endl;
 
 	caller->addCallsNode(callee);
 	callee->addIsCalledByNode(caller);
@@ -41,12 +43,15 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
 	std::queue<std::shared_ptr<CgNode> > workQueue;
+	std::vector<CgNode*> done;
 
 	workQueue.push(findMain());
 	while(! workQueue.empty()){
+		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
 		auto node = workQueue.front();
+		done.push_back(node.get());
 		workQueue.pop();
-		if(node->getCallers().size() == 0 || node->getCallers().size() > 1){
+		if(node->getCallers().size() > 1){
 			bool insert = true;
 			for(auto refNode : nodesToMark){
 				if(refNode == node)
@@ -55,8 +60,14 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 			if(insert)
 				nodesToMark.push_back(node);
 		}
-		for(auto n : node->getCallees())
-			workQueue.push(n);
+		for(auto n : node->getCallees()){
+			bool insert = true;
+			for(auto refNode : done)
+				if(refNode == n.get())
+					insert = false;
+			if(insert)
+				workQueue.push(n);
+		}
 	}
 	
 	return nodesToMark;
