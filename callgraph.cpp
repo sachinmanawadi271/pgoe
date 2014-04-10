@@ -1,5 +1,7 @@
 #include "callgraph.h"
 
+#define VERBOSE 0
+
 Callgraph::Callgraph(){
 }
 
@@ -31,12 +33,34 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string full
 		graph.insert(std::pair<std::string, std::shared_ptr<CgNode> >(fullQualifiedNameCallee, callee));
 		returnCode++;
 	}
-
+#if VERBOSE > 2
 	std::cout << "Caller: " << fullQualifiedNameCaller << caller.get() << "\nCalee: " << fullQualifiedNameCallee << callee.get() << std::endl;
-
+#endif
 	caller->addCallsNode(callee);
 	callee->addIsCalledByNode(caller);
 	return returnCode;
+}
+int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee){
+	putFunction(fullQualifiedNameCaller, fullQualifiedNameCallee);
+
+	auto caller = findNode(fullQualifiedNameCaller);
+	if(caller == NULL)
+		std::cerr << "ERROR in looking up node." << std::endl
+;
+	caller->setFilename(filenameCaller);
+	caller->setLineNumber(lineCaller);
+}
+
+std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
+	
+	for(auto node : graph){
+		auto fName = node.second->getFunctionName();
+		if(fName.find(functionName) != std::string::npos)
+			return node.second;
+	}
+
+	return NULL;
+
 }
 
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
@@ -74,6 +98,10 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 }
 
+int Callgraph::getSize(){
+	return graph.size();
+}
+
 void Callgraph::print(){
 
 	auto mainNode = findMain();
@@ -83,6 +111,8 @@ void Callgraph::print(){
 }
 
 std::shared_ptr<CgNode> Callgraph::findMain(){
+
+//	return findNode("main");
 
 	for(auto node : graph){
 		auto fName = node.second->getFunctionName();

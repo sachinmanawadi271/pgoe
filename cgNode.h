@@ -24,8 +24,15 @@ public:
 	void print();
 	void printMinimal();
 
+
+	void setFilename(std::string filename);
+	void setLineNumber(int line);
+
 private:
 	std::vector<std::shared_ptr<CgNode> > calledNodes;
 	std::vector<std::shared_ptr<CgNode> > isCalledByNodes;
 	std::string functionName;
+	// for later use
+	std::string filename;
+	int line;
 };

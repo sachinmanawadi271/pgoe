@@ -50,7 +50,7 @@ std::vector<std::shared_ptr<CgNode> > CgNode::getCallees(){
 }
 
 void CgNode::printMinimal(){
-	std::cout << this->functionName << "\n";
+	std::cout << this->functionName <<  ",";
 }
 
 void CgNode::print(){
@@ -58,4 +58,14 @@ void CgNode::print(){
 	for(auto n : calledNodes){
 		std::cout << "--"<< n->getFunctionName() << "\n";
 	}
+}
+
+
+void CgNode::setFilename(std::string filename){
+	this->filename = filename;
+}
+
+
+void CgNode::setLineNumber(int line){
+	this->line = line;
 }
