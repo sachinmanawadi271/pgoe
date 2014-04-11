@@ -40,7 +40,7 @@ try{
 //	cg.print();
 	cg.printDOT();
 #if VERBOSE > 1
-//	std::cout << "Graph includes: " << cg.getSize() << std::endl;
+	std::cout << "Graph includes: " << cg.getSize() << std::endl;
 	for(auto node : cg.getNodesToMark()){
 		node->printMinimal();
 		std::cout << "\n";
@@ -57,7 +57,8 @@ try{
 //		std::cout << node->get_callee()->get_name() << " : " << cube.get_sev(metric, node, threads.at(0)) << std::endl;
 		overAllOverhead += cube.get_sev(metric, node, threads.at(0)) * overheadPerCallInNanos;
 	}
-	std::cout << "A cg-analysis based instrumentation would introduce: " << overAllOverhead << " nanos" << std::endl;
+	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesToMark().size() << "\n" ;
+	std::cout << "Adding: " << overAllOverhead << " nanos" << std::endl;
 	std::cout << "In Seconds: " << (overAllOverhead / (1e9)) << std::endl;
 
 
