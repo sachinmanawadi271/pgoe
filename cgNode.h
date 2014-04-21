@@ -19,6 +19,9 @@ public:
 	std::vector<std::shared_ptr<CgNode> > getCallers();
 	std::vector<std::shared_ptr<CgNode> > getCallees();
 
+	void addNumberOfCalls(int calls);
+	unsigned int getNumberOfCalls();
+
 	void dumpToDot(std::ofstream& outputStream);
 
 	void print();
@@ -32,6 +35,7 @@ private:
 	std::vector<std::shared_ptr<CgNode> > calledNodes;
 	std::vector<std::shared_ptr<CgNode> > isCalledByNodes;
 	std::string functionName;
+	unsigned int numberOfCalls;
 	// for later use
 	std::string filename;
 	int line;

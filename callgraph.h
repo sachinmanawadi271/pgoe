@@ -9,7 +9,7 @@ class Callgraph {
 public:
 	Callgraph();
 	int putFunction(std::string fullQualifiedNameCaller, std::string fullQualifiedNameCallee);
-	int putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee);
+	int putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee, int calls);
 
 
 	void print();

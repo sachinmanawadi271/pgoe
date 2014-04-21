@@ -3,6 +3,7 @@
 
 CgNode::CgNode(std::string function){
 	this->functionName = function;
+	this->numberOfCalls = 0;
 }
 
 
@@ -47,6 +48,13 @@ std::vector<std::shared_ptr<CgNode> > CgNode::getCallers(){
 
 std::vector<std::shared_ptr<CgNode> > CgNode::getCallees(){
 	return calledNodes;
+}
+void CgNode::addNumberOfCalls(int calls){
+	this->numberOfCalls += calls;
+}
+
+unsigned int CgNode::getNumberOfCalls(){
+	return this->numberOfCalls;
 }
 
 void CgNode::printMinimal(){

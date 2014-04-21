@@ -40,8 +40,11 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string full
 	callee->addIsCalledByNode(caller);
 	return returnCode;
 }
-int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee){
+int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee, int calls){
 	putFunction(fullQualifiedNameCaller, fullQualifiedNameCallee);
+
+	auto callee = findNode(fullQualifiedNameCallee);
+	callee->addNumberOfCalls(calls);
 
 	auto caller = findNode(fullQualifiedNameCaller);
 	if(caller == NULL)
