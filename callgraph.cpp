@@ -74,7 +74,7 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 	workQueue.push(findMain());
 	while(! workQueue.empty()){
-		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
+//		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
 		auto node = workQueue.front();
 		done.push_back(node.get());
 		workQueue.pop();
