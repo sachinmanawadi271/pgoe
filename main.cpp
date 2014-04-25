@@ -7,6 +7,7 @@
 #include <cassert>
 
 #define VERBOSE 0
+#define PRINT_DOT 0
 
 int main(int argc, char** argv){
 
@@ -35,17 +36,21 @@ try{
 			continue;
 		// Put the caller/callee pair into our callgraph
 		cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(0)));
-//		cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_url(), node->get_parent()->get_callee()->get_line(), node->get_callee()->get_name());
-//		cg.putFunction(node->get_callee()->get_name(), node->get_parent()->get_callee()->get_name());
+		// Also keep track of threading things...
+		if(threads.size() > 1)
+			for(int i = 1; i < threads.size(); i++){
+				cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(i)));
+}
 	}
+	std::cout << "Finished construction of cg. Now estimating InstROs overhead..." << std::endl;
 
-
-//	cg.print();
+#if PRINT_DOT == 1
 	cg.printDOT();
+#endif
 
 	/** JP: This is code to estimate the generated overhead via call-graph guided hook placement. */
-	bool once = true;
-	const int overheadPerCallInNanos = 4;
+	bool once = true; // What exactly is that good for...?
+	const int overheadPerCallInNanos = 4; 
 	unsigned long long overAllOverhead = 0;
 		
 #if VERBOSE > 1
@@ -55,22 +60,13 @@ try{
 		std::cout << "\n";
 	}
 #endif
+	// sum up the calls to function we would instrument
 	for(auto node : cg.getNodesToMark()){
 		overAllOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 	}
-#if 0
-	std::vector<double> calls;
-	cube::Metric* metric = cube.get_met( "visits" );
-	const std::vector<cube::Thread*> threads = cube.get_thrdv();
-	for( auto node : cnodes){
-//		std::cout << node->get_callee()->get_name() << " : " << cube.get_sev(metric, node, threads.at(0)) << std::endl;
-		overAllOverhead += cube.get_sev(metric, node, threads.at(0)) * overheadPerCallInNanos;
-	}
-#endif
-	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesToMark().size() << "\n" ;
+	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesToMark().size() << " out of " << cg.getSize() << "\n" ;
 	std::cout << "Adding: " << overAllOverhead << " nanos" << std::endl;
 	std::cout << "In Seconds: " << (overAllOverhead / (1e9)) << std::endl;
-
 
 } catch(cube::RuntimeError e){
 	std::cout << e.get_msg() << std::endl;

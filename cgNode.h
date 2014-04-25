@@ -22,6 +22,8 @@ public:
 	void addNumberOfCalls(int calls);
 	unsigned int getNumberOfCalls();
 
+	void calcRelCallFrequency();
+
 	void dumpToDot(std::ofstream& outputStream);
 
 	void print();
