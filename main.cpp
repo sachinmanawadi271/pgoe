@@ -7,7 +7,7 @@
 #include <cassert>
 
 #define VERBOSE 2 
-#define PRINT_DOT 0
+#define PRINT_DOT 1
 
 int main(int argc, char** argv){
 
@@ -36,6 +36,11 @@ try{
 			continue;
 		// Put the caller/callee pair into our callgraph
 		cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(0)));
+/*		std::cout << "[ node->get_callee()->get_name(): " << node->get_callee()->get_name() << " ]\n";
+		if(node->get_parent() != NULL)
+			std::cout << "[ node->get_parent()->get_callee()->get_name()" << node->get_parent()->get_callee()->get_name() << " ]" << std::endl;
+//		cg.putFunction(node->get_callee()->get_name(), node->get_callee()->get_mod(), node->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(0)));
+*/
 		numberOfCalls += cube.get_sev(metric, node, threads.at(0));
 		// Also keep track of threading things...
 		if(threads.size() > 1)
@@ -45,7 +50,7 @@ try{
 }
 	}
 	std::cout << "Finished construction of cg. Now estimating InstROs overhead..." << std::endl;
-
+//return 0;
 #if PRINT_DOT == 1
 	cg.printDOT();
 #endif
@@ -57,11 +62,12 @@ try{
 	unsigned long long numberOfInstrCalls = 0;
 		
 #if VERBOSE > 1
-	std::cout << "Graph includes: " << cg.getSize() << std::endl;
+	std::cout << " ---- CubeCallGraphTool VERBOSE info begin ---- \n" << "Graph includes: " << cg.getSize() << "\nOur algorithm would mark: \n";
 	for(auto node : cg.getNodesToMark()){
 		node->printMinimal();
 		std::cout << "\n";
 	}
+	std::cout << " ---- CubeCallGraphTool VERBOSE info end ---- \n" << std::endl;
 #endif
 	// sum up the calls to function we would instrument
 	for(auto node : cg.getNodesToMark()){

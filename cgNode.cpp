@@ -4,6 +4,8 @@
 CgNode::CgNode(std::string function){
 	this->functionName = function;
 	this->numberOfCalls = 0;
+	this->isCalledByNodes = std::vector<std::shared_ptr<CgNode> >();
+	this->calledNodes = std::vector<std::shared_ptr<CgNode> >();
 }
 
 

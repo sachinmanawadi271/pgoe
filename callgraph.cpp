@@ -74,18 +74,35 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 	workQueue.push(findMain());
 	while(! workQueue.empty()){
-//		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
+		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
 		auto node = workQueue.front();
 		done.push_back(node.get());
 		workQueue.pop();
+		if(node == NULL){
+			std::cerr << "node was NULL" << std::endl;
+		}
 		if(node->getCallers().size() > 1){
 			bool insert = true;
+
+			for(auto nodeToInsert : node->getCallers()){
+				for(auto refNode : nodesToMark){
+					if(refNode == nodeToInsert)
+						insert = false;
+				}
+				if(insert)
+					nodesToMark.push_back(nodeToInsert);
+			}
+
+/*
+			// JP: This is the wrong implementation which was used in the paper
+			// JP: The problem is: that estimated both benchmarks quite good -> error in śelector?
 			for(auto refNode : nodesToMark){
 				if(refNode == node)
 					insert = false;
 			}
 			if(insert)
 				nodesToMark.push_back(node);
+*/
 		}
 		for(auto n : node->getCallees()){
 			bool insert = true;
@@ -119,6 +136,7 @@ std::shared_ptr<CgNode> Callgraph::findMain(){
 
 	for(auto node : graph){
 		auto fName = node.second->getFunctionName();
+//		std::cout << "Function: " << fName << std::endl;
 		if(fName.find("main") != std::string::npos)
 			return node.second;
 	}
