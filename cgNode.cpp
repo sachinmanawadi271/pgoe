@@ -55,6 +55,14 @@ void CgNode::addNumberOfCalls(int calls){
 	this->numberOfCalls += calls;
 }
 
+void CgNode::setNeedsInstrumentation(bool needsInstrumentation){
+	this->needsInstrumentation = needsInstrumentation;
+}
+
+bool CgNode::getNeedsInstrumentation(){
+	return this->needsInstrumentation;
+}
+
 unsigned int CgNode::getNumberOfCalls(){
 	return this->numberOfCalls;
 }

@@ -29,6 +29,8 @@ public:
 	void print();
 	void printMinimal();
 
+	void setNeedsInstrumentation(bool needsInstrumentation);
+	bool getNeedsInstrumentation();
 
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
@@ -38,6 +40,7 @@ private:
 	std::vector<std::shared_ptr<CgNode> > isCalledByNodes;
 	std::string functionName;
 	unsigned int numberOfCalls;
+	bool needsInstrumentation;
 	// for later use
 	std::string filename;
 	int line;

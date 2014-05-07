@@ -21,7 +21,7 @@ public:
 	std::vector<std::shared_ptr<CgNode> > getNodesToMark();
 	int getSize();
 
-
+	int moveHooksUpwards();
 
 private:
 	std::map<std::string, std::shared_ptr<CgNode> > graph;

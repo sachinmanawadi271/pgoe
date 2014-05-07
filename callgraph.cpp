@@ -66,6 +66,10 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
 
 }
 
+/*
+ * This is the first and very basic implementation, only selecting parents of
+ * conjunction nodes for hook placement.
+ */
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
@@ -89,8 +93,10 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 					if(refNode == nodeToInsert)
 						insert = false;
 				}
-				if(insert)
+				if(insert){
 					nodesToMark.push_back(nodeToInsert);
+					nodeToInsert->setNeedsInstrumentation(true);
+				}
 			}
 
 /*
@@ -116,6 +122,35 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 	
 	return nodesToMark;
 
+}
+
+/*
+ * While possible - Move hooks upwards along a call chain
+ * return how many hooks have been re-placed
+ */
+int Callgraph::moveHooksUpwards(){
+	int hooksHaveBeenMoved = 0;
+	for(auto graphPair : graph){
+		// If the node was not selected previously, we continue
+		if(! graphPair.second->getNeedsInstrumentation())
+			continue;
+
+		// If it was selected, we try to move the hook upwards
+		auto cur = graphPair.second;
+		bool hasMoved = false;
+		while(cur->getCallers().size() == 1){
+			cur = cur->getCallers()[0]; // This should be safe...
+			hasMoved = true;
+		}
+		if(hasMoved)
+			hooksHaveBeenMoved += 1;
+
+		graphPair.second->setNeedsInstrumentation(false);
+		cur->setNeedsInstrumentation(true);
+		hasMoved = false;
+	}
+
+	return hooksHaveBeenMoved;
 }
 
 int Callgraph::getSize(){
