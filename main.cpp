@@ -74,7 +74,10 @@ try{
 		overAllOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		numberOfInstrCalls += node->getNumberOfCalls();
 	}
-		
+
+#if PRINT_DOT == 1
+	cg.printDOT();
+#endif	
 	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesToMark().size() << " out of " << cg.getSize() << "\n" ;
 	std::cout << "Function calls:\t\t\t" << numberOfCalls << "\n# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;
 	std::cout << "OVH:\t\t\t\t" << (numberOfInstrCalls * overheadPerCallInNanos) / (1e9) << std::endl;

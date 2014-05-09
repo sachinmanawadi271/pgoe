@@ -1,6 +1,7 @@
 #include "callgraph.h"
 
 #define VERBOSE 0
+#define DEBUG 0
 
 Callgraph::Callgraph(){
 }
@@ -12,26 +13,40 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string full
 
 	int returnCode = 0;
 
-	
+#if DEBUG > 1
+	std::cout << "Putting pair (caller, callee) : (" << fullQualifiedNameCaller << ", " << fullQualifiedNameCallee << ") into graph." << std::endl;
+#endif
 
 	if(graph.find(fullQualifiedNameCaller) != graph.end()){
 		// A node representing the caller already exists
 		caller = graph.find(fullQualifiedNameCaller)->second;
+#if DEBUG > 1
+	std::cout << "fullQualifiedNameCaller (" << fullQualifiedNameCaller << ") already exists in call graph" << std::endl;
+#endif
 	} else {
 		// Create a new node representing the caller
 		caller = std::make_shared<CgNode>(fullQualifiedNameCaller);
 		graph.insert(std::pair<std::string, std::shared_ptr<CgNode> >(fullQualifiedNameCaller, caller));
 		returnCode++;
+#if DEBUG > 1
+	std::cout << "fullQualifiedNameCaller (" << fullQualifiedNameCaller << ") newly added to call graph" << std::endl;
+#endif
 	}
 
 	if(graph.find(fullQualifiedNameCallee) != graph.end()){
 		// A node representing the callee already exists
 		callee = graph.find(fullQualifiedNameCallee)->second;
+#if DEBUG > 1
+	std::cout << "fullQualifiedNameCallee (" << fullQualifiedNameCallee << ") already exists in call graph" << std::endl;
+#endif
 	} else {
 		// Create a new node representing the callee
 		callee = std::make_shared<CgNode>(fullQualifiedNameCallee);
 		graph.insert(std::pair<std::string, std::shared_ptr<CgNode> >(fullQualifiedNameCallee, callee));
 		returnCode++;
+#if DEBUG > 1
+	std::cout << "fullQualifiedNameCallee (" << fullQualifiedNameCallee << ") newly added to call graph" << std::endl;
+#endif
 	}
 #if VERBOSE > 2
 	std::cout << "Caller: " << fullQualifiedNameCaller << caller.get() << "\nCalee: " << fullQualifiedNameCallee << callee.get() << std::endl;
@@ -78,7 +93,9 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 	workQueue.push(findMain());
 	while(! workQueue.empty()){
+#if DEBUG > 1
 		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
+#endif
 		auto node = workQueue.front();
 		done.push_back(node.get());
 		workQueue.pop();
@@ -86,11 +103,13 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 			std::cerr << "node was NULL" << std::endl;
 		}
 		if(node->getCallers().size() > 1){
-			bool insert = true;
-
+#if DEBUG > 1
+		std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getCallers().size() << std::endl;
+#endif
 			for(auto nodeToInsert : node->getCallers()){
+				bool insert = true;
 				for(auto refNode : nodesToMark){
-					if(refNode == nodeToInsert)
+					if(refNode->isSameFunction(nodeToInsert))
 						insert = false;
 				}
 				if(insert){
@@ -185,7 +204,15 @@ void Callgraph::printDOT(){
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
+	for( auto mapPair : graph)
+		if(mapPair.second->getNeedsInstrumentation())
+			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=doublecircle]" << std::endl;
+
+
 	for( auto mapPair : graph){
+//		if(mapPair.second->getNeedsInstrumentation())
+//			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=doublecircle]" << std::endl;
+
 		mapPair.second->dumpToDot(outfile);
 	}
 

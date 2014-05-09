@@ -21,6 +21,10 @@ void CgNode::addCallsNode(std::shared_ptr<CgNode> functionWhichIsCalledNode){
 
 
 void CgNode::addIsCalledByNode(std::shared_ptr<CgNode> functionByWhichItIsCalledNode){
+	for(auto node : isCalledByNodes){
+		if(node->isSameFunction(functionByWhichItIsCalledNode))
+			return;
+	}
 	isCalledByNodes.push_back(functionByWhichItIsCalledNode);
 }
 
