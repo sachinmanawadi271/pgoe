@@ -24,7 +24,7 @@ void foo(){
 
 int main(int argc, char** argv){
 
-	printf("Little test generating a call chain: foo->bar->a->b.\n");
+	printf("Little test generating a call chain.\n");
 	foo();
 return 0;
 }
