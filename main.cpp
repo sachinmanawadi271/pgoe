@@ -74,7 +74,7 @@ try{
 		overAllOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		numberOfInstrCalls += node->getNumberOfCalls();
 	}
-
+	std::cout << "Move hooks upwards: " << cg.moveHooksUpwards() << std::endl;
 #if PRINT_DOT == 1
 	cg.printDOT();
 #endif	

@@ -158,6 +158,9 @@ int Callgraph::moveHooksUpwards(){
 		auto cur = graphPair.second;
 		bool hasMoved = false;
 		while(cur->getCallers().size() == 1){
+			if(cur->getCallers()[0]->getCallees().size() > 1)
+				break;
+
 			cur = cur->getCallers()[0]; // This should be safe...
 			hasMoved = true;
 		}
