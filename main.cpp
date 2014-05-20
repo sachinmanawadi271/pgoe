@@ -50,7 +50,6 @@ try{
 }
 	}
 	std::cout << "Finished construction of cg. Now estimating InstROs overhead..." << std::endl;
-//return 0;
 #if PRINT_DOT == 1
 	cg.printDOT();
 #endif
@@ -60,7 +59,13 @@ try{
 	const int overheadPerCallInNanos = 4; 
 	unsigned long long overAllOverhead = 0;
 	unsigned long long numberOfInstrCalls = 0;
-		
+	unsigned long long optimizedOverhead = 0;
+	unsigned long long optimizedNumberOfInstrCall = 0;
+
+	// We analyze the cg and mark the nodes
+	cg.markNodes();	
+
+
 #if VERBOSE > 1
 	std::cout << " ---- CubeCallGraphTool VERBOSE info begin ---- \n" << "Graph includes: " << cg.getSize() << "\nOur algorithm would mark: \n";
 	for(auto node : cg.getNodesToMark()){
@@ -74,7 +79,16 @@ try{
 		overAllOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		numberOfInstrCalls += node->getNumberOfCalls();
 	}
-	std::cout << "Move hooks upwards: " << cg.moveHooksUpwards() << std::endl;
+
+	int numberOfHooksMovedUpwards = cg.moveHooksUpwards();
+	std::cout << "Move hooks upwards: " << numberOfHooksMovedUpwards << std::endl;
+
+	// Now we can again sum up the calls to functions we would instrument...
+	for(auto node : cg.getNodesToMark()){
+		optimizedOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
+		optimizedNumberOfInstrCall += node->getNumberOfCalls();
+	}
+
 #if PRINT_DOT == 1
 	cg.printDOT();
 #endif	
@@ -83,6 +97,9 @@ try{
 	std::cout << "OVH:\t\t\t\t" << (numberOfInstrCalls * overheadPerCallInNanos) / (1e9) << std::endl;
 	std::cout << "Adding:\t\t\t\t" << overAllOverhead << " nanos" << std::endl;
 	std::cout << "In Seconds:\t\t\t" << (overAllOverhead / (1e9)) << std::endl;
+	std::cout << "After Optimization:\t\t" << (optimizedOverhead / (1e9)) << " seconds." << std::endl;
+	std::cout << "Function calls optimized:\t" << optimizedNumberOfInstrCall << std::endl;
+	std::cout << "Saving:\t\t\t\t" << ((overAllOverhead - optimizedOverhead) / (1e9)) << std::endl;
 
 } catch(cube::RuntimeError e){
 	std::cout << e.get_msg() << std::endl;

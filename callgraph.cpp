@@ -86,8 +86,20 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
  * conjunction nodes for hook placement.
  */
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
-
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
+	for(auto gNode : graph){
+		if(gNode.second->getNeedsInstrumentation())
+			nodesToMark.push_back(gNode.second);
+	}
+
+	return nodesToMark;
+}
+
+
+int Callgraph::markNodes(){
+
+//	std::vector<std::shared_ptr<CgNode> > nodesToMark;
+	int nodesToMark = 0;
 	std::queue<std::shared_ptr<CgNode> > workQueue;
 	std::vector<CgNode*> done;
 
@@ -107,27 +119,10 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 		std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getCallers().size() << std::endl;
 #endif
 			for(auto nodeToInsert : node->getCallers()){
-				bool insert = true;
-				for(auto refNode : nodesToMark){
-					if(refNode->isSameFunction(nodeToInsert))
-						insert = false;
-				}
-				if(insert){
-					nodesToMark.push_back(nodeToInsert);
 					nodeToInsert->setNeedsInstrumentation(true);
-				}
+					nodesToMark += 1;
 			}
 
-/*
-			// JP: This is the wrong implementation which was used in the paper
-			// JP: The problem is: that estimated both benchmarks quite good -> error in śelector?
-			for(auto refNode : nodesToMark){
-				if(refNode == node)
-					insert = false;
-			}
-			if(insert)
-				nodesToMark.push_back(node);
-*/
 		}
 		for(auto n : node->getCallees()){
 			bool insert = true;
@@ -140,8 +135,8 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 	}
 	
 	return nodesToMark;
-
 }
+
 
 /*
  * While possible - Move hooks upwards along a call chain

@@ -21,6 +21,7 @@ public:
 	std::vector<std::shared_ptr<CgNode> > getNodesToMark();
 	int getSize();
 
+	int markNodes();
 	int moveHooksUpwards();
 
 private:
