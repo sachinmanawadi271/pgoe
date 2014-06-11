@@ -1,30 +1,30 @@
 
-CXXFLAGS=-std=c++11
+# check if variables are defined, as of: http://stackoverflow.com/a/22540516
+check-var-defined = $(if $(strip $($1)),,$(error "$1" is not defined))
+$(call check-var-defined,CUBE_INCLUDE_PATH)
+$(call check-var-defined,CUBE_LIBRARY_PATH)
+
+#CXXFLAGS=-std=c++11
+CXXFLAGS=-std=gnu++0x
+
 # MICE
-#
-# Das Verzeichnis
-# /home/jpatrick/libs/cube/install-gcc-4.8.2
-# ist für andere zumindest zum Lesen frei gegeben
-#
-INCLUDEFLAGS=-I. -I/home/jpatrick/libs/cube/install-gcc-4.8.2/include/cube
-LDFLAGS+=-L/home/jpatrick/libs/cube/install-gcc-4.8.2/lib -lcube4 -lz
-
-
+# source the script (load_cube_4.2.1_mice.sh) to load cube before compilation
+INCLUDEFLAGS=-I. -I$(CUBE_INCLUDE_PATH)
+LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 
 #Lcluster
 #INCLUDEFLAGS=-I. -I/home/ci24amun/myRoot/gcc/openmpi/cube/4.2.1/include/cube/
 #LDFLAGS+=-L/home/ci24amun/myRoot/gcc/openmpi/cube/4.2.1/lib -lcube4 -lz
 
-CubeCallGraphTool-lcluster:
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool.exe main.cpp cgNode.cpp callgraph.cpp $(LDFLAGS)
-
 CubeCallGraphTool-mice:
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool.exe main.cpp cgNode.cpp callgraph.cpp $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool main.cpp cgNode.cpp callgraph.cpp $(LDFLAGS)
 
+CubeCallGraphTool-lcluster:	# RN: i have no idea if this is still valid
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool main.cpp cgNode.cpp callgraph.cpp $(LDFLAGS)
 
 
 CubeOverheadEstimater-mice:
-	$(CXX) $(CXXFLAGS) -I /home/jpatrick/libs/cube/install-gcc-4.8.2/include/cube -o CubeOverheadEstimation main.cpp -L/home/jpatrick/libs/cube/install-gcc-4.8.2/lib -lcube4 -lz
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeOverheadEstimation main.cpp $(LDFLAGS)
 
 clean:
-	rm -rf *.o
+	rm -rf *.o CubeCallgraphTool CubeOverheadEstimation
