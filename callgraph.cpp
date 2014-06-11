@@ -55,6 +55,7 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string full
 	callee->addIsCalledByNode(caller);
 	return returnCode;
 }
+
 int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee, int calls){
 	putFunction(fullQualifiedNameCaller, fullQualifiedNameCallee);
 
@@ -71,7 +72,7 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string file
 
 std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
 	
-	for(auto node : graph){
+	for (auto node : graph){
 		auto fName = node.second->getFunctionName();
 		if(fName.find(functionName) != std::string::npos)
 			return node.second;
@@ -87,7 +88,7 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
  */
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
-	for(auto gNode : graph){
+	for (auto gNode : graph){
 		if(gNode.second->getNeedsInstrumentation())
 			nodesToMark.push_back(gNode.second);
 	}
@@ -95,11 +96,10 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 	return nodesToMark;
 }
 
-
 int Callgraph::markNodes(){
 
 //	std::vector<std::shared_ptr<CgNode> > nodesToMark;
-	int nodesToMark = 0;
+	int numberOfMarkedNodes = 0;
 	std::queue<std::shared_ptr<CgNode> > workQueue;
 	std::vector<CgNode*> done;
 
@@ -118,15 +118,15 @@ int Callgraph::markNodes(){
 #if DEBUG > 1
 		std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getCallers().size() << std::endl;
 #endif
-			for(auto nodeToInsert : node->getCallers()){
+			for (auto nodeToInsert : node->getCallers()){
 					nodeToInsert->setNeedsInstrumentation(true);
-					nodesToMark += 1;
+					numberOfMarkedNodes++;
 			}
 
 		}
-		for(auto n : node->getCallees()){
+		for (auto n : node->getCallees()){
 			bool insert = true;
-			for(auto refNode : done)
+			for (auto refNode : done)
 				if(refNode == n.get())
 					insert = false;
 			if(insert)
@@ -134,7 +134,7 @@ int Callgraph::markNodes(){
 		}
 	}
 	
-	return nodesToMark;
+	return numberOfMarkedNodes;
 }
 
 
@@ -144,7 +144,7 @@ int Callgraph::markNodes(){
  */
 int Callgraph::moveHooksUpwards(){
 	int hooksHaveBeenMoved = 0;
-	for(auto graphPair : graph){
+	for (auto graphPair : graph){
 		// If the node was not selected previously, we continue
 		if(! graphPair.second->getNeedsInstrumentation())
 			continue;
@@ -186,7 +186,7 @@ std::shared_ptr<CgNode> Callgraph::findMain(){
 
 //	return findNode("main");
 
-	for(auto node : graph){
+	for (auto node : graph){
 		auto fName = node.second->getFunctionName();
 //		std::cout << "Function: " << fName << std::endl;
 		if(fName.find("main") != std::string::npos)
@@ -196,26 +196,27 @@ std::shared_ptr<CgNode> Callgraph::findMain(){
 	return NULL;
 }
 
-void Callgraph::printDOT(){
+void Callgraph::printDOT(std::string prefix){
 
-	std::ofstream outfile("callgraph.dot", std::ofstream::out);
+	std::ofstream outfile(prefix + "-" + "callgraph.dot", std::ofstream::out);
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
-	for( auto mapPair : graph)
-		if(mapPair.second->getNeedsInstrumentation())
+	for (auto mapPair : graph) {
+		if(mapPair.second->hasUniqueParent()) {
+			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[color=blue]" << std::endl;
+		}
+		if(mapPair.second->getNeedsInstrumentation()) {
 			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=doublecircle]" << std::endl;
-
-
-	for( auto mapPair : graph){
-//		if(mapPair.second->getNeedsInstrumentation())
-//			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=doublecircle]" << std::endl;
-
-		mapPair.second->dumpToDot(outfile);
+		}
 	}
 
+	for (auto mapPair : graph) {
+		mapPair.second->dumpToDot(outfile);
+	}
 	outfile << "\n}" << std::endl;
 	outfile.close();
-	std::cout << "DOT file dumped." << std::endl;
+
+	std::cout << "DOT file dumped (prefix: " << prefix << ")."<< std::endl;
 
 }

@@ -6,6 +6,8 @@ CgNode::CgNode(std::string function){
 	this->numberOfCalls = 0;
 	this->isCalledByNodes = std::vector<std::shared_ptr<CgNode> >();
 	this->calledNodes = std::vector<std::shared_ptr<CgNode> >();
+
+	this->uniqueParent = false;
 }
 
 
@@ -26,8 +28,17 @@ void CgNode::addIsCalledByNode(std::shared_ptr<CgNode> functionByWhichItIsCalled
 			return;
 	}
 	isCalledByNodes.push_back(functionByWhichItIsCalledNode);
+
+	updateUniqueParent();
 }
 
+void CgNode::updateUniqueParent() {
+	uniqueParent = (getCallers().size() <= 1);
+}
+
+bool CgNode::hasUniqueParent() {
+	return uniqueParent;
+}
 
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){
 	if(this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0)
@@ -43,6 +54,10 @@ std::string CgNode::getFunctionName(){
 
 
 void CgNode::dumpToDot(std::ofstream& outStream){
+
+	// XXX RN
+	sanityCheck();
+
 	for(auto calledNode : calledNodes){
 		outStream << "\"" << this->functionName << "\" -> \"" << calledNode->getFunctionName() << "\";" << std::endl;
 	}
@@ -78,7 +93,7 @@ void CgNode::printMinimal(){
 void CgNode::print(){
 	std::cout << this->functionName << "\n";
 	for(auto n : calledNodes){
-		std::cout << "--"<< n->getFunctionName() << "\n";
+		std::cout << "--" << n->getFunctionName() << "\n";
 	}
 }
 

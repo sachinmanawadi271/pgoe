@@ -13,7 +13,7 @@ public:
 
 
 	void print();
-	void printDOT();
+	void printDOT(std::string prefix);
 
 	std::shared_ptr<CgNode> findNode(std::string functionName); // Finds FIRST node including functionName
 	std::shared_ptr<CgNode> findMain();
@@ -23,6 +23,8 @@ public:
 
 	int markNodes();
 	int moveHooksUpwards();
+
+	void markUniqueParents();
 
 private:
 	std::map<std::string, std::shared_ptr<CgNode> > graph;

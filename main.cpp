@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-#define VERBOSE 2 
+#define VERBOSE 5
 #define PRINT_DOT 1
 
 int main(int argc, char** argv){
@@ -27,7 +27,7 @@ try{
 	// Just see what is our first node
 	std::cout << cnodes[0]->get_callee()->get_name() << std::endl;
 
-	cube::Metric* metric = cube.get_met("visits");
+	cube::Metric* visitsMetric = cube.get_met("visits");
 	const std::vector<cube::Thread*> threads = cube.get_thrdv();
 
 	for(auto node : cnodes){
@@ -35,23 +35,23 @@ try{
 		if(node->get_parent() == NULL)
 			continue;
 		// Put the caller/callee pair into our callgraph
-		cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(0)));
+		cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(0)));
 /*		std::cout << "[ node->get_callee()->get_name(): " << node->get_callee()->get_name() << " ]\n";
 		if(node->get_parent() != NULL)
 			std::cout << "[ node->get_parent()->get_callee()->get_name()" << node->get_parent()->get_callee()->get_name() << " ]" << std::endl;
 //		cg.putFunction(node->get_callee()->get_name(), node->get_callee()->get_mod(), node->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(0)));
 */
-		numberOfCalls += cube.get_sev(metric, node, threads.at(0));
+		numberOfCalls += cube.get_sev(visitsMetric, node, threads.at(0));
 		// Also keep track of threading things...
 		if(threads.size() > 1)
 			for(int i = 1; i < threads.size(); i++){
-				cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(i)));
-				numberOfCalls += cube.get_sev(metric, node, threads.at(i));
+				cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(i)));
+				numberOfCalls += cube.get_sev(visitsMetric, node, threads.at(i));
 }
 	}
 	std::cout << "Finished construction of cg. Now estimating InstROs overhead..." << std::endl;
-#if PRINT_DOT == 1
-	cg.printDOT();
+#if PRINT_DOT
+	cg.printDOT("construct");
 #endif
 
 	/** JP: This is code to estimate the generated overhead via call-graph guided hook placement. */
@@ -89,8 +89,8 @@ try{
 		optimizedNumberOfInstrCall += node->getNumberOfCalls();
 	}
 
-#if PRINT_DOT == 1
-	cg.printDOT();
+#if PRINT_DOT
+	cg.printDOT("mark");
 #endif	
 	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesToMark().size() << " out of " << cg.getSize() << "\n" ;
 	std::cout << "Function calls:\t\t\t" << numberOfCalls << "\n# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;

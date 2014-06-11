@@ -5,7 +5,7 @@ $(call check-var-defined,CUBE_INCLUDE_PATH)
 $(call check-var-defined,CUBE_LIBRARY_PATH)
 
 #CXXFLAGS=-std=c++11
-CXXFLAGS=-std=gnu++0x
+CXXFLAGS=-std=gnu++0x	# mice only has gcc-4.6.1 installed
 
 # MICE
 # source the script (load_cube_4.2.1_mice.sh) to load cube before compilation
@@ -22,9 +22,6 @@ CubeCallGraphTool-mice:
 CubeCallGraphTool-lcluster:	# RN: i have no idea if this is still valid
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool main.cpp cgNode.cpp callgraph.cpp $(LDFLAGS)
 
-
-CubeOverheadEstimater-mice:
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeOverheadEstimation main.cpp $(LDFLAGS)
 
 clean:
 	rm -rf *.o CubeCallgraphTool CubeOverheadEstimation

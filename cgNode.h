@@ -5,6 +5,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <set>		// for sanity checks
+#include <cassert>	// for sanity checks
+
 class CgNode {
 
 public:
@@ -23,6 +26,8 @@ public:
 	unsigned int getNumberOfCalls();
 
 	void calcRelCallFrequency();
+	void updateUniqueParent();
+	bool hasUniqueParent();
 
 	void dumpToDot(std::ofstream& outputStream);
 
@@ -35,12 +40,25 @@ public:
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
 
+	// XXX RN: for internal use
+	void sanityCheck() {
+		typedef std::set<std::shared_ptr<CgNode> > CgNodeSet;
+		auto uniqueCalledNodes = CgNodeSet(calledNodes.begin(), calledNodes.end());
+		auto uniqueIsCalledByNodes = CgNodeSet(isCalledByNodes.begin(), isCalledByNodes.end());
+
+		assert(calledNodes.size() == uniqueCalledNodes.size());
+		assert(isCalledByNodes.size() == uniqueIsCalledByNodes.size());
+	}
+
 private:
 	std::vector<std::shared_ptr<CgNode> > calledNodes;
 	std::vector<std::shared_ptr<CgNode> > isCalledByNodes;
 	std::string functionName;
 	unsigned int numberOfCalls;
 	bool needsInstrumentation;
+
+	bool uniqueParent;
+
 	// for later use
 	std::string filename;
 	int line;
