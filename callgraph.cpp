@@ -60,7 +60,7 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string file
 	putFunction(fullQualifiedNameCaller, fullQualifiedNameCallee);
 
 	auto callee = findNode(fullQualifiedNameCallee);
-	callee->addNumberOfCalls(calls);
+	callee->addNumberOfCalls(calls, callee);
 
 	auto caller = findNode(fullQualifiedNameCaller);
 	if(caller == NULL)
@@ -98,7 +98,6 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 int Callgraph::markNodes(){
 
-//	std::vector<std::shared_ptr<CgNode> > nodesToMark;
 	int numberOfMarkedNodes = 0;
 	std::queue<std::shared_ptr<CgNode> > workQueue;
 	std::vector<CgNode*> done;
@@ -203,7 +202,7 @@ void Callgraph::printDOT(std::string prefix){
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
 	for (auto mapPair : graph) {
-		if(mapPair.second->hasUniqueParent()) {
+		if(mapPair.second->hasUniqueParents()) {
 			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[color=blue]" << std::endl;
 		}
 		if(mapPair.second->getNeedsInstrumentation()) {

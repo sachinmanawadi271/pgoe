@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <map>
+
 #include <set>		// for sanity checks
 #include <cassert>	// for sanity checks
 
@@ -22,23 +24,24 @@ public:
 	std::vector<std::shared_ptr<CgNode> > getCallers();
 	std::vector<std::shared_ptr<CgNode> > getCallees();
 
-	void addNumberOfCalls(int calls);
+	void addNumberOfCalls(int calls, std::shared_ptr<CgNode> callee);
 	unsigned int getNumberOfCalls();
 
 	void calcRelCallFrequency();
-	void updateUniqueParent();
-	bool hasUniqueParent();
-
-	void dumpToDot(std::ofstream& outputStream);
-
-	void print();
-	void printMinimal();
+	void updateUniqueParentsAttribute();
+	bool hasUniqueParents();
 
 	void setNeedsInstrumentation(bool needsInstrumentation);
 	bool getNeedsInstrumentation();
 
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
+
+
+	void dumpToDot(std::ofstream& outputStream);
+
+	void print();
+	void printMinimal();
 
 	// XXX RN: for internal use
 	void sanityCheck() {
@@ -51,13 +54,17 @@ public:
 	}
 
 private:
-	std::vector<std::shared_ptr<CgNode> > calledNodes;
-	std::vector<std::shared_ptr<CgNode> > isCalledByNodes;
 	std::string functionName;
-	unsigned int numberOfCalls;
 	bool needsInstrumentation;
 
-	bool uniqueParent;
+	std::vector<std::shared_ptr<CgNode> > calledNodes;
+	std::vector<std::shared_ptr<CgNode> > isCalledByNodes;
+
+	std::map<std::shared_ptr<CgNode>, unsigned int> numberOfCallsBy;
+
+	// graph attributes
+	bool uniqueParents;
+	bool leaf;
 
 	// for later use
 	std::string filename;

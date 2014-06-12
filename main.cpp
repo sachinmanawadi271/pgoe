@@ -25,7 +25,7 @@ try{
 	const std::vector<cube::Cnode*>& cnodes = cube.get_cnodev();
 	unsigned long long numberOfCalls = 0;
 	// Just see what is our first node
-	std::cout << cnodes[0]->get_callee()->get_name() << std::endl;
+//	std::cout << cnodes[0]->get_callee()->get_name() << std::endl;
 
 	cube::Metric* visitsMetric = cube.get_met("visits");
 	const std::vector<cube::Thread*> threads = cube.get_thrdv();
@@ -34,20 +34,23 @@ try{
 		// I don't know when this happens, but it does.
 		if(node->get_parent() == NULL)
 			continue;
+
 		// Put the caller/callee pair into our callgraph
-		cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(0)));
-/*		std::cout << "[ node->get_callee()->get_name(): " << node->get_callee()->get_name() << " ]\n";
-		if(node->get_parent() != NULL)
-			std::cout << "[ node->get_parent()->get_callee()->get_name()" << node->get_parent()->get_callee()->get_name() << " ]" << std::endl;
-//		cg.putFunction(node->get_callee()->get_name(), node->get_callee()->get_mod(), node->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(metric, node, threads.at(0)));
-*/
+		auto callee = node->get_parent()->get_callee();
+		cg.putFunction(callee->get_name(), callee->get_mod(), callee->get_begn_ln(),
+				node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(0)));
+
 		numberOfCalls += cube.get_sev(visitsMetric, node, threads.at(0));
+
 		// Also keep track of threading things...
-		if(threads.size() > 1)
+		if(threads.size() > 1) {
 			for(int i = 1; i < threads.size(); i++){
-				cg.putFunction(node->get_parent()->get_callee()->get_name(), node->get_parent()->get_callee()->get_mod(), node->get_parent()->get_callee()->get_begn_ln(), node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(i)));
+				cg.putFunction(callee->get_name(), callee->get_mod(), callee->get_begn_ln(),
+						node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(i)));
+
 				numberOfCalls += cube.get_sev(visitsMetric, node, threads.at(i));
-}
+			}
+		}
 	}
 	std::cout << "Finished construction of cg. Now estimating InstROs overhead..." << std::endl;
 #if PRINT_DOT
@@ -67,12 +70,14 @@ try{
 
 
 #if VERBOSE > 1
-	std::cout << " ---- CubeCallGraphTool VERBOSE info begin ---- \n" << "Graph includes: " << cg.getSize() << "\nOur algorithm would mark: \n";
+	std::cout << " ---- CubeCallGraphTool VERBOSE info begin ----" << std::endl
+			<< "Graph includes: " << cg.getSize() << std::endl
+			<< "Our algorithm would mark: " << cg.getNodesToMark().size() << std::endl;
 	for(auto node : cg.getNodesToMark()){
 		node->printMinimal();
-		std::cout << "\n";
+		std::cout << std::endl;
 	}
-	std::cout << " ---- CubeCallGraphTool VERBOSE info end ---- \n" << std::endl;
+	std::cout << " ---- CubeCallGraphTool VERBOSE info end   ----" << std::endl << std::endl;
 #endif
 	// sum up the calls to function we would instrument
 	for(auto node : cg.getNodesToMark()){
