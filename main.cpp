@@ -1,7 +1,7 @@
 #include <fstream>
 #include "callgraph.h"
-#include "Cube.h"
-#include "CubeMetric.h"
+#include "cube/Cube.h"
+#include "cube/CubeMetric.h"
 #include <cstdlib>
 
 #include <cassert>
@@ -44,7 +44,7 @@ try{
 
 		// Also keep track of threading things...
 		if(threads.size() > 1) {
-			for(int i = 1; i < threads.size(); i++){
+			for(unsigned int i = 1; i < threads.size(); i++){
 				cg.putFunction(callee->get_name(), callee->get_mod(), callee->get_begn_ln(),
 						node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(i)));
 
@@ -58,7 +58,7 @@ try{
 #endif
 
 	/** JP: This is code to estimate the generated overhead via call-graph guided hook placement. */
-	bool once = true; // What exactly is that good for...?
+//	bool once = true; // What exactly is that good for...?
 	const int overheadPerCallInNanos = 4; 
 	unsigned long long overAllOverhead = 0;
 	unsigned long long numberOfInstrCalls = 0;

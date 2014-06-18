@@ -21,8 +21,8 @@ public:
 
 	std::string getFunctionName();
 
-	std::vector<std::shared_ptr<CgNode> > getCallers();
-	std::vector<std::shared_ptr<CgNode> > getCallees();
+	std::set<std::shared_ptr<CgNode> > getCallers();
+	std::set<std::shared_ptr<CgNode> > getCallees();
 
 	void addNumberOfCalls(int calls, std::shared_ptr<CgNode> callee);
 	unsigned int getNumberOfCalls();
@@ -43,27 +43,17 @@ public:
 	void print();
 	void printMinimal();
 
-	// XXX RN: for internal use
-	void sanityCheck() {
-		typedef std::set<std::shared_ptr<CgNode> > CgNodeSet;
-		auto uniqueCalledNodes = CgNodeSet(calledNodes.begin(), calledNodes.end());
-		auto uniqueIsCalledByNodes = CgNodeSet(isCalledByNodes.begin(), isCalledByNodes.end());
-
-		assert(calledNodes.size() == uniqueCalledNodes.size());
-		assert(isCalledByNodes.size() == uniqueIsCalledByNodes.size());
-	}
-
 private:
 	std::string functionName;
 	bool needsInstrumentation;
 
-	std::vector<std::shared_ptr<CgNode> > calledNodes;
-	std::vector<std::shared_ptr<CgNode> > isCalledByNodes;
+	std::set<std::shared_ptr<CgNode> > calledNodes;
+	std::set<std::shared_ptr<CgNode> > isCalledByNodes;
 
 	std::map<std::shared_ptr<CgNode>, unsigned int> numberOfCallsBy;
 
 	// graph attributes
-	bool uniqueParents;
+	bool uniqueParents;	//** XXX RN: main is not marked */
 	bool leaf;
 
 	// for later use

@@ -68,6 +68,8 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string file
 ;
 	caller->setFilename(filenameCaller);
 	caller->setLineNumber(lineCaller);
+
+	return 0;
 }
 
 std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
@@ -152,10 +154,10 @@ int Callgraph::moveHooksUpwards(){
 		auto cur = graphPair.second;
 		bool hasMoved = false;
 		while(cur->getCallers().size() == 1){
-			if(cur->getCallers()[0]->getCallees().size() > 1)
+			if((*cur->getCallers().begin())->getCallees().size() > 1)
 				break;
 
-			cur = cur->getCallers()[0]; // This should be safe...
+			cur = *cur->getCallers().begin(); // This should be safe...
 			hasMoved = true;
 		}
 		if(hasMoved)

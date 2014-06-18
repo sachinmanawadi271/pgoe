@@ -3,9 +3,8 @@
 
 CgNode::CgNode(std::string function){
 	this->functionName = function;
-//	this->numberOfCallsBy = std::map<std::shared_ptr<CgNode)> >();
-	this->isCalledByNodes = std::vector<std::shared_ptr<CgNode> >();
-	this->calledNodes = std::vector<std::shared_ptr<CgNode> >();
+	this->isCalledByNodes = std::set<std::shared_ptr<CgNode> >();
+	this->calledNodes = std::set<std::shared_ptr<CgNode> >();
 
 	this->uniqueParents = false;
 }
@@ -13,12 +12,7 @@ CgNode::CgNode(std::string function){
 
 void CgNode::addCallsNode(std::shared_ptr<CgNode> functionWhichIsCalledNode){
 
-	for(auto node : calledNodes){
-		if(node->isSameFunction(functionWhichIsCalledNode))
-			return;
-	}
-
-	calledNodes.push_back(functionWhichIsCalledNode);
+	calledNodes.insert(functionWhichIsCalledNode);
 }
 
 
@@ -27,7 +21,7 @@ void CgNode::addIsCalledByNode(std::shared_ptr<CgNode> functionByWhichItIsCalled
 		if(node->isSameFunction(functionByWhichItIsCalledNode))
 			return;
 	}
-	isCalledByNodes.push_back(functionByWhichItIsCalledNode);
+	isCalledByNodes.insert(functionByWhichItIsCalledNode);
 
 	updateUniqueParentsAttribute();
 }
@@ -36,7 +30,7 @@ void CgNode::updateUniqueParentsAttribute() {
 
 	auto parents = getCallers();
 	while(parents.size()==1) {
-		parents = parents[0]->getCallers();
+		parents = (*parents.begin())->getCallers();
 	}
 
 	this->uniqueParents = (parents.size() == 0);
@@ -61,20 +55,16 @@ std::string CgNode::getFunctionName(){
 
 
 void CgNode::dumpToDot(std::ofstream& outStream){
-
-	// XXX RN
-	sanityCheck();
-
 	for(auto calledNode : calledNodes){
 		outStream << "\"" << this->functionName << "\" -> \"" << calledNode->getFunctionName() << "\";" << std::endl;
 	}
 }
 
-std::vector<std::shared_ptr<CgNode> > CgNode::getCallers(){
+std::set<std::shared_ptr<CgNode> > CgNode::getCallers(){
 	return isCalledByNodes;
 }
 
-std::vector<std::shared_ptr<CgNode> > CgNode::getCallees(){
+std::set<std::shared_ptr<CgNode> > CgNode::getCallees(){
 	return calledNodes;
 }
 void CgNode::addNumberOfCalls(int calls, std::shared_ptr<CgNode> callee){
@@ -100,13 +90,13 @@ unsigned int CgNode::getNumberOfCalls(){
 }
 
 void CgNode::printMinimal(){
-	std::cout << this->functionName <<  ",";
+	std::cout << this->functionName;
 }
 
 void CgNode::print(){
-	std::cout << this->functionName << "\n";
+	std::cout << this->functionName << std::endl;
 	for(auto n : calledNodes){
-		std::cout << "--" << n->getFunctionName() << "\n";
+		std::cout << "--" << n->getFunctionName() << std::endl;
 	}
 }
 
