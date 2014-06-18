@@ -60,9 +60,9 @@ int Callgraph::putFunction(std::string parentName, std::string parentFilename, i
 	putFunction(parentName, childName);
 
 	auto parentNode = findNode(parentName);
-	if(parentNode == NULL)
+	if(parentNode == NULL) {
 		std::cerr << "ERROR in looking up node." << std::endl;
-
+	}
 	parentNode->setFilename(parentFilename);
 	parentNode->setLineNumber(parentLine);
 
@@ -76,8 +76,9 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
 	
 	for (auto node : graph){
 		auto fName = node.second->getFunctionName();
-		if(fName.find(functionName) != std::string::npos)
+		if(fName.find(functionName) != std::string::npos) {
 			return node.second;
+		}
 	}
 
 	return NULL;
@@ -91,8 +92,9 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
 	for (auto gNode : graph){
-		if(gNode.second->getNeedsInstrumentation())
+		if(gNode.second->getNeedsInstrumentation()) {
 			nodesToMark.push_back(gNode.second);
+		}
 	}
 
 	return nodesToMark;
@@ -128,10 +130,12 @@ int Callgraph::markNodes(){
 		for (auto n : node->getChildNodes()){
 			bool insert = true;
 			for (auto refNode : done)
-				if(refNode == n.get())
+				if(refNode == n.get()) {
 					insert = false;
-			if(insert)
+				}
+			if(insert) {
 				workQueue.push(n);
+			}
 		}
 	}
 	
@@ -147,22 +151,24 @@ int Callgraph::moveHooksUpwards(){
 	int hooksHaveBeenMoved = 0;
 	for (auto graphPair : graph){
 		// If the node was not selected previously, we continue
-		if(! graphPair.second->getNeedsInstrumentation())
+		if(! graphPair.second->getNeedsInstrumentation()) {
 			continue;
+		}
 
 		// If it was selected, we try to move the hook upwards
 		auto cur = graphPair.second;
 		bool hasMoved = false;
 		while(cur->getParentNodes().size() == 1){
-			if((*cur->getParentNodes().begin())->getChildNodes().size() > 1)
+			if((*cur->getParentNodes().begin())->getChildNodes().size() > 1) {
 				break;
+			}
 
 			cur = *cur->getParentNodes().begin(); // This should be safe...
 			hasMoved = true;
 		}
-		if(hasMoved)
+		if(hasMoved) {
 			hooksHaveBeenMoved += 1;
-
+		}
 		graphPair.second->setNeedsInstrumentation(false);
 		cur->setNeedsInstrumentation(true);
 		hasMoved = false;
@@ -190,8 +196,9 @@ std::shared_ptr<CgNode> Callgraph::findMain(){
 	for (auto node : graph){
 		auto fName = node.second->getFunctionName();
 //		std::cout << "Function: " << fName << std::endl;
-		if(fName.find("main") != std::string::npos)
+		if(fName.find("main") != std::string::npos) {
 			return node.second;
+		}
 	}
 
 	return NULL;

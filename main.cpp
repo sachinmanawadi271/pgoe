@@ -32,9 +32,9 @@ try{
 
 	for(auto node : cnodes){
 		// I don't know when this happens, but it does.
-		if(node->get_parent() == NULL)
+		if(node->get_parent() == NULL) {
 			continue;
-
+		}
 		// Put the caller/callee pair into our callgraph
 		auto callee = node->get_parent()->get_callee();
 		cg.putFunction(callee->get_name(), callee->get_mod(), callee->get_begn_ln(),

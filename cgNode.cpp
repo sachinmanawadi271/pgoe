@@ -6,7 +6,11 @@ CgNode::CgNode(std::string function){
 	this->parentNodes = std::set<std::shared_ptr<CgNode> >();
 	this->childNodes = std::set<std::shared_ptr<CgNode> >();
 
+	this->line = -1;
+	this->needsInstrumentation = false;
+
 	this->uniqueCallPath = false;
+	this->leafNode = false;
 }
 
 
@@ -18,8 +22,9 @@ void CgNode::addChildNode(std::shared_ptr<CgNode> childNode){
 
 void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
 	for(auto node : parentNodes){
-		if(node->isSameFunction(parentNode))
+		if(node->isSameFunction(parentNode)) {
 			return;
+		}
 	}
 	parentNodes.insert(parentNode);
 
@@ -42,9 +47,9 @@ bool CgNode::hasUniqueCallPath() {
 }
 
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){
-	if(this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0)
+	if(this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0) {
 		return true;
-
+	}
 	return false;
 }
 
