@@ -129,10 +129,11 @@ int Callgraph::markNodes(){
 		}
 		for (auto n : node->getChildNodes()){
 			bool insert = true;
-			for (auto refNode : done)
+			for (auto refNode : done) {
 				if(refNode == n.get()) {
 					insert = false;
 				}
+			}
 			if(insert) {
 				workQueue.push(n);
 			}
@@ -191,11 +192,9 @@ void Callgraph::print(){
 
 std::shared_ptr<CgNode> Callgraph::findMain(){
 
-//	return findNode("main");
-
 	for (auto node : graph){
 		auto fName = node.second->getFunctionName();
-//		std::cout << "Function: " << fName << std::endl;
+
 		if(fName.find("main") != std::string::npos) {
 			return node.second;
 		}

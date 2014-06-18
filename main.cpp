@@ -106,7 +106,7 @@ try{
 	std::cout << "Function calls optimized:\t" << optimizedNumberOfInstrCall << std::endl;
 	std::cout << "Saving:\t\t\t\t" << ((overAllOverhead - optimizedOverhead) / (1e9)) << std::endl;
 
-} catch(cube::RuntimeError e){
+} catch(const cube::RuntimeError& e){
 	std::cout << e.get_msg() << std::endl;
 }
 
