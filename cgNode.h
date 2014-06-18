@@ -21,10 +21,10 @@ public:
 
 	std::string getFunctionName();
 
-	std::set<std::shared_ptr<CgNode> > getCallers();
 	std::set<std::shared_ptr<CgNode> > getCallees();
+	std::set<std::shared_ptr<CgNode> > getCallers();
 
-	void addNumberOfCalls(int calls, std::shared_ptr<CgNode> callee);
+	void addNumberOfCalls(int calls, std::shared_ptr<CgNode> caller);
 	unsigned int getNumberOfCalls();
 	unsigned int getNumberOfCalls(std::shared_ptr<CgNode> parent);
 

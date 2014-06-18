@@ -61,15 +61,17 @@ void CgNode::dumpToDot(std::ofstream& outStream){
 	}
 }
 
+std::set<std::shared_ptr<CgNode> > CgNode::getCallees(){
+	return calledNodes;
+}
+
 std::set<std::shared_ptr<CgNode> > CgNode::getCallers(){
 	return isCalledByNodes;
 }
 
-std::set<std::shared_ptr<CgNode> > CgNode::getCallees(){
-	return calledNodes;
-}
-void CgNode::addNumberOfCalls(int calls, std::shared_ptr<CgNode> callee){
-	this->numberOfCallsBy[callee] += calls;
+
+void CgNode::addNumberOfCalls(int calls, std::shared_ptr<CgNode> caller){
+	this->numberOfCallsBy[caller] += calls;
 }
 
 void CgNode::setNeedsInstrumentation(bool needsInstrumentation){
