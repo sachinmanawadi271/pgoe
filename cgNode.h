@@ -26,6 +26,7 @@ public:
 
 	void addNumberOfCalls(int calls, std::shared_ptr<CgNode> callee);
 	unsigned int getNumberOfCalls();
+	unsigned int getNumberOfCalls(std::shared_ptr<CgNode> parent);
 
 	void calcRelCallFrequency();
 	void updateUniqueParentsAttribute();

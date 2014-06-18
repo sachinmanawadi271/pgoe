@@ -59,15 +59,15 @@ int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string full
 int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee, int calls){
 	putFunction(fullQualifiedNameCaller, fullQualifiedNameCallee);
 
-	auto callee = findNode(fullQualifiedNameCallee);
-	callee->addNumberOfCalls(calls, callee);
-
 	auto caller = findNode(fullQualifiedNameCaller);
 	if(caller == NULL)
-		std::cerr << "ERROR in looking up node." << std::endl
-;
+		std::cerr << "ERROR in looking up node." << std::endl;
+
 	caller->setFilename(filenameCaller);
 	caller->setLineNumber(lineCaller);
+
+	auto callee = findNode(fullQualifiedNameCallee);
+	callee->addNumberOfCalls(calls, caller);
 
 	return 0;
 }

@@ -55,8 +55,9 @@ std::string CgNode::getFunctionName(){
 
 
 void CgNode::dumpToDot(std::ofstream& outStream){
-	for(auto calledNode : calledNodes){
-		outStream << "\"" << this->functionName << "\" -> \"" << calledNode->getFunctionName() << "\";" << std::endl;
+	for(auto isCalledByNode : isCalledByNodes){
+		outStream << "\"" << isCalledByNode->getFunctionName() << "\" -> \"" << this->functionName
+				<< "\" [label=" << this->getNumberOfCalls(isCalledByNode) <<"];" << std::endl;
 	}
 }
 
@@ -87,6 +88,10 @@ unsigned int CgNode::getNumberOfCalls(){
 	}
 
 	return numberOfCalls;
+}
+
+unsigned int CgNode::getNumberOfCalls(std::shared_ptr<CgNode> parent) {
+	return numberOfCallsBy[parent];
 }
 
 void CgNode::printMinimal(){
