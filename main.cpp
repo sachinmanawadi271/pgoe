@@ -24,8 +24,6 @@ try{
 	// Get the cube nodes
 	const std::vector<cube::Cnode*>& cnodes = cube.get_cnodev();
 	unsigned long long numberOfCalls = 0;
-	// Just see what is our first node
-//	std::cout << cnodes[0]->get_callee()->get_name() << std::endl;
 
 	cube::Metric* visitsMetric = cube.get_met("visits");
 	const std::vector<cube::Thread*> threads = cube.get_thrdv();
@@ -53,12 +51,8 @@ try{
 		}
 	}
 	std::cout << "Finished construction of cg. Now estimating InstROs overhead..." << std::endl;
-#if PRINT_DOT
-	cg.printDOT("construct");
-#endif
 
 	/** JP: This is code to estimate the generated overhead via call-graph guided hook placement. */
-//	bool once = true; // What exactly is that good for...?
 	const int overheadPerCallInNanos = 4; 
 	unsigned long long overAllOverhead = 0;
 	unsigned long long numberOfInstrCalls = 0;
@@ -81,6 +75,11 @@ try{
 #endif
 	// sum up the calls to function we would instrument
 	for(auto node : cg.getNodesToMark()){
+
+		//XXX
+		std::cout << "XXX: ";
+		node->printMinimal();
+
 		overAllOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		numberOfInstrCalls += node->getNumberOfCalls();
 	}
@@ -98,7 +97,8 @@ try{
 	cg.printDOT("mark");
 #endif	
 	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesToMark().size() << " out of " << cg.getSize() << "\n" ;
-	std::cout << "Function calls:\t\t\t" << numberOfCalls << "\n# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;
+	std::cout << "Function calls:\t\t\t" << numberOfCalls << std::endl;
+	std::cout << "# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;
 	std::cout << "OVH:\t\t\t\t" << (numberOfInstrCalls * overheadPerCallInNanos) / (1e9) << std::endl;
 	std::cout << "Adding:\t\t\t\t" << overAllOverhead << " nanos" << std::endl;
 	std::cout << "In Seconds:\t\t\t" << (overAllOverhead / (1e9)) << std::endl;

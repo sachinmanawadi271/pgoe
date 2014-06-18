@@ -27,23 +27,28 @@ void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
 		}
 	}
 	parentNodes.insert(parentNode);
-
-	updateUniqueCallPathAttribute();
 }
 
-void CgNode::updateUniqueCallPathAttribute() {
+void CgNode::updateNodeAttributes() {
 
+	// is leaf node
+	this->leafNode = (getChildNodes().size() == 0);
+
+	// has unique call path
 	auto parents = getParentNodes();
 	while(parents.size()==1) {
 		parents = (*parents.begin())->getParentNodes();
 	}
-
 	this->uniqueCallPath = (parents.size() == 0);
 
 }
 
 bool CgNode::hasUniqueCallPath() {
 	return uniqueCallPath;
+}
+
+bool CgNode::isLeafNode() {
+	return leafNode;
 }
 
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){

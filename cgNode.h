@@ -29,8 +29,10 @@ public:
 	unsigned int getNumberOfCalls(std::shared_ptr<CgNode> parentNode);
 
 	void calcRelCallFrequency();
-	void updateUniqueCallPathAttribute();
+
+	void updateNodeAttributes();
 	bool hasUniqueCallPath();
+	bool isLeafNode();
 
 	void setNeedsInstrumentation(bool needsInstrumentation);
 	bool getNeedsInstrumentation();

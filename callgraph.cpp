@@ -102,6 +102,8 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 
 int Callgraph::markNodes(){
 
+	updateNodeAttributes();
+
 	int numberOfMarkedNodes = 0;
 	std::queue<std::shared_ptr<CgNode> > workQueue;
 	std::vector<CgNode*> done;
@@ -141,6 +143,12 @@ int Callgraph::markNodes(){
 	}
 	
 	return numberOfMarkedNodes;
+}
+
+void Callgraph::updateNodeAttributes() {
+	for(auto pair : graph) {
+		pair.second->updateNodeAttributes();
+	}
 }
 
 
@@ -215,6 +223,9 @@ void Callgraph::printDOT(std::string prefix){
 		}
 		if(mapPair.second->getNeedsInstrumentation()) {
 			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=doublecircle]" << std::endl;
+		}
+		if(mapPair.second->isLeafNode()) {
+			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=octagon]" << std::endl;
 		}
 	}
 
