@@ -8,8 +8,8 @@ class Callgraph {
 
 public:
 	Callgraph();
-	int putFunction(std::string fullQualifiedNameCaller, std::string fullQualifiedNameCallee);
-	int putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee, int calls);
+	int putFunction(std::string parentName, std::string childName);
+	int putFunction(std::string parentName, std::string parentFilename, int parentLine, std::string childName, int numberOfCalls);
 
 
 	void print();

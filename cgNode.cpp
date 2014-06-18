@@ -3,42 +3,42 @@
 
 CgNode::CgNode(std::string function){
 	this->functionName = function;
-	this->isCalledByNodes = std::set<std::shared_ptr<CgNode> >();
-	this->calledNodes = std::set<std::shared_ptr<CgNode> >();
+	this->parentNodes = std::set<std::shared_ptr<CgNode> >();
+	this->childNodes = std::set<std::shared_ptr<CgNode> >();
 
-	this->uniqueParents = false;
+	this->uniqueCallPath = false;
 }
 
 
-void CgNode::addCallsNode(std::shared_ptr<CgNode> functionWhichIsCalledNode){
+void CgNode::addChildNode(std::shared_ptr<CgNode> childNode){
 
-	calledNodes.insert(functionWhichIsCalledNode);
+	childNodes.insert(childNode);
 }
 
 
-void CgNode::addIsCalledByNode(std::shared_ptr<CgNode> functionByWhichItIsCalledNode){
-	for(auto node : isCalledByNodes){
-		if(node->isSameFunction(functionByWhichItIsCalledNode))
+void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
+	for(auto node : parentNodes){
+		if(node->isSameFunction(parentNode))
 			return;
 	}
-	isCalledByNodes.insert(functionByWhichItIsCalledNode);
+	parentNodes.insert(parentNode);
 
-	updateUniqueParentsAttribute();
+	updateUniqueCallPathAttribute();
 }
 
-void CgNode::updateUniqueParentsAttribute() {
+void CgNode::updateUniqueCallPathAttribute() {
 
-	auto parents = getCallers();
+	auto parents = getParentNodes();
 	while(parents.size()==1) {
-		parents = (*parents.begin())->getCallers();
+		parents = (*parents.begin())->getParentNodes();
 	}
 
-	this->uniqueParents = (parents.size() == 0);
+	this->uniqueCallPath = (parents.size() == 0);
 
 }
 
-bool CgNode::hasUniqueParents() {
-	return uniqueParents;
+bool CgNode::hasUniqueCallPath() {
+	return uniqueCallPath;
 }
 
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){
@@ -55,23 +55,22 @@ std::string CgNode::getFunctionName(){
 
 
 void CgNode::dumpToDot(std::ofstream& outStream){
-	for(auto isCalledByNode : isCalledByNodes){
+	for(auto isCalledByNode : parentNodes){
 		outStream << "\"" << isCalledByNode->getFunctionName() << "\" -> \"" << this->functionName
 				<< "\" [label=" << this->getNumberOfCalls(isCalledByNode) <<"];" << std::endl;
 	}
 }
 
-std::set<std::shared_ptr<CgNode> > CgNode::getCallees(){
-	return calledNodes;
+std::set<std::shared_ptr<CgNode> > CgNode::getChildNodes(){
+	return childNodes;
 }
 
-std::set<std::shared_ptr<CgNode> > CgNode::getCallers(){
-	return isCalledByNodes;
+std::set<std::shared_ptr<CgNode> > CgNode::getParentNodes(){
+	return parentNodes;
 }
 
-
-void CgNode::addNumberOfCalls(int calls, std::shared_ptr<CgNode> caller){
-	this->numberOfCallsBy[caller] += calls;
+void CgNode::addNumberOfCalls(int calls, std::shared_ptr<CgNode> parentNode) {
+	this->numberOfCallsBy[parentNode] += calls;
 }
 
 void CgNode::setNeedsInstrumentation(bool needsInstrumentation){
@@ -92,8 +91,8 @@ unsigned int CgNode::getNumberOfCalls(){
 	return numberOfCalls;
 }
 
-unsigned int CgNode::getNumberOfCalls(std::shared_ptr<CgNode> parent) {
-	return numberOfCallsBy[parent];
+unsigned int CgNode::getNumberOfCalls(std::shared_ptr<CgNode> parentNode) {
+	return numberOfCallsBy[parentNode];
 }
 
 void CgNode::printMinimal(){
@@ -102,7 +101,7 @@ void CgNode::printMinimal(){
 
 void CgNode::print(){
 	std::cout << this->functionName << std::endl;
-	for(auto n : calledNodes){
+	for(auto n : childNodes){
 		std::cout << "--" << n->getFunctionName() << std::endl;
 	}
 }

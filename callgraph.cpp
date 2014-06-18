@@ -6,68 +6,68 @@
 Callgraph::Callgraph(){
 }
 
-int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string fullQualifiedNameCallee){
+int Callgraph::putFunction(std::string parentName, std::string childName){
 
-	std::shared_ptr<CgNode> caller;
-	std::shared_ptr<CgNode> callee;
+	std::shared_ptr<CgNode> parentNode;
+	std::shared_ptr<CgNode> childNode;
 
 	int returnCode = 0;
 
 #if DEBUG > 1
-	std::cout << "Putting pair (caller, callee) : (" << fullQualifiedNameCaller << ", " << fullQualifiedNameCallee << ") into graph." << std::endl;
+	std::cout << "Putting pair (caller, callee) : (" << parentName << ", " << childName << ") into graph." << std::endl;
 #endif
 
-	if(graph.find(fullQualifiedNameCaller) != graph.end()){
+	if(graph.find(parentName) != graph.end()){
 		// A node representing the caller already exists
-		caller = graph.find(fullQualifiedNameCaller)->second;
+		parentNode = graph.find(parentName)->second;
 #if DEBUG > 1
-	std::cout << "fullQualifiedNameCaller (" << fullQualifiedNameCaller << ") already exists in call graph" << std::endl;
+	std::cout << "fullQualifiedNameCaller (" << parentName << ") already exists in call graph" << std::endl;
 #endif
 	} else {
 		// Create a new node representing the caller
-		caller = std::make_shared<CgNode>(fullQualifiedNameCaller);
-		graph.insert(std::pair<std::string, std::shared_ptr<CgNode> >(fullQualifiedNameCaller, caller));
+		parentNode = std::make_shared<CgNode>(parentName);
+		graph.insert(std::pair<std::string, std::shared_ptr<CgNode> >(parentName, parentNode));
 		returnCode++;
 #if DEBUG > 1
-	std::cout << "fullQualifiedNameCaller (" << fullQualifiedNameCaller << ") newly added to call graph" << std::endl;
+	std::cout << "fullQualifiedNameCaller (" << parentName << ") newly added to call graph" << std::endl;
 #endif
 	}
 
-	if(graph.find(fullQualifiedNameCallee) != graph.end()){
+	if(graph.find(childName) != graph.end()){
 		// A node representing the callee already exists
-		callee = graph.find(fullQualifiedNameCallee)->second;
+		childNode = graph.find(childName)->second;
 #if DEBUG > 1
-	std::cout << "fullQualifiedNameCallee (" << fullQualifiedNameCallee << ") already exists in call graph" << std::endl;
+	std::cout << "fullQualifiedNameCallee (" << childName << ") already exists in call graph" << std::endl;
 #endif
 	} else {
 		// Create a new node representing the callee
-		callee = std::make_shared<CgNode>(fullQualifiedNameCallee);
-		graph.insert(std::pair<std::string, std::shared_ptr<CgNode> >(fullQualifiedNameCallee, callee));
+		childNode = std::make_shared<CgNode>(childName);
+		graph.insert(std::pair<std::string, std::shared_ptr<CgNode> >(childName, childNode));
 		returnCode++;
 #if DEBUG > 1
-	std::cout << "fullQualifiedNameCallee (" << fullQualifiedNameCallee << ") newly added to call graph" << std::endl;
+	std::cout << "fullQualifiedNameCallee (" << childName << ") newly added to call graph" << std::endl;
 #endif
 	}
 #if VERBOSE > 2
-	std::cout << "Caller: " << fullQualifiedNameCaller << caller.get() << "\nCalee: " << fullQualifiedNameCallee << callee.get() << std::endl;
+	std::cout << "Caller: " << parentName << parentNode.get() << "\nCalee: " << childName << childNode.get() << std::endl;
 #endif
-	caller->addCallsNode(callee);
-	callee->addIsCalledByNode(caller);
+	parentNode->addChildNode(childNode);
+	childNode->addParentNode(parentNode);
 	return returnCode;
 }
 
-int Callgraph::putFunction(std::string fullQualifiedNameCaller, std::string filenameCaller, int lineCaller, std::string fullQualifiedNameCallee, int calls){
-	putFunction(fullQualifiedNameCaller, fullQualifiedNameCallee);
+int Callgraph::putFunction(std::string parentName, std::string parentFilename, int parentLine, std::string childName, int numberOfCalls){
+	putFunction(parentName, childName);
 
-	auto caller = findNode(fullQualifiedNameCaller);
-	if(caller == NULL)
+	auto parentNode = findNode(parentName);
+	if(parentNode == NULL)
 		std::cerr << "ERROR in looking up node." << std::endl;
 
-	caller->setFilename(filenameCaller);
-	caller->setLineNumber(lineCaller);
+	parentNode->setFilename(parentFilename);
+	parentNode->setLineNumber(parentLine);
 
-	auto callee = findNode(fullQualifiedNameCallee);
-	callee->addNumberOfCalls(calls, caller);
+	auto childNode = findNode(childName);
+	childNode->addNumberOfCalls(numberOfCalls, parentNode);
 
 	return 0;
 }
@@ -115,17 +115,17 @@ int Callgraph::markNodes(){
 		if(node == NULL){
 			std::cerr << "node was NULL" << std::endl;
 		}
-		if(node->getCallers().size() > 1){
+		if(node->getParentNodes().size() > 1){
 #if DEBUG > 1
-		std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getCallers().size() << std::endl;
+		std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getParentNodes().size() << std::endl;
 #endif
-			for (auto nodeToInsert : node->getCallers()){
+			for (auto nodeToInsert : node->getParentNodes()){
 					nodeToInsert->setNeedsInstrumentation(true);
 					numberOfMarkedNodes++;
 			}
 
 		}
-		for (auto n : node->getCallees()){
+		for (auto n : node->getChildNodes()){
 			bool insert = true;
 			for (auto refNode : done)
 				if(refNode == n.get())
@@ -153,11 +153,11 @@ int Callgraph::moveHooksUpwards(){
 		// If it was selected, we try to move the hook upwards
 		auto cur = graphPair.second;
 		bool hasMoved = false;
-		while(cur->getCallers().size() == 1){
-			if((*cur->getCallers().begin())->getCallees().size() > 1)
+		while(cur->getParentNodes().size() == 1){
+			if((*cur->getParentNodes().begin())->getChildNodes().size() > 1)
 				break;
 
-			cur = *cur->getCallers().begin(); // This should be safe...
+			cur = *cur->getParentNodes().begin(); // This should be safe...
 			hasMoved = true;
 		}
 		if(hasMoved)
@@ -204,7 +204,7 @@ void Callgraph::printDOT(std::string prefix){
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
 	for (auto mapPair : graph) {
-		if(mapPair.second->hasUniqueParents()) {
+		if(mapPair.second->hasUniqueCallPath()) {
 			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[color=blue]" << std::endl;
 		}
 		if(mapPair.second->getNeedsInstrumentation()) {
