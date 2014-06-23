@@ -18,12 +18,12 @@ public:
 	std::shared_ptr<CgNode> findNode(std::string functionName); // Finds FIRST node including functionName
 	std::shared_ptr<CgNode> findMain();
 
-	std::vector<std::shared_ptr<CgNode> > getNodesToMark();
+	std::vector<std::shared_ptr<CgNode> > getNodesRequiringInstrumentation();
 	int getSize();
 
 	void updateNodeAttributes();
 
-	int markNodes();
+	int markNodesRequiringInstrumentation();
 	int moveHooksUpwards();
 
 	void markUniqueParents();

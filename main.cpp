@@ -60,21 +60,21 @@ try{
 	unsigned long long optimizedNumberOfInstrCall = 0;
 
 	// We analyze the cg and mark the nodes
-	cg.markNodes();	
+	cg.markNodesRequiringInstrumentation();	
 
 
 #if VERBOSE > 1
 	std::cout << " ---- CubeCallGraphTool VERBOSE info begin ----" << std::endl
 			<< "Graph includes: " << cg.getSize() << std::endl
-			<< "Our algorithm would mark: " << cg.getNodesToMark().size() << std::endl;
-	for(auto node : cg.getNodesToMark()){
+			<< "Our algorithm would mark: " << cg.getNodesRequiringInstrumentation().size() << std::endl;
+	for(auto node : cg.getNodesRequiringInstrumentation()){
 		node->printMinimal();
 		std::cout << std::endl;
 	}
 	std::cout << " ---- CubeCallGraphTool VERBOSE info end   ----" << std::endl << std::endl;
 #endif
 	// sum up the calls to function we would instrument
-	for(auto node : cg.getNodesToMark()){
+	for(auto node : cg.getNodesRequiringInstrumentation()){
 		overallOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		numberOfInstrCalls += node->getNumberOfCalls();
 	}
@@ -83,7 +83,7 @@ try{
 	std::cout << "Move hooks upwards: " << numberOfHooksMovedUpwards << std::endl;
 
 	// Now we can again sum up the calls to functions we would instrument...
-	for(auto node : cg.getNodesToMark()){
+	for(auto node : cg.getNodesRequiringInstrumentation()){
 		optimizedOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		optimizedNumberOfInstrCall += node->getNumberOfCalls();
 	}
@@ -91,7 +91,7 @@ try{
 #if PRINT_DOT
 	cg.printDOT("mark");
 #endif	
-	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesToMark().size() << " out of " << cg.getSize() << "\n" ;
+	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesRequiringInstrumentation().size() << " out of " << cg.getSize() << "\n" ;
 	std::cout << "Function calls:\t\t\t" << numberOfCalls << std::endl;
 	std::cout << "# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;
 	std::cout << "OVH:\t\t\t\t" << (numberOfInstrCalls * overheadPerCallInNanos) / (1e9) << std::endl;

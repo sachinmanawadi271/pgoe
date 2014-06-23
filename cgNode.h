@@ -34,6 +34,8 @@ public:
 	bool hasUniqueCallPath();
 	bool isLeafNode();
 
+	bool getNeedsUnwind();
+
 	void setNeedsInstrumentation(bool needsInstrumentation);
 	bool getNeedsInstrumentation();
 
@@ -49,6 +51,8 @@ public:
 private:
 	std::string functionName;
 	bool needsInstrumentation;
+
+	long expectedNumberOfSamples;	// XXX getter, setter
 
 	std::set<std::shared_ptr<CgNode> > childNodes;
 	std::set<std::shared_ptr<CgNode> > parentNodes;

@@ -8,6 +8,7 @@ CgNode::CgNode(std::string function){
 
 	this->line = -1;
 	this->needsInstrumentation = false;
+	this->expectedNumberOfSamples = 0L;
 
 	this->uniqueCallPath = false;
 	this->leafNode = false;
@@ -49,6 +50,10 @@ bool CgNode::hasUniqueCallPath() {
 
 bool CgNode::isLeafNode() {
 	return leafNode;
+}
+
+bool CgNode::getNeedsUnwind() {
+	return leafNode;	// XXX RN: simple criteria for now
 }
 
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){

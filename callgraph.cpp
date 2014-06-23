@@ -89,7 +89,7 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName){
  * This is the first and very basic implementation, only selecting parents of
  * conjunction nodes for hook placement.
  */
-std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
+std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesRequiringInstrumentation(){
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
 	for (auto gNode : graph){
 		if(gNode.second->getNeedsInstrumentation()) {
@@ -100,7 +100,7 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesToMark(){
 	return nodesToMark;
 }
 
-int Callgraph::markNodes(){
+int Callgraph::markNodesRequiringInstrumentation(){
 
 	updateNodeAttributes();
 
@@ -213,7 +213,8 @@ std::shared_ptr<CgNode> Callgraph::findMain(){
 
 void Callgraph::printDOT(std::string prefix){
 
-	std::ofstream outfile(prefix + "-" + "callgraph.dot", std::ofstream::out);
+	std::string filename = prefix + "-" + "callgraph.dot";
+	std::ofstream outfile(filename, std::ofstream::out);
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
@@ -235,6 +236,6 @@ void Callgraph::printDOT(std::string prefix){
 	outfile << "\n}" << std::endl;
 	outfile.close();
 
-	std::cout << "DOT file dumped (prefix: " << prefix << ")."<< std::endl;
+	std::cout << "DOT file dumped (" << filename << ")."<< std::endl;
 
 }
