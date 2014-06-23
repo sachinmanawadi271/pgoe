@@ -32,7 +32,7 @@ void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
 	parentNodes.insert(parentNode);
 }
 
-void CgNode::updateNodeAttributes() {
+void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
 	// is leaf node
 	this->leafNode = (getChildNodes().size() == 0);
@@ -44,6 +44,8 @@ void CgNode::updateNodeAttributes() {
 	}
 	this->uniqueCallPath = (parents.size() == 0);
 
+	// expected samples in this function
+	this->expectedNumberOfSamples = samplesPerSecond * runtimeInSeconds;
 }
 
 bool CgNode::hasUniqueCallPath() {
@@ -115,6 +117,10 @@ unsigned long long CgNode::getNumberOfCalls(std::shared_ptr<CgNode> parentNode) 
 
 double CgNode::getRuntimeInSeconds() {
 	return runtimeInSeconds;
+}
+
+unsigned long long CgNode::getExpectedNumberOfSamples() {
+	return expectedNumberOfSamples;
 }
 
 void CgNode::printMinimal(){

@@ -7,7 +7,7 @@
 class Callgraph {
 
 public:
-	Callgraph();
+	Callgraph(int samplesPerSecond=10000);
 	int putFunction(std::string parentName, std::string childName);
 	int putFunction(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
@@ -27,10 +27,10 @@ public:
 	int markNodesRequiringInstrumentation();
 	int moveHooksUpwards();
 
-	void markUniqueParents();
-
 private:
 	std::map<std::string, std::shared_ptr<CgNode> > graph;
+
+	const int samplesPerSecond;
 };
 
 // XXX RN: this abstract class was just a brief idea how to handle different estimators

@@ -28,18 +28,20 @@ public:
 	unsigned long long getNumberOfCalls();
 	unsigned long long getNumberOfCalls(std::shared_ptr<CgNode> parentNode);
 
-	void calcRelCallFrequency();
-
-	void updateNodeAttributes();
-	bool hasUniqueCallPath();
-	bool isLeafNode();
 
 	bool getNeedsUnwind();
-
 	void setNeedsInstrumentation(bool needsInstrumentation);
 	bool getNeedsInstrumentation();
 
+
+	void updateNodeAttributes(int samplesPerSecond);
+
+	bool hasUniqueCallPath();
+	bool isLeafNode();
+
 	double getRuntimeInSeconds();
+	unsigned long long getExpectedNumberOfSamples();
+
 
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
@@ -53,15 +55,16 @@ private:
 	std::string functionName;
 	bool needsInstrumentation;
 
+	// note that these metrics are based on a profile and might be pessimistic
 	double runtimeInSeconds;
-	long expectedNumberOfSamples;	// XXX getter, setter
+	unsigned long long expectedNumberOfSamples;
 
 	std::set<std::shared_ptr<CgNode> > childNodes;
 	std::set<std::shared_ptr<CgNode> > parentNodes;
 
 	std::map<std::shared_ptr<CgNode>, unsigned long long> numberOfCallsBy;
 
-	// graph attributes
+	// node attributes
 	bool uniqueCallPath;
 	bool leafNode;
 
