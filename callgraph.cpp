@@ -56,7 +56,9 @@ int Callgraph::putFunction(std::string parentName, std::string childName){
 	return returnCode;
 }
 
-int Callgraph::putFunction(std::string parentName, std::string parentFilename, int parentLine, std::string childName, int numberOfCalls){
+int Callgraph::putFunction(std::string parentName, std::string parentFilename,
+		int parentLine, std::string childName, unsigned long long numberOfCalls, double timeInSeconds) {
+
 	putFunction(parentName, childName);
 
 	auto parentNode = findNode(parentName);
@@ -67,7 +69,7 @@ int Callgraph::putFunction(std::string parentName, std::string parentFilename, i
 	parentNode->setLineNumber(parentLine);
 
 	auto childNode = findNode(childName);
-	childNode->addNumberOfCalls(numberOfCalls, parentNode);
+	childNode->addCallData(parentNode, numberOfCalls, timeInSeconds);
 
 	return 0;
 }
@@ -219,15 +221,21 @@ void Callgraph::printDOT(std::string prefix){
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
 	for (auto mapPair : graph) {
-		if(mapPair.second->hasUniqueCallPath()) {
-			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[color=blue]" << std::endl;
+
+		auto node = mapPair.second;
+
+		if(node->hasUniqueCallPath()) {
+			outfile << "\"" <<  node->getFunctionName() << "\"[color=blue]" << std::endl;
 		}
-		if(mapPair.second->getNeedsInstrumentation()) {
-			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=doublecircle]" << std::endl;
+		if(node->getNeedsInstrumentation()) {
+			outfile << "\"" <<  node->getFunctionName() << "\"[shape=doublecircle]" << std::endl;
 		}
-		if(mapPair.second->isLeafNode()) {
-			outfile << "\"" <<  mapPair.second->getFunctionName() << "\"[shape=octagon]" << std::endl;
+		if(node->isLeafNode()) {
+			outfile << "\"" <<  node->getFunctionName() << "\"[shape=octagon]" << std::endl;
 		}
+		// runtime in node label
+		outfile << "\"" << node->getFunctionName() << "\"[label=\"" << node->getFunctionName()
+				<< "\\n" << node->getRuntimeInSeconds() <<"\"]" << std::endl;
 	}
 
 	for (auto mapPair : graph) {

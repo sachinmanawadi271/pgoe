@@ -9,7 +9,8 @@ class Callgraph {
 public:
 	Callgraph();
 	int putFunction(std::string parentName, std::string childName);
-	int putFunction(std::string parentName, std::string parentFilename, int parentLine, std::string childName, int numberOfCalls);
+	int putFunction(std::string parentName, std::string parentFilename, int parentLine,
+			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
 
 	void print();

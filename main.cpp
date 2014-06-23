@@ -23,34 +23,37 @@ try{
 
 	// Get the cube nodes
 	const std::vector<cube::Cnode*>& cnodes = cube.get_cnodev();
-	unsigned long long numberOfCalls = 0;
+	unsigned long long overallNumberOfCalls = 0;
+	double overallRuntime = 0.0;
 
+	cube::Metric* timeMetric = cube.get_met("time");
 	cube::Metric* visitsMetric = cube.get_met("visits");
+
 	const std::vector<cube::Thread*> threads = cube.get_thrdv();
 
-	for(auto node : cnodes){
+	for(auto cnode : cnodes){
 		// I don't know when this happens, but it does.
-		if(node->get_parent() == NULL) {
+		if(cnode->get_parent() == NULL) {
 			continue;
 		}
-		// Put the caller/callee pair into our callgraph
-		auto callee = node->get_parent()->get_callee();
-		cg.putFunction(callee->get_name(), callee->get_mod(), callee->get_begn_ln(),
-				node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(0)));
 
-		numberOfCalls += cube.get_sev(visitsMetric, node, threads.at(0));
+		// Put the parent/child pair into our call graph
+		auto parentNode = cnode->get_parent()->get_callee();	// RN: don't trust no one. It IS the parent node
+		auto childnode = cnode->get_callee();
 
-		// Also keep track of threading things...
-		if(threads.size() > 1) {
-			for(unsigned int i = 1; i < threads.size(); i++){
-				cg.putFunction(callee->get_name(), callee->get_mod(), callee->get_begn_ln(),
-						node->get_callee()->get_name(), cube.get_sev(visitsMetric, node, threads.at(i)));
+		for(unsigned int i = 0; i < threads.size(); i++) {
+			unsigned long long numberOfCalls = (unsigned long long) cube.get_sev(visitsMetric, cnode, threads.at(i));
+			double timeInSeconds = cube.get_sev(timeMetric, cnode, threads.at(i));
 
-				numberOfCalls += cube.get_sev(visitsMetric, node, threads.at(i));
-			}
+			cg.putFunction(parentNode->get_name(), parentNode->get_mod(), parentNode->get_begn_ln(),
+					childnode->get_name(), numberOfCalls, timeInSeconds);
+
+			overallNumberOfCalls += numberOfCalls;
+			overallRuntime += timeInSeconds;
 		}
 	}
-	std::cout << "Finished construction of cg. Now estimating InstROs overhead..." << std::endl;
+	std::cout << "Finished construction of call graph ... numberOfCalls: " << overallNumberOfCalls
+			<< " runtime: " << overallRuntime << " s" << std::endl;
 
 	/** JP: This is code to estimate the generated overhead via call-graph guided hook placement. */
 	const int overheadPerCallInNanos = 4; 
@@ -92,7 +95,7 @@ try{
 	cg.printDOT("mark");
 #endif	
 	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesRequiringInstrumentation().size() << " out of " << cg.getSize() << "\n" ;
-	std::cout << "Function calls:\t\t\t" << numberOfCalls << std::endl;
+	std::cout << "Function calls:\t\t\t" << overallNumberOfCalls << std::endl;
 	std::cout << "# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;
 	std::cout << "OVH:\t\t\t\t" << (numberOfInstrCalls * overheadPerCallInNanos) / (1e9) << std::endl;
 	std::cout << "Adding:\t\t\t\t" << overallOverhead << " nanos" << std::endl;

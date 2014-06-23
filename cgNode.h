@@ -24,9 +24,9 @@ public:
 	std::set<std::shared_ptr<CgNode> > getChildNodes();
 	std::set<std::shared_ptr<CgNode> > getParentNodes();
 
-	void addNumberOfCalls(int calls, std::shared_ptr<CgNode> parentNode);
-	unsigned int getNumberOfCalls();
-	unsigned int getNumberOfCalls(std::shared_ptr<CgNode> parentNode);
+	void addCallData(std::shared_ptr<CgNode> parentNode, unsigned long long calls, double timeInSeconds);
+	unsigned long long getNumberOfCalls();
+	unsigned long long getNumberOfCalls(std::shared_ptr<CgNode> parentNode);
 
 	void calcRelCallFrequency();
 
@@ -39,9 +39,10 @@ public:
 	void setNeedsInstrumentation(bool needsInstrumentation);
 	bool getNeedsInstrumentation();
 
+	double getRuntimeInSeconds();
+
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
-
 
 	void dumpToDot(std::ofstream& outputStream);
 
@@ -52,12 +53,13 @@ private:
 	std::string functionName;
 	bool needsInstrumentation;
 
+	double runtimeInSeconds;
 	long expectedNumberOfSamples;	// XXX getter, setter
 
 	std::set<std::shared_ptr<CgNode> > childNodes;
 	std::set<std::shared_ptr<CgNode> > parentNodes;
 
-	std::map<std::shared_ptr<CgNode>, unsigned int> numberOfCallsBy;
+	std::map<std::shared_ptr<CgNode>, unsigned long long> numberOfCallsBy;
 
 	// graph attributes
 	bool uniqueCallPath;

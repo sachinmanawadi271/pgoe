@@ -8,6 +8,8 @@ CgNode::CgNode(std::string function){
 
 	this->line = -1;
 	this->needsInstrumentation = false;
+
+	this->runtimeInSeconds = 0.0;
 	this->expectedNumberOfSamples = 0L;
 
 	this->uniqueCallPath = false;
@@ -84,8 +86,9 @@ std::set<std::shared_ptr<CgNode> > CgNode::getParentNodes(){
 	return parentNodes;
 }
 
-void CgNode::addNumberOfCalls(int calls, std::shared_ptr<CgNode> parentNode) {
+void CgNode::addCallData(std::shared_ptr<CgNode> parentNode, unsigned long long calls, double timeInSeconds) {
 	this->numberOfCallsBy[parentNode] += calls;
+	this->runtimeInSeconds += timeInSeconds;
 }
 
 void CgNode::setNeedsInstrumentation(bool needsInstrumentation){
@@ -96,9 +99,9 @@ bool CgNode::getNeedsInstrumentation(){
 	return this->needsInstrumentation;
 }
 
-unsigned int CgNode::getNumberOfCalls(){
+unsigned long long CgNode::getNumberOfCalls(){
 
-	unsigned int numberOfCalls = 0;
+	unsigned long long numberOfCalls = 0;
 	for(auto n : numberOfCallsBy) {
 		numberOfCalls += n.second;
 	}
@@ -106,8 +109,12 @@ unsigned int CgNode::getNumberOfCalls(){
 	return numberOfCalls;
 }
 
-unsigned int CgNode::getNumberOfCalls(std::shared_ptr<CgNode> parentNode) {
+unsigned long long CgNode::getNumberOfCalls(std::shared_ptr<CgNode> parentNode) {
 	return numberOfCallsBy[parentNode];
+}
+
+double CgNode::getRuntimeInSeconds() {
+	return runtimeInSeconds;
 }
 
 void CgNode::printMinimal(){
