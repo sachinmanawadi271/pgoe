@@ -12,10 +12,6 @@ public:
 	int putFunction(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
-
-	void print();
-	void printDOT(std::string prefix);
-
 	std::shared_ptr<CgNode> findNode(std::string functionName); // Finds FIRST node including functionName
 	std::shared_ptr<CgNode> findMain();
 
@@ -26,6 +22,9 @@ public:
 
 	int markNodesRequiringInstrumentation();
 	int moveHooksUpwards();
+
+	void print();
+	void printDOT(std::string prefix);
 
 private:
 	std::map<std::string, std::shared_ptr<CgNode> > graph;

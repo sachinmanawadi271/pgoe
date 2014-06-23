@@ -7,7 +7,7 @@ CgNode::CgNode(std::string function){
 	this->childNodes = std::set<std::shared_ptr<CgNode> >();
 
 	this->line = -1;
-	this->needsInstrumentation = false;
+	this->state = CgNodeState::NONE;
 
 	this->runtimeInSeconds = 0.0;
 	this->expectedNumberOfSamples = 0L;
@@ -46,6 +46,7 @@ void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
 	// expected samples in this function
 	this->expectedNumberOfSamples = samplesPerSecond * runtimeInSeconds;
+
 }
 
 bool CgNode::hasUniqueCallPath() {
@@ -56,8 +57,8 @@ bool CgNode::isLeafNode() {
 	return leafNode;
 }
 
-bool CgNode::getNeedsUnwind() {
-	return leafNode;	// XXX RN: simple criteria for now
+bool CgNode::needsUnwind() {
+	return state == CgNodeState::UNWIND;
 }
 
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){
@@ -93,12 +94,12 @@ void CgNode::addCallData(std::shared_ptr<CgNode> parentNode, unsigned long long 
 	this->runtimeInSeconds += timeInSeconds;
 }
 
-void CgNode::setNeedsInstrumentation(bool needsInstrumentation){
-	this->needsInstrumentation = needsInstrumentation;
+void CgNode::setState(CgNodeState state){
+	this->state = state;
 }
 
 bool CgNode::getNeedsInstrumentation(){
-	return this->needsInstrumentation;
+	return state == CgNodeState::INSTRUMENT;
 }
 
 unsigned long long CgNode::getNumberOfCalls(){

@@ -132,7 +132,7 @@ int Callgraph::markNodesRequiringInstrumentation() {
 			std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getParentNodes().size() << std::endl;
 #endif
 			for (auto nodeToInsert : node->getParentNodes()) {
-				nodeToInsert->setNeedsInstrumentation(true);
+				nodeToInsert->setState(CgNodeState::INSTRUMENT);
 				numberOfMarkedNodes++;
 			}
 
@@ -185,8 +185,8 @@ int Callgraph::moveHooksUpwards() {
 		if (hasMoved) {
 			hooksHaveBeenMoved += 1;
 		}
-		graphPair.second->setNeedsInstrumentation(false);
-		cur->setNeedsInstrumentation(true);
+		graphPair.second->setState(CgNodeState::NONE);
+		cur->setState(CgNodeState::INSTRUMENT);
 		hasMoved = false;
 	}
 

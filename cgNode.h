@@ -9,6 +9,11 @@
 #include <map>
 #include <set>
 
+enum CgNodeState {
+	NONE,
+	INSTRUMENT,
+	UNWIND
+};
 
 class CgNode {
 
@@ -29,8 +34,8 @@ public:
 	unsigned long long getNumberOfCalls(std::shared_ptr<CgNode> parentNode);
 
 
-	bool getNeedsUnwind();
-	void setNeedsInstrumentation(bool needsInstrumentation);
+	bool needsUnwind();
+	void setState(CgNodeState state);
 	bool getNeedsInstrumentation();
 
 
@@ -53,7 +58,9 @@ public:
 
 private:
 	std::string functionName;
-	bool needsInstrumentation;
+	CgNodeState state;
+
+//	bool needsInstrumentation;
 
 	// note that these metrics are based on a profile and might be pessimistic
 	double runtimeInSeconds;
