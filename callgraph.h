@@ -1,8 +1,12 @@
+#ifndef CALLGRAPH_H
+#define CALLGRAPH_H
+
 #include <map>
 #include <string>
 #include <queue>
 
 #include "cgNode.h"
+#include "estimatorphase.h"
 
 class Callgraph {
 
@@ -20,6 +24,8 @@ public:
 
 	void updateNodeAttributes();
 
+	void thatOneLargeMethod();	// TODO RN: rename
+
 	int markNodesRequiringInstrumentation();
 	int moveHooksUpwards();
 
@@ -30,29 +36,9 @@ private:
 	std::map<std::string, std::shared_ptr<CgNode> > graph;
 
 	const int samplesPerSecond;
+
+	std::queue<EstimatorPhase*> phases;
 };
 
-// XXX RN: this abstract class was just a brief idea how to handle different estimators
-// it will probably not be enough since we are looking for the the optimal solution (unwind vs. instrument)
-class OverheadEstimator {
-public:
-	OverheadEstimator();
-	virtual ~OverheadEstimator();
 
-	virtual void findNodesToMark() = 0;
-	virtual void estimateOverhead() = 0;
-
-	std::set<std::shared_ptr<CgNode> > getMarkedNodes() {
-		return markedNodes;
-	}
-
-	unsigned int getOverhead(std::shared_ptr<CgNode> node) {
-		return overheadByNodes[node];
-	}
-
-protected:
-	std::set< std::shared_ptr<CgNode> > markedNodes;
-	std::map< std::shared_ptr<CgNode>, unsigned int > overheadByNodes;
-
-	std::string name;
-};
+#endif

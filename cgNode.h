@@ -1,3 +1,6 @@
+#ifndef CG_NODE_H
+#define CG_NODE_H
+
 
 #include <memory>
 #include <vector>
@@ -59,8 +62,6 @@ private:
 	std::string functionName;
 	CgNodeState state;
 
-//	bool needsInstrumentation;
-
 	// note that these metrics are based on a profile and might be pessimistic
 	double runtimeInSeconds;
 	unsigned long long expectedNumberOfSamples;
@@ -78,3 +79,5 @@ private:
 	std::string filename;
 	int line;
 };
+
+#endif

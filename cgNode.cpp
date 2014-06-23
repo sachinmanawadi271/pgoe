@@ -57,10 +57,6 @@ bool CgNode::isLeafNode() {
 	return leafNode;
 }
 
-bool CgNode::needsUnwind() {
-	return state == CgNodeState::UNWIND;
-}
-
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){
 	if(this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0) {
 		return true;
@@ -100,6 +96,10 @@ void CgNode::setState(CgNodeState state){
 
 bool CgNode::needsInstrumentation(){
 	return state == CgNodeState::INSTRUMENT;
+}
+
+bool CgNode::needsUnwind() {
+	return state == CgNodeState::UNWIND;
 }
 
 unsigned long long CgNode::getNumberOfCalls(){

@@ -5,6 +5,8 @@
 
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
+
+	phases.push(new InstrumentEstimatorPhase(&graph));
 }
 
 int Callgraph::putFunction(std::string parentName, std::string childName) {
@@ -106,6 +108,24 @@ std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesRequiringInstrumentatio
 	}
 
 	return nodesToMark;
+}
+
+void Callgraph::thatOneLargeMethod() {
+
+	updateNodeAttributes();
+
+	while(!phases.empty()) {
+		EstimatorPhase* phase = phases.front();
+
+		phase->modifyGraph();
+
+		phase->generateReport();
+
+		CgReport report = phase->getReport();
+		report.print();
+
+		phases.pop();
+	}
 }
 
 int Callgraph::markNodesRequiringInstrumentation() {

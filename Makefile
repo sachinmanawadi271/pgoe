@@ -17,10 +17,10 @@ LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 #LDFLAGS+=-L/home/ci24amun/myRoot/gcc/openmpi/cube/4.2.1/lib -lcube4 -lz
 
 CubeCallGraphTool-mice:
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool main.cpp cgNode.cpp callgraph.cpp $(LDFLAGS) $(WARN)
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool main.cpp cgNode.cpp callgraph.cpp estimatorphase.cpp $(LDFLAGS) $(WARN)
 
 CubeCallGraphTool-lcluster:	# RN: i have no idea if this is still valid
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool main.cpp cgNode.cpp callgraph.cpp $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool main.cpp cgNode.cpp callgraph.cpp estimatorphase.cpp $(LDFLAGS)
 
 
 clean:

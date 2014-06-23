@@ -62,6 +62,8 @@ try{
 	unsigned long long optimizedOverhead = 0;
 	unsigned long long optimizedNumberOfInstrCall = 0;
 
+	cg.thatOneLargeMethod();
+
 	// We analyze the cg and mark the nodes
 	cg.markNodesRequiringInstrumentation();	
 
