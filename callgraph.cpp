@@ -100,7 +100,7 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName) {
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesRequiringInstrumentation() {
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
 	for (auto gNode : graph) {
-		if (gNode.second->getNeedsInstrumentation()) {
+		if (gNode.second->needsInstrumentation()) {
 			nodesToMark.push_back(gNode.second);
 		}
 	}
@@ -167,7 +167,7 @@ int Callgraph::moveHooksUpwards() {
 	int hooksHaveBeenMoved = 0;
 	for (auto graphPair : graph) {
 		// If the node was not selected previously, we continue
-		if (!graphPair.second->getNeedsInstrumentation()) {
+		if (!graphPair.second->needsInstrumentation()) {
 			continue;
 		}
 
@@ -233,7 +233,7 @@ void Callgraph::printDOT(std::string prefix) {
 		if (node->hasUniqueCallPath()) {
 			outfile << "\"" << functionName << "\"[color=blue]" << std::endl;
 		}
-		if (node->getNeedsInstrumentation()) {
+		if (node->needsInstrumentation()) {
 			outfile << "\"" << functionName << "\"[shape=doublecircle]"
 					<< std::endl;
 		}

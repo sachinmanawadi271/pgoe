@@ -33,19 +33,18 @@ public:
 	unsigned long long getNumberOfCalls();
 	unsigned long long getNumberOfCalls(std::shared_ptr<CgNode> parentNode);
 
+	double getRuntimeInSeconds();
+	unsigned long long getExpectedNumberOfSamples();
 
-	bool needsUnwind();
+
 	void setState(CgNodeState state);
-	bool getNeedsInstrumentation();
-
+	bool needsUnwind();
+	bool needsInstrumentation();
 
 	void updateNodeAttributes(int samplesPerSecond);
 
 	bool hasUniqueCallPath();
 	bool isLeafNode();
-
-	double getRuntimeInSeconds();
-	unsigned long long getExpectedNumberOfSamples();
 
 
 	void setFilename(std::string filename);

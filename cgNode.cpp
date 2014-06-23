@@ -98,7 +98,7 @@ void CgNode::setState(CgNodeState state){
 	this->state = state;
 }
 
-bool CgNode::getNeedsInstrumentation(){
+bool CgNode::needsInstrumentation(){
 	return state == CgNodeState::INSTRUMENT;
 }
 
