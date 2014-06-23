@@ -54,7 +54,7 @@ try{
 
 	/** JP: This is code to estimate the generated overhead via call-graph guided hook placement. */
 	const int overheadPerCallInNanos = 4; 
-	unsigned long long overAllOverhead = 0;
+	unsigned long long overallOverhead = 0;
 	unsigned long long numberOfInstrCalls = 0;
 	unsigned long long optimizedOverhead = 0;
 	unsigned long long optimizedNumberOfInstrCall = 0;
@@ -75,12 +75,7 @@ try{
 #endif
 	// sum up the calls to function we would instrument
 	for(auto node : cg.getNodesToMark()){
-
-		//XXX
-		std::cout << "XXX: ";
-		node->printMinimal();
-
-		overAllOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
+		overallOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		numberOfInstrCalls += node->getNumberOfCalls();
 	}
 
@@ -100,11 +95,11 @@ try{
 	std::cout << "Function calls:\t\t\t" << numberOfCalls << std::endl;
 	std::cout << "# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;
 	std::cout << "OVH:\t\t\t\t" << (numberOfInstrCalls * overheadPerCallInNanos) / (1e9) << std::endl;
-	std::cout << "Adding:\t\t\t\t" << overAllOverhead << " nanos" << std::endl;
-	std::cout << "In Seconds:\t\t\t" << (overAllOverhead / (1e9)) << std::endl;
+	std::cout << "Adding:\t\t\t\t" << overallOverhead << " nanos" << std::endl;
+	std::cout << "Adding:\t\t\t\t" << (overallOverhead / (1e9)) << "seconds" << std::endl;
 	std::cout << "After Optimization:\t\t" << (optimizedOverhead / (1e9)) << " seconds." << std::endl;
 	std::cout << "Function calls optimized:\t" << optimizedNumberOfInstrCall << std::endl;
-	std::cout << "Saving:\t\t\t\t" << ((overAllOverhead - optimizedOverhead) / (1e9)) << std::endl;
+	std::cout << "Saving:\t\t\t\t" << ((overallOverhead - optimizedOverhead) / (1e9)) << std::endl;
 
 } catch(const cube::RuntimeError& e){
 	std::cout << e.get_msg() << std::endl;

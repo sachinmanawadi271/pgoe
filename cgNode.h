@@ -56,7 +56,7 @@ private:
 	std::map<std::shared_ptr<CgNode>, unsigned int> numberOfCallsBy;
 
 	// graph attributes
-	bool uniqueCallPath;	//** XXX RN: main is not marked */
+	bool uniqueCallPath;
 	bool leafNode;
 
 	// for later use

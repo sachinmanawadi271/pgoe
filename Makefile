@@ -8,7 +8,7 @@ $(call check-var-defined,CUBE_LIBRARY_PATH)
 CXXFLAGS=-std=gnu++0x	# mice only has gcc-4.6.1 installed
 
 # MICE
-# source the script (load_cube_4.2.1_mice.sh) to load cube before compilation
+# source a script (e.g. /opt/scorep/load_cube-4.2.2-gcc4.6.sh) to load cube before compilation
 INCLUDEFLAGS=-I. -I$(CUBE_INCLUDE_PATH)
 LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 
