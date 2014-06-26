@@ -26,8 +26,6 @@ public:
 
 	void thatOneLargeMethod();	// TODO RN: rename
 
-	int moveHooksUpwards();
-
 	void print();
 	void printDOT(std::string prefix);
 

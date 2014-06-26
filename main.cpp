@@ -64,24 +64,11 @@ try{
 
 	cg.thatOneLargeMethod();
 
-#if VERBOSE > 1
-	std::cout << " ---- CubeCallGraphTool VERBOSE info begin ----" << std::endl
-			<< "Graph includes: " << cg.getSize() << std::endl
-			<< "Our algorithm would mark: " << cg.getNodesRequiringInstrumentation().size() << std::endl;
-	for(auto node : cg.getNodesRequiringInstrumentation()){
-		node->printMinimal();
-		std::cout << std::endl;
-	}
-	std::cout << " ---- CubeCallGraphTool VERBOSE info end   ----" << std::endl << std::endl;
-#endif
 	// sum up the calls to function we would instrument
 	for(auto node : cg.getNodesRequiringInstrumentation()){
 		overallOverhead += overheadPerCallInNanos * node->getNumberOfCalls();
 		numberOfInstrCalls += node->getNumberOfCalls();
 	}
-
-	int numberOfHooksMovedUpwards = cg.moveHooksUpwards();
-	std::cout << "Move hooks upwards: " << numberOfHooksMovedUpwards << std::endl;
 
 	// Now we can again sum up the calls to functions we would instrument...
 	for(auto node : cg.getNodesRequiringInstrumentation()){

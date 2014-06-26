@@ -50,6 +50,9 @@ protected:
 #include <queue>
 #include <set>
 
+/**
+ * Instrument call conjunctions
+ */
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
 	InstrumentEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
@@ -58,6 +61,16 @@ public:
 	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
 };
 
+/**
+ * While possible - Move instrumentation hooks upwards along a call chain
+ */
+class MoveInstrumentationUpwardsEstimatorPhase : public EstimatorPhase {
+public:
+	MoveInstrumentationUpwardsEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	~MoveInstrumentationUpwardsEstimatorPhase();
+
+	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+};
 
 
 #endif

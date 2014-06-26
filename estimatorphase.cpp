@@ -1,11 +1,12 @@
 
 #include "estimatorphase.h"
 
-EstimatorPhase::EstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph, std::string name) :
-graph(graph),
-report({0}),	// this hopefully initializes all members to 0
-name(name)
-{
+EstimatorPhase::EstimatorPhase(
+		std::map<std::string, std::shared_ptr<CgNode> >* graph, std::string name) :
+
+		graph(graph),
+		report({0}),// this hopefully initializes all members to 0
+		name(name) {
 }
 
 void EstimatorPhase::generateReport() {
@@ -37,8 +38,9 @@ CgReport EstimatorPhase::getReport() {
 
 
 
-InstrumentEstimatorPhase::InstrumentEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph) :
-EstimatorPhase(graph, "Instrument") {
+InstrumentEstimatorPhase::InstrumentEstimatorPhase(
+		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		EstimatorPhase(graph, "Instrument") {
 }
 
 InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
@@ -72,5 +74,36 @@ void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 				workQueue.push(childNode);
 			}
 		}
+	}
+}
+
+
+
+MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase(
+		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		EstimatorPhase(graph, "MoveInstrumentationUpwards") {
+}
+
+MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPhase() {
+}
+
+void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+	for (auto graphPair : (*graph)) {
+		// If the node was not selected previously, we continue
+		if (!graphPair.second->needsInstrumentation()) {
+			continue;
+		}
+
+		// If it was selected, we try to move the hook upwards
+		auto cur = graphPair.second;
+		while (cur->getParentNodes().size() == 1) {
+			if ((*cur->getParentNodes().begin())->getChildNodes().size() > 1) {
+				break;
+			}
+
+			cur = *cur->getParentNodes().begin(); // This should be safe...
+		}
+		graphPair.second->setState(CgNodeState::NONE);
+		cur->setState(CgNodeState::INSTRUMENT);
 	}
 }

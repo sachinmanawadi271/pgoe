@@ -7,6 +7,7 @@ Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
 
 	phases.push(new InstrumentEstimatorPhase(&graph));
+	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
 }
 
 int Callgraph::putFunction(std::string parentName, std::string childName) {
@@ -99,6 +100,7 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName) {
  * This is the first and very basic implementation, only selecting parents of
  * conjunction nodes for hook placement.
  */
+// TODO delete
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesRequiringInstrumentation() {
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
 	for (auto gNode : graph) {
@@ -132,40 +134,6 @@ void Callgraph::updateNodeAttributes() {
 	for (auto pair : graph) {
 		pair.second->updateNodeAttributes(this->samplesPerSecond);
 	}
-}
-
-/*
- * While possible - Move hooks upwards along a call chain
- * return how many hooks have been re-placed
- */
-int Callgraph::moveHooksUpwards() {
-	int hooksHaveBeenMoved = 0;
-	for (auto graphPair : graph) {
-		// If the node was not selected previously, we continue
-		if (!graphPair.second->needsInstrumentation()) {
-			continue;
-		}
-
-		// If it was selected, we try to move the hook upwards
-		auto cur = graphPair.second;
-		bool hasMoved = false;
-		while (cur->getParentNodes().size() == 1) {
-			if ((*cur->getParentNodes().begin())->getChildNodes().size() > 1) {
-				break;
-			}
-
-			cur = *cur->getParentNodes().begin(); // This should be safe...
-			hasMoved = true;
-		}
-		if (hasMoved) {
-			hooksHaveBeenMoved += 1;
-		}
-		graphPair.second->setState(CgNodeState::NONE);
-		cur->setState(CgNodeState::INSTRUMENT);
-		hasMoved = false;
-	}
-
-	return hooksHaveBeenMoved;
 }
 
 int Callgraph::getSize() {
