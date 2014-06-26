@@ -33,7 +33,7 @@ public:
 	EstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph, std::string name);
 	virtual ~EstimatorPhase() {}
 
-	virtual void modifyGraph() = 0;
+	virtual void modifyGraph(std::shared_ptr<CgNode> mainMethod) = 0;
 
 	void generateReport();
 
@@ -48,12 +48,14 @@ protected:
 
 };
 
+#include <queue>
+
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
 	InstrumentEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
 	~InstrumentEstimatorPhase();
 
-	void modifyGraph();
+	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
 };
 
 

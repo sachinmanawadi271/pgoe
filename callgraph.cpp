@@ -117,7 +117,7 @@ void Callgraph::thatOneLargeMethod() {
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();
 
-		phase->modifyGraph();
+		phase->modifyGraph(findMain());
 
 		phase->generateReport();
 
@@ -228,9 +228,9 @@ void Callgraph::print() {
 std::shared_ptr<CgNode> Callgraph::findMain() {
 
 	for (auto node : graph) {
-		auto fName = node.second->getFunctionName();
+		auto fName = node.first;
 
-		if (fName.find("main") != std::string::npos) {
+		if (fName.find("main") == 0) {	// starting with "main"
 			return node.second;
 		}
 	}

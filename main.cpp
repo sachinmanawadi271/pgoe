@@ -65,7 +65,7 @@ try{
 	cg.thatOneLargeMethod();
 
 	// We analyze the cg and mark the nodes
-	cg.markNodesRequiringInstrumentation();	
+	//cg.markNodesRequiringInstrumentation();
 
 
 #if VERBOSE > 1
