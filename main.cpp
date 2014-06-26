@@ -1,10 +1,10 @@
 #include <fstream>
-#include "callgraph.h"
-#include "cube/Cube.h"
-#include "cube/CubeMetric.h"
 #include <cstdlib>
 
-#include <cassert>
+#include <cube/Cube.h>
+#include <cube/CubeMetric.h>
+
+#include "Callgraph.h"
 
 #define VERBOSE 5
 #define PRINT_DOT 1

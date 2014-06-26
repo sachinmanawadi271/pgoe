@@ -7,7 +7,7 @@ $(call check-var-defined,CUBE_LIBRARY_PATH)
 #CXXFLAGS=-std=c++11
 CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
 
-SOURCES=main.cpp cgNode.cpp callgraph.cpp estimatorphase.cpp sanitycheckestimatorphase.cpp
+SOURCES=main.cpp CgNode.cpp Callgraph.cpp EstimatorPhase.cpp SanityCheckEstimatorPhase.cpp
 
 # MICE
 # source a script (e.g. /opt/scorep/load_cube-4.2.2-gcc4.6.sh) to load cube before compilation
