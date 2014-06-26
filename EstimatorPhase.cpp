@@ -18,10 +18,10 @@ void EstimatorPhase::generateReport() {
 	for(auto pair : (*graph) ) {
 		auto node = pair.second;
 
-		if(node->needsInstrumentation()) {
+		if(node->isInstrumented()) {
 			report.instrumentedCalls += node->getNumberOfCalls();
 		}
-		if(node->needsUnwind()) {
+		if(node->isUnwound()) {
 			report.unwindSamples += node->getExpectedNumberOfSamples();
 		}
 	}
@@ -90,14 +90,14 @@ MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPh
 void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 	for (auto graphPair : (*graph)) {
 		// If the node was not selected previously, we continue
-		if (!graphPair.second->needsInstrumentation()) {
+		if (!graphPair.second->isInstrumented()) {
 			continue;
 		}
 
 		// If it was selected, we try to move the hook upwards
 		auto cur = graphPair.second;
 		while (cur->getParentNodes().size() == 1) {
-			if (CgHelper::isConjunction(*cur->getParentNodes().begin())) {
+			if ((*cur->getParentNodes().begin())->getChildNodes().size()>1) {
 				break;
 			}
 
@@ -124,7 +124,7 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 		auto node = pair.second;
 
 		// select all leaves
-		if (node->isLeafNode()) {	// TODO check if unwind is valid on this node
+		if (node->isLeafNode() && CgHelper::isConjunction(node)) {	// TODO check if unwind is valid on this node
 			node->setState(CgNodeState::UNWIND);
 		}
 
@@ -134,7 +134,7 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 			bool redundantInstrumentation = true;
 			for (auto childOfParentNode : parentNode->getChildNodes()) {
 
-				if (!childOfParentNode->needsUnwind()
+				if (!childOfParentNode->isUnwound()
 						&& CgHelper::isConjunction(childOfParentNode)) {
 					redundantInstrumentation = false;
 				}

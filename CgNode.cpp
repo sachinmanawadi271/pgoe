@@ -57,6 +57,10 @@ bool CgNode::isLeafNode() {
 	return leafNode;
 }
 
+bool CgNode::isRootNode() {
+	return getParentNodes().empty();
+}
+
 bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){
 	if(this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0) {
 		return true;
@@ -94,11 +98,11 @@ void CgNode::setState(CgNodeState state){
 	this->state = state;
 }
 
-bool CgNode::needsInstrumentation(){
+bool CgNode::isInstrumented(){
 	return state == CgNodeState::INSTRUMENT;
 }
 
-bool CgNode::needsUnwind() {
+bool CgNode::isUnwound() {
 	return state == CgNodeState::UNWIND;
 }
 

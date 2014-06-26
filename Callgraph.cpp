@@ -107,7 +107,7 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName) {
 std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesRequiringInstrumentation() {
 	std::vector<std::shared_ptr<CgNode> > nodesToMark;
 	for (auto gNode : graph) {
-		if (gNode.second->needsInstrumentation()) {
+		if (gNode.second->isInstrumented()) {
 			nodesToMark.push_back(gNode.second);
 		}
 	}
@@ -179,11 +179,13 @@ void Callgraph::printDOT(std::string prefix) {
 		if (node->hasUniqueCallPath()) {
 			outfile << "\"" << functionName << "\"[color=blue]" << std::endl;
 		}
-		if (node->needsInstrumentation()) {
+		if (node->isInstrumented()) {
 			outfile << "\"" << functionName << "\"[shape=doublecircle]"
 					<< std::endl;
 		}
-		if (node->isLeafNode()) {
+		if (node->isUnwound()) {
+			outfile << "\"" << functionName << "\"[shape=doubleoctagon]" << std::endl;
+		} else if (node->isLeafNode()) {
 			outfile << "\"" << functionName << "\"[shape=octagon]" << std::endl;
 		}
 		// runtime & expectedSamples in node label

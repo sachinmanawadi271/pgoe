@@ -8,25 +8,22 @@ SanityCheckEstimatorPhase::SanityCheckEstimatorPhase(
 SanityCheckEstimatorPhase::~SanityCheckEstimatorPhase() {}
 
 void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+
+	// check that all conjunctions are either instrumented or unwound
 	for (auto pair : (*graph)) {
 		auto node = pair.second;
 
-		if(node->getParentNodes().size()>1) {
-			// if unwound, all parents' paths are known
-			if(node->needsUnwind()) {
-				continue;
-			}
+		if(CgHelper::isConjunction(node) && !node->isUnwound()) {
 
-			// paths only known if there is an instrumentation in all parents' paths
+			// all parents' call paths have to be instrumented
 			for (auto parentNode : node->getParentNodes()) {
-				auto n = parentNode;
 
-				if (n->needsInstrumentation() || n->getParentNodes().empty()) {
-					continue;
-				} else if (n->getParentNodes().size()>1) {
-					std::cerr << "Inconsistency in conjunction node: " << node->getFunctionName() << std::endl;
+				if(!CgHelper::isOnInstrumentedPath(parentNode)) {
+					std::cerr << "ERROR: Inconsistency in conjunction node: " << node->getFunctionName() << std::endl
+							<< "  path of : " << parentNode->getFunctionName() << " not instrumented" << std::endl;
 				}
 			}
 		}
 	}
 }
+

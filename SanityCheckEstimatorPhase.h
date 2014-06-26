@@ -2,10 +2,10 @@
 #ifndef SANITYCHECKESTIMATORPHASE_H_
 #define SANITYCHECKESTIMATORPHASE_H_
 
-#include <iostream>
+#include <queue>
 
 #include "EstimatorPhase.h"
-
+#include "CgHelper.h"
 
 /**
  * Does not modify the graph.
@@ -17,6 +17,7 @@ public:
 	~SanityCheckEstimatorPhase();
 	/** does NOT modify the graph */
 	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+
 };
 
 

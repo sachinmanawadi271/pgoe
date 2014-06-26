@@ -9,6 +9,8 @@ namespace CgHelper {
 
 	bool isConjunction(std::shared_ptr<CgNode> node);
 
+	bool isOnInstrumentedPath(std::shared_ptr<CgNode> node);
+
 }
 
 #endif

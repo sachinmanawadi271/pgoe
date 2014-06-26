@@ -41,14 +41,14 @@ public:
 
 
 	void setState(CgNodeState state);
-	bool needsUnwind();
-	bool needsInstrumentation();
+	bool isUnwound();
+	bool isInstrumented();
 
 	void updateNodeAttributes(int samplesPerSecond);
 
 	bool hasUniqueCallPath();
 	bool isLeafNode();
-
+	bool isRootNode();
 
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
