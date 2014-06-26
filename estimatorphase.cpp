@@ -113,12 +113,37 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNod
 UnwindEstimatorPhase::UnwindEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
 		EstimatorPhase(graph, "Unwind") {
-
 }
 
 UnwindEstimatorPhase::~UnwindEstimatorPhase() {
 }
 
 void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
-	// TODO
+
+	for (auto pair : (*graph)) {
+		auto node = pair.second;
+
+		// select all leaves
+		if (node->isLeafNode()) {	// TODO check if unwind is valid on this node
+			node->setState(CgNodeState::UNWIND);
+		}
+
+		// remove redundant instrumentation
+		for (auto parentNode : node->getParentNodes()) {
+
+			bool redundantInstrumentation = true;
+			for (auto childOfParentNode : parentNode->getChildNodes()) {
+
+				if (!childOfParentNode->needsUnwind()
+						&& childOfParentNode->getParentNodes().size()>1) {
+					redundantInstrumentation = false;
+				}
+			}
+
+			if (redundantInstrumentation) {
+				parentNode->setState(CgNodeState::NONE);
+			}
+		}
+	}
 }
+

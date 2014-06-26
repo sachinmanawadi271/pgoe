@@ -9,10 +9,12 @@
 #define VERBOSE 5
 #define PRINT_DOT 1
 
+#define SAMPLES_PER_SECOND 1e7
+
 int main(int argc, char** argv){
 
 
-Callgraph cg;
+Callgraph cg(SAMPLES_PER_SECOND);
 // The cube documentation says one should always use a try/catch thing around
 try{
 	// Create cube instance

@@ -7,6 +7,7 @@
 
 #include "cgNode.h"
 #include "estimatorphase.h"
+#include "sanitycheckestimatorphase.h"
 
 class Callgraph {
 

@@ -10,6 +10,7 @@ Callgraph::Callgraph(int samplesPerSecond) :
 	phases.push(new InstrumentEstimatorPhase(&graph));
 	phases.push(new UnwindEstimatorPhase(&graph));
 	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
+	phases.push(new SanityCheckEstimatorPhase(&graph));
 }
 
 int Callgraph::putFunction(std::string parentName, std::string childName) {

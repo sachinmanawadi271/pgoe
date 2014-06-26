@@ -23,7 +23,8 @@ struct CgReport {
 		std::cout << "\tinstrumentedCalls: " << instrumentedCalls
 				<< " | instrumentationOverhead: " << instrumentationOverhead << " ns" << std::endl
 				<< "\tunwindSamples: " << unwindSamples
-				<< " | undwindOverhead: " << unwindOverhead << " ns"<< std::endl;
+				<< " | undwindOverhead: " << unwindOverhead << " ns" << std::endl
+				<< "\toverallOverhead: " << (instrumentationOverhead+unwindOverhead) << " ns"<< std::endl;
 	}
 };
 
@@ -83,6 +84,5 @@ public:
 
 	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
 };
-
 
 #endif
