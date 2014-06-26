@@ -62,7 +62,7 @@ void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 		workQueue.pop();
 		doneNodes.insert(node);
 
-		if (node->getParentNodes().size() > 1) {
+		if (CgHelper::isConjunction(node)) {
 			for (auto nodeToInstrument : node->getParentNodes()) {
 				nodeToInstrument->setState(CgNodeState::INSTRUMENT);
 			}
@@ -97,7 +97,7 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNod
 		// If it was selected, we try to move the hook upwards
 		auto cur = graphPair.second;
 		while (cur->getParentNodes().size() == 1) {
-			if ((*cur->getParentNodes().begin())->getChildNodes().size() > 1) {
+			if (CgHelper::isConjunction(*cur->getParentNodes().begin())) {
 				break;
 			}
 
@@ -135,7 +135,7 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 			for (auto childOfParentNode : parentNode->getChildNodes()) {
 
 				if (!childOfParentNode->needsUnwind()
-						&& childOfParentNode->getParentNodes().size()>1) {
+						&& CgHelper::isConjunction(childOfParentNode)) {
 					redundantInstrumentation = false;
 				}
 			}

@@ -8,6 +8,7 @@
 #include <map>
 
 #include "CgNode.h"
+#include "CgHelper.h"
 
 struct CgReport {
 	unsigned long long instrumentedCalls;
