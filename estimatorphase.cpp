@@ -36,7 +36,7 @@ CgReport EstimatorPhase::getReport() {
 	return this->report;
 }
 
-
+//// INSTRUMENT ESTIMATOR PHASE
 
 InstrumentEstimatorPhase::InstrumentEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
@@ -77,7 +77,7 @@ void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 	}
 }
 
-
+//// MOVE INSTRUMENTATION UPWARDS ESTIMATOR PHASE
 
 MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
@@ -106,4 +106,19 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNod
 		graphPair.second->setState(CgNodeState::NONE);
 		cur->setState(CgNodeState::INSTRUMENT);
 	}
+}
+
+//// UNWIND ESTIMATOR PHASE
+
+UnwindEstimatorPhase::UnwindEstimatorPhase(
+		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		EstimatorPhase(graph, "Unwind") {
+
+}
+
+UnwindEstimatorPhase::~UnwindEstimatorPhase() {
+}
+
+void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+	// TODO
 }

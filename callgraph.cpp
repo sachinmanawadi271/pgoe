@@ -6,7 +6,9 @@
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
 
+	// XXX phases are always hardcoded and predetermined for now
 	phases.push(new InstrumentEstimatorPhase(&graph));
+	phases.push(new UnwindEstimatorPhase(&graph));
 	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
 }
 

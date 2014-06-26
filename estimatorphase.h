@@ -72,5 +72,17 @@ public:
 	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
 };
 
+/**
+ * Select all leaves for unwind.
+ * Remove redundant instrumentation.
+ */
+class UnwindEstimatorPhase : public EstimatorPhase {
+public:
+	UnwindEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	~UnwindEstimatorPhase();
+
+	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+};
+
 
 #endif

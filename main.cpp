@@ -79,7 +79,7 @@ try{
 #if PRINT_DOT
 	cg.printDOT("mark");
 #endif	
-	std::cout << " ------ Statistics ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesRequiringInstrumentation().size() << " out of " << cg.getSize() << "\n" ;
+	std::cout << " ------ Statistics (DEPRECATED) ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesRequiringInstrumentation().size() << " out of " << cg.getSize() << "\n" ;
 	std::cout << "Function calls:\t\t\t" << overallNumberOfCalls << std::endl;
 	std::cout << "# instr. Function Calls:\t" << numberOfInstrCalls << std::endl;
 	std::cout << "OVH:\t\t\t\t" << (numberOfInstrCalls * overheadPerCallInNanos) / (1e9) << std::endl;
