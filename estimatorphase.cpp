@@ -38,46 +38,37 @@ CgReport EstimatorPhase::getReport() {
 
 InstrumentEstimatorPhase::InstrumentEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph) :
 EstimatorPhase(graph, "Instrument") {
-	//XXX
-	std::cout << "xxx" << report.unwindSamples << std::endl;
 }
 
 InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
 }
 
 void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+	if (mainMethod == NULL) {
+		std::cerr << "Received NULL as main method." << std::endl;
+		return;
+	}
+
 	std::queue<std::shared_ptr<CgNode> > workQueue;
-	std::vector<CgNode*> done;
+	std::set<std::shared_ptr<CgNode> > doneNodes;
 
 	workQueue.push(mainMethod);
 	while (!workQueue.empty()) {
-#if DEBUG > 1
-		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
-#endif
-		auto node = workQueue.front();
-		done.push_back(node.get());
-		workQueue.pop();
-		if (node == NULL) {
-			std::cerr << "node was NULL" << std::endl;
-		}
-		if (node->getParentNodes().size() > 1) {
-#if DEBUG > 1
-			std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getParentNodes().size() << std::endl;
-#endif
-			for (auto nodeToInsert : node->getParentNodes()) {
-				nodeToInsert->setState(CgNodeState::INSTRUMENT);
-			}
 
-		}
-		for (auto n : node->getChildNodes()) {
-			bool insert = true;
-			for (auto refNode : done) {
-				if (refNode == n.get()) {
-					insert = false;
-				}
+		auto node = workQueue.front();
+		workQueue.pop();
+		doneNodes.insert(node);
+
+		if (node->getParentNodes().size() > 1) {
+			for (auto nodeToInstrument : node->getParentNodes()) {
+				nodeToInstrument->setState(CgNodeState::INSTRUMENT);
 			}
-			if (insert) {
-				workQueue.push(n);
+		}
+
+		// add child to work queue if not done yet
+		for (auto childNode : node->getChildNodes()) {
+			if(doneNodes.find(childNode) == doneNodes.end()) {
+				workQueue.push(childNode);
 			}
 		}
 	}

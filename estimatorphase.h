@@ -10,7 +10,6 @@
 #include "cgNode.h"
 
 struct CgReport {
-	// XXX initialize these?
 	unsigned long long instrumentedCalls;
 	unsigned long long unwindSamples;
 
@@ -49,6 +48,7 @@ protected:
 };
 
 #include <queue>
+#include <set>
 
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:

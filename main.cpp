@@ -64,10 +64,6 @@ try{
 
 	cg.thatOneLargeMethod();
 
-	// We analyze the cg and mark the nodes
-	//cg.markNodesRequiringInstrumentation();
-
-
 #if VERBOSE > 1
 	std::cout << " ---- CubeCallGraphTool VERBOSE info begin ----" << std::endl
 			<< "Graph includes: " << cg.getSize() << std::endl

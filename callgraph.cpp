@@ -128,51 +128,6 @@ void Callgraph::thatOneLargeMethod() {
 	}
 }
 
-int Callgraph::markNodesRequiringInstrumentation() {
-
-	updateNodeAttributes();
-
-	int numberOfMarkedNodes = 0;
-	std::queue<std::shared_ptr<CgNode> > workQueue;
-	std::vector<CgNode*> done;
-
-	workQueue.push(findMain());
-	while (!workQueue.empty()) {
-#if DEBUG > 1
-		std::cerr << "Queue Size: " << workQueue.size() << std::endl;
-#endif
-		auto node = workQueue.front();
-		done.push_back(node.get());
-		workQueue.pop();
-		if (node == NULL) {
-			std::cerr << "node was NULL" << std::endl;
-		}
-		if (node->getParentNodes().size() > 1) {
-#if DEBUG > 1
-			std::cout << "For node: " << node->getFunctionName() << " callers.size() = " << node->getParentNodes().size() << std::endl;
-#endif
-			for (auto nodeToInsert : node->getParentNodes()) {
-				nodeToInsert->setState(CgNodeState::INSTRUMENT);
-				numberOfMarkedNodes++;
-			}
-
-		}
-		for (auto n : node->getChildNodes()) {
-			bool insert = true;
-			for (auto refNode : done) {
-				if (refNode == n.get()) {
-					insert = false;
-				}
-			}
-			if (insert) {
-				workQueue.push(n);
-			}
-		}
-	}
-
-	return numberOfMarkedNodes;
-}
-
 void Callgraph::updateNodeAttributes() {
 	for (auto pair : graph) {
 		pair.second->updateNodeAttributes(this->samplesPerSecond);

@@ -26,7 +26,6 @@ public:
 
 	void thatOneLargeMethod();	// TODO RN: rename
 
-	int markNodesRequiringInstrumentation();
 	int moveHooksUpwards();
 
 	void print();
