@@ -19,14 +19,15 @@ void EstimatorPhase::generateReport() {
 
 		if(node->needsInstrumentation()) {
 			report.instrumentedCalls += node->getNumberOfCalls();
-			report.instrumentationOverhead += report.instrumentedCalls * nanosPerInstrumentedCall;
 		}
 		if(node->needsUnwind()) {
 			report.unwindSamples += node->getExpectedNumberOfSamples();
-			report.unwindOverhead += report.unwindSamples * nanosPerUnwindSample;
 		}
-
 	}
+
+	report.instrumentationOverhead = report.instrumentedCalls * nanosPerInstrumentedCall;
+	report.unwindOverhead = report.unwindSamples * nanosPerUnwindSample;
+
 	report.phaseName = name;
 }
 
