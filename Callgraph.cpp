@@ -101,6 +101,13 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName) {
 
 }
 
+int helper(int i, std::pair< std::string, std::shared_ptr<CgNode> > pair) {
+	if(pair.second->isInstrumented()) {
+		return i+1;
+	}
+	return i;
+}
+
 void Callgraph::thatOneLargeMethod() {
 
 	updateNodeAttributes();
@@ -109,17 +116,30 @@ void Callgraph::thatOneLargeMethod() {
 		EstimatorPhase* phase = phases.front();
 
 		phase->modifyGraph(findMain());
-
 		phase->generateReport();
 
-//		CgReport report = phase->getReport();
 		phase->printReport();
-
+//		CgReport report = phase->getReport();
 #if PRINT_DOT_AFTER_EVERY_PHASE
 		this->printDOT(report.phaseName);
 #endif
 		phases.pop();
 	}
+
+	// TODO more statistics, more abstraction
+	// final statistics
+	int instrumentedMethods =
+			std::accumulate(
+					graph.begin(),
+					graph.end(),
+					0,
+					// RN: i always wanted to use a lambda function in c++ for once
+					[] (int i, std::pair< std::string, std::shared_ptr<CgNode> > pair) {
+						return pair.second->isInstrumented() ? i+1 : i;
+					}
+			);
+
+	std::cout << "instrumented methods: " << instrumentedMethods << std::endl;
 }
 
 void Callgraph::updateNodeAttributes() {

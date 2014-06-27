@@ -22,5 +22,4 @@ namespace CgHelper {
 		return isOnInstrumentedPath(parentNode);
 	}
 
-
 }

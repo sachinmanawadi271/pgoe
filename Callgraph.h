@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <queue>
+#include <numeric>	// for std::accumulate
 
 #include "CgNode.h"
 #include "EstimatorPhase.h"

@@ -27,6 +27,8 @@ void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) 
 			}
 		}
 	}
+
+	// XXX idea: check that there is no instrumentation below unwound nodes
 }
 
 void SanityCheckEstimatorPhase::printReport() {
