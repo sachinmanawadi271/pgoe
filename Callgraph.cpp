@@ -3,6 +3,8 @@
 #define VERBOSE 0
 #define DEBUG 0
 
+#define PRINT_DOT_AFTER_EVERY_PHASE 0
+
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
 
@@ -129,6 +131,9 @@ void Callgraph::thatOneLargeMethod() {
 		CgReport report = phase->getReport();
 		report.print();
 
+#if PRINT_DOT_AFTER_EVERY_PHASE
+		this->printDOT(report.phaseName);
+#endif
 		phases.pop();
 	}
 }

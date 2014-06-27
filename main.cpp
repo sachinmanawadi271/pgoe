@@ -79,7 +79,7 @@ try{
 	}
 
 #if PRINT_DOT
-	cg.printDOT("mark");
+	cg.printDOT("final");
 #endif	
 	std::cout << " ------ Statistics (DEPRECATED) ------ \nA cg-analysis instrumentation would mark: " << cg.getNodesRequiringInstrumentation().size() << " out of " << cg.getSize() << "\n" ;
 	std::cout << "Function calls:\t\t\t" << overallNumberOfCalls << std::endl;

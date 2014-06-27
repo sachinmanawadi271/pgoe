@@ -124,11 +124,11 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 		auto node = pair.second;
 
 		// select all leaves
-		if (node->isLeafNode() && CgHelper::isConjunction(node)) {	// TODO check if unwind is valid on this node
+		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
 			node->setState(CgNodeState::UNWIND);
 		}
 
-		// remove redundant instrumentation
+		// remove redundant instrumentation in direct parents
 		for (auto parentNode : node->getParentNodes()) {
 
 			bool redundantInstrumentation = true;
