@@ -19,14 +19,6 @@ struct CgReport {
 
 	std::string phaseName;
 
-	void print() {
-		std::cout << "==" << phaseName << "== Phase Report " << std::endl;
-		std::cout << "\tinstrumentedCalls: " << instrumentedCalls
-				<< " | instrumentationOverhead: " << instrumentationOverhead << " ns" << std::endl
-				<< "\tunwindSamples: " << unwindSamples
-				<< " | undwindOverhead: " << unwindOverhead << " ns" << std::endl
-				<< "\toverallOverhead: " << (instrumentationOverhead+unwindOverhead) << " ns"<< std::endl;
-	}
 };
 
 class EstimatorPhase {
@@ -39,17 +31,16 @@ public:
 	void generateReport();
 
 	struct CgReport getReport();
-
-	/* print some additional information of the phase */
-	virtual void printAdditionalReport() {}
+	void printReport();
 
 protected:
 	std::map<std::string, std::shared_ptr<CgNode> >* graph;
 
 	CgReport report;
-
 	std::string name;
 
+	/* print some additional information of the phase */
+	virtual void printAdditionalReport() {}
 };
 
 #include <queue>
