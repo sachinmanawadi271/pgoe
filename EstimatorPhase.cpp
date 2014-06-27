@@ -42,7 +42,8 @@ void EstimatorPhase::printReport() {
 			<< " | instrumentationOverhead: " << report.instrumentationOverhead << " ns" << std::endl
 			<< "\tunwindSamples: " << report.unwindSamples
 			<< " | undwindOverhead: " << report.unwindOverhead << " ns" << std::endl
-			<< "\toverallOverhead: " << (report.instrumentationOverhead+report.unwindOverhead) << " ns"<< std::endl;
+			<< "\toverallOverhead: " << (report.instrumentationOverhead+report.unwindOverhead)
+			<< " ns"<< std::endl;
 
 	printAdditionalReport();
 }

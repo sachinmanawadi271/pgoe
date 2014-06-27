@@ -101,22 +101,6 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName) {
 
 }
 
-/*
- * This is the first and very basic implementation, only selecting parents of
- * conjunction nodes for hook placement.
- */
-// TODO delete
-std::vector<std::shared_ptr<CgNode> > Callgraph::getNodesRequiringInstrumentation() {
-	std::vector<std::shared_ptr<CgNode> > nodesToMark;
-	for (auto gNode : graph) {
-		if (gNode.second->isInstrumented()) {
-			nodesToMark.push_back(gNode.second);
-		}
-	}
-
-	return nodesToMark;
-}
-
 void Callgraph::thatOneLargeMethod() {
 
 	updateNodeAttributes();

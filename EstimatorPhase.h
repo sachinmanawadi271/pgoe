@@ -31,7 +31,7 @@ public:
 	void generateReport();
 
 	struct CgReport getReport();
-	void printReport();
+	virtual void printReport();
 
 protected:
 	std::map<std::string, std::shared_ptr<CgNode> >* graph;
