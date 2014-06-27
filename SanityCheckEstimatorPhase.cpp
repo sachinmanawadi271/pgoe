@@ -2,7 +2,8 @@
 
 SanityCheckEstimatorPhase::SanityCheckEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
-		EstimatorPhase(graph, "SanityCheck") {
+		EstimatorPhase(graph, "SanityCheck"),
+		numberOfErrors(0){
 }
 
 SanityCheckEstimatorPhase::~SanityCheckEstimatorPhase() {}
@@ -19,11 +20,17 @@ void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) 
 			for (auto parentNode : node->getParentNodes()) {
 
 				if(!CgHelper::isOnInstrumentedPath(parentNode)) {
+					numberOfErrors++;
 					std::cerr << "ERROR: Inconsistency in conjunction node: " << node->getFunctionName() << std::endl
 							<< "  path of : " << parentNode->getFunctionName() << " not instrumented" << std::endl;
 				}
 			}
 		}
 	}
+}
+
+void SanityCheckEstimatorPhase::printAdditionalReport() {
+	std::cout << "\t" << "SanityCheck done with "
+			<< numberOfErrors << " errors." << std::endl;
 }
 

@@ -18,6 +18,9 @@ public:
 	/** does NOT modify the graph */
 	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
 
+	void printAdditionalReport();
+private:
+	int numberOfErrors;
 };
 
 

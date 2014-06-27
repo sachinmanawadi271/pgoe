@@ -131,6 +131,8 @@ void Callgraph::thatOneLargeMethod() {
 		CgReport report = phase->getReport();
 		report.print();
 
+		phase->printAdditionalReport();
+
 #if PRINT_DOT_AFTER_EVERY_PHASE
 		this->printDOT(report.phaseName);
 #endif

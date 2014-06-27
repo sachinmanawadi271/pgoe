@@ -20,7 +20,7 @@ struct CgReport {
 	std::string phaseName;
 
 	void print() {
-		std::cout << "Report Phase ==" << phaseName << "==" << std::endl;
+		std::cout << "==" << phaseName << "== Phase Report " << std::endl;
 		std::cout << "\tinstrumentedCalls: " << instrumentedCalls
 				<< " | instrumentationOverhead: " << instrumentationOverhead << " ns" << std::endl
 				<< "\tunwindSamples: " << unwindSamples
@@ -39,6 +39,9 @@ public:
 	void generateReport();
 
 	struct CgReport getReport();
+
+	/* print some additional information of the phase */
+	virtual void printAdditionalReport() {}
 
 protected:
 	std::map<std::string, std::shared_ptr<CgNode> >* graph;
