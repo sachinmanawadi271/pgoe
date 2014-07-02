@@ -9,6 +9,7 @@
 #include "CgNode.h"
 #include "EstimatorPhase.h"
 #include "SanityCheckEstimatorPhase.h"
+#include "MinimalSpantreeEstimatorPhase.h"
 
 class Callgraph {
 
