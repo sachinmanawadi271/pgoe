@@ -43,6 +43,20 @@ protected:
 	virtual void printAdditionalReport() {}
 };
 
+class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
+public:
+	RemoveUnrelatedNodesEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	~RemoveUnrelatedNodesEstimatorPhase();
+
+	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+
+	void printReport();
+protected:
+	void printAdditionalReport();
+private:
+	int numRemovedNodes;
+};
+
 #include <queue>
 #include <set>
 

@@ -69,7 +69,9 @@ private:
 	std::set<std::shared_ptr<CgNode> > childNodes;
 	std::set<std::shared_ptr<CgNode> > parentNodes;
 
+	// parentNode -> number of calls by that parent
 	std::map<std::shared_ptr<CgNode>, unsigned long long> numberOfCallsBy;
+
 
 	// node attributes
 	bool uniqueCallPath;

@@ -51,6 +51,64 @@ void EstimatorPhase::printReport() {
 	printAdditionalReport();
 }
 
+//// REMOVE UNRELATED NODES ESTIMATOR PHASE
+
+RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(
+		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		EstimatorPhase(graph, "RemoveUnrelated"),
+		numRemovedNodes(0) {
+}
+
+RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
+}
+
+void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+	if (mainMethod == NULL) {
+		std::cerr << "Received NULL as main method." << std::endl;
+		return;
+	}
+
+	std::set<std::shared_ptr<CgNode> > visitedNodes;
+	std::queue<std::shared_ptr<CgNode> > workQueue;
+
+	/** XXX RN: code duplication */
+	workQueue.push(mainMethod);
+	while(!workQueue.empty()) {
+
+		auto node = workQueue.front();
+		workQueue.pop();
+		visitedNodes.insert(node);
+
+		for (auto childNode : node->getChildNodes()) {
+			if (visitedNodes.find(childNode) == visitedNodes.end()) {
+				workQueue.push(childNode);
+			}
+		}
+	}
+
+	for (auto pair : (*graph)) {
+		auto node = pair.second;
+
+		// remove nodes that were not reachable from the main method
+		if (visitedNodes.find(node) == visitedNodes.end()) {
+			graph->erase(node->getFunctionName());
+			numRemovedNodes++;
+		}
+	}
+
+
+}
+
+void RemoveUnrelatedNodesEstimatorPhase::printReport() {
+	// only print the additional report as it does not touch the graph
+	printAdditionalReport();
+}
+
+void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
+	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
+	std::cout << "\t" << "Removed " << numRemovedNodes << " unrelated nodes."	<< std::endl;
+}
+
 //// INSTRUMENT ESTIMATOR PHASE
 
 InstrumentEstimatorPhase::InstrumentEstimatorPhase(
@@ -70,6 +128,7 @@ void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 	std::queue<std::shared_ptr<CgNode> > workQueue;
 	std::set<std::shared_ptr<CgNode> > doneNodes;
 
+	/** XXX RN: code duplication */
 	workQueue.push(mainMethod);
 	while (!workQueue.empty()) {
 
