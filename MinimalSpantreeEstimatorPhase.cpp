@@ -18,9 +18,7 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 		auto parentNode = pair.second;
 		for (auto childNode : parentNode->getChildNodes()) {
 			pq.push(SpantreeEdge({
-				childNode->getNumberOfCalls(parentNode),
-				childNode,
-				parentNode
+				childNode->getNumberOfCalls(parentNode), childNode, parentNode
 			}));
 		}
 	}
@@ -34,30 +32,13 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 		auto edge = pq.top();
 		pq.pop();
 
-		// XXX
-		std::cout << "#" << edge.calls
-				<< "\t" << edge.parent->getFunctionName()
-				<< "  ->\t" << edge.child->getFunctionName() << std::endl;
-		for(auto v : visitedNodes) {
-			std::cout << v->getFunctionName() << ", ";
-		}
-		std::cout << std::endl;
-
-		bool childVisited = visitedNodes.find(edge.child) != visitedNodes.end();
-		bool parentVisited = visitedNodes.find(edge.parent) != visitedNodes.end();
-
-		if (!childVisited) {
+		if (!CgHelper::isConnectedOnSpantree(edge.child, edge.parent)) {
 			visitedNodes.insert(edge.child);
-			edge.child->addSpantreeParent(edge.parent);
-
-		} else if(childVisited && !parentVisited) {
-			visitedNodes.insert(edge.parent);
 			edge.child->addSpantreeParent(edge.parent);
 		} else {
 			numberOfSkippedEdges++;
 			continue;
 		}
-
 	}
 }
 
@@ -78,13 +59,7 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 				continue;
 			} else {
 
-				unsigned long long numberOfCalls;
-				// special case, instrumentation at call site
-				if (!CgHelper::isConjunction(childNode)) {
-					// XXX numberOfCalls =
-				}
-
-				numberOfCalls = childNode->getNumberOfCalls(parentNode);
+				unsigned long long numberOfCalls = childNode->getNumberOfCalls(parentNode);
 				numberOfInstrumentedCalls += numberOfCalls;
 				instrumentationOverhead += (numberOfCalls * nanosPerInstrumentedCall);
 			}

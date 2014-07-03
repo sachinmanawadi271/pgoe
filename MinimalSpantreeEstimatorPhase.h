@@ -3,6 +3,7 @@
 #define MINIMALSPANTREEESTIMATORPHASE_H_
 
 #include "EstimatorPhase.h"
+#include "CgHelper.h"
 
 struct SpantreeEdge {
 	unsigned long long calls;

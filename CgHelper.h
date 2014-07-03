@@ -11,6 +11,7 @@ namespace CgHelper {
 
 	bool isOnInstrumentedPath(std::shared_ptr<CgNode> node);
 
+	bool isConnectedOnSpantree(std::shared_ptr<CgNode> n1, std::shared_ptr<CgNode> n2);
 }
 
 #endif

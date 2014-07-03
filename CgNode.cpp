@@ -89,7 +89,7 @@ void CgNode::dumpToDot(std::ofstream& outStream){
 
 		std::string edgeColor = "";
 		if(!isSpantreeParent(parentNode)) {
-			edgeColor = ", color=red";
+			edgeColor = ", color=red, fontcolor=red";
 		}
 
 		outStream << "\"" << parentNode->getFunctionName() << "\" -> \"" << this->functionName

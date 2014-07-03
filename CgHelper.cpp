@@ -22,4 +22,34 @@ namespace CgHelper {
 		return isOnInstrumentedPath(parentNode);
 	}
 
+	/** true if the two nodes are connected via spanning tree edges */
+	// XXX RN: this method is ugly and has horrible complexity
+	bool isConnectedOnSpantree(std::shared_ptr<CgNode> n1, std::shared_ptr<CgNode> n2) {
+
+		std::set<std::shared_ptr<CgNode> > reachableNodes;
+		reachableNodes.insert(n1);
+
+		size_t size = 0;
+		while (size < reachableNodes.size()) {
+
+			size = reachableNodes.size();
+
+			for (auto node : reachableNodes) {
+
+				for (auto parentNode : node->getParentNodes()) {
+					if(node->isSpantreeParent(parentNode)) {
+						reachableNodes.insert(parentNode);
+					}
+				}
+				for (auto childNode : node->getChildNodes()) {
+					if (childNode->isSpantreeParent(node)) {
+						reachableNodes.insert(childNode);
+					}
+				}
+			}
+		}
+
+		return reachableNodes.find(n2) != reachableNodes.end();
+	}
+
 }
