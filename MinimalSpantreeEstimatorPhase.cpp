@@ -44,35 +44,6 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 	}
 }
 
-//bool MinimalSpantreeEstimatorPhase::graphHasCircle(std::shared_ptr<CgNode> mainMethod) {
-//	// check span tree for circles
-//	std::set<std::shared_ptr<CgNode> > visitedNodes;
-//	std::queue<std::shared_ptr<CgNode> > workQueue;
-//
-//	//////// TODO detect circles in forest, not only from main method!!!!!
-//
-//	/** XXX RN: code duplication */
-//	workQueue.push(mainMethod);
-//	while(!workQueue.empty()) {
-//
-//		auto node = workQueue.front();
-//		workQueue.pop();
-//		visitedNodes.insert(node);
-//
-//		for (auto childNode : node->getChildNodes()) {
-//			if (visitedNodes.find(childNode) == visitedNodes.end()) {
-//				workQueue.push(childNode);
-//			} else {
-//				// circle detected
-//				return true;
-//			}
-//		}
-//	}
-//
-//	return false;
-//
-//}
-
 void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << ">>\t" << "NOT IMPLEMENTED YET!!" << std::endl;

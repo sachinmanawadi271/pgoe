@@ -36,8 +36,8 @@ void CgNode::setSpantreeParent(std::shared_ptr<CgNode> parentNode) {
 	this->spantreeParent = parentNode;
 }
 
-std::shared_ptr<CgNode> CgNode::getSpantreeParent() {
-	return this->spantreeParent;
+bool CgNode::isSpantreeParent(std::shared_ptr<CgNode> parentNode) {
+	return this->spantreeParent->isSameFunction(parentNode);
 }
 
 void CgNode::updateNodeAttributes(int samplesPerSecond) {
@@ -83,9 +83,16 @@ std::string CgNode::getFunctionName(){
 
 
 void CgNode::dumpToDot(std::ofstream& outStream){
-	for(auto isCalledByNode : parentNodes){
-		outStream << "\"" << isCalledByNode->getFunctionName() << "\" -> \"" << this->functionName
-				<< "\" [label=" << this->getNumberOfCalls(isCalledByNode) <<"];" << std::endl;
+	for(auto parentNode : parentNodes){
+
+		std::string edgeColor = "";
+		if(!isSpantreeParent(parentNode)) {
+			edgeColor = ", color=red";
+		}
+
+		outStream << "\"" << parentNode->getFunctionName() << "\" -> \"" << this->functionName
+				<< "\" [label=" << this->getNumberOfCalls(parentNode) << edgeColor << "];"
+				<< std::endl;
 	}
 }
 
@@ -97,7 +104,9 @@ std::set<std::shared_ptr<CgNode> > CgNode::getParentNodes(){
 	return parentNodes;
 }
 
-void CgNode::addCallData(std::shared_ptr<CgNode> parentNode, unsigned long long calls, double timeInSeconds) {
+void CgNode::addCallData(std::shared_ptr<CgNode> parentNode,
+		unsigned long long calls, double timeInSeconds) {
+
 	this->numberOfCallsBy[parentNode] += calls;
 	this->runtimeInSeconds += timeInSeconds;
 }

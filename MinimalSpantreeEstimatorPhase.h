@@ -26,8 +26,6 @@ public:
 	void printReport();
 protected:
 	void printAdditionalReport();
-//private:
-//	bool graphHasCircle(std::shared_ptr<CgNode> mainMethod);
 };
 
 #endif
