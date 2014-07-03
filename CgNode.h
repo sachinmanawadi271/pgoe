@@ -44,6 +44,11 @@ public:
 	bool isUnwound();
 	bool isInstrumented();
 
+	// spanning tree stuff
+	void setSpantreeParent(std::shared_ptr<CgNode> parentNode);
+	std::shared_ptr<CgNode> getSpantreeParent();
+
+
 	void updateNodeAttributes(int samplesPerSecond);
 
 	bool hasUniqueCallPath();
@@ -72,7 +77,8 @@ private:
 	// parentNode -> number of calls by that parent
 	std::map<std::shared_ptr<CgNode>, unsigned long long> numberOfCallsBy;
 
-
+	// this is possibly the dumbest way to implement a spanning tree
+	std::shared_ptr<CgNode> spantreeParent;
 
 	// node attributes
 	bool uniqueCallPath;

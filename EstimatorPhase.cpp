@@ -100,7 +100,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mai
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::printReport() {
-	// only print the additional report as it does not touch the graph
+	// only print the additional report
 	printAdditionalReport();
 }
 

@@ -32,6 +32,14 @@ void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
 	parentNodes.insert(parentNode);
 }
 
+void CgNode::setSpantreeParent(std::shared_ptr<CgNode> parentNode) {
+	this->spantreeParent = parentNode;
+}
+
+std::shared_ptr<CgNode> CgNode::getSpantreeParent() {
+	return this->spantreeParent;
+}
+
 void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
 	// is leaf node
