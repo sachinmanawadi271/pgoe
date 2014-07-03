@@ -42,6 +42,10 @@ bool CgNode::isSpantreeParent(std::shared_ptr<CgNode> parentNode) {
 	return this->spantreeParent->isSameFunction(parentNode);
 }
 
+std::shared_ptr<CgNode> CgNode::getSpantreeParent() {
+	return this->spantreeParent;
+}
+
 void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
 	// is leaf node

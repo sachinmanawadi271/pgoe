@@ -33,12 +33,6 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 		auto edge = pq.top();
 		pq.pop();
 
-		// XXX
-		std::cout << edge.calls << "\t"
-				<< edge.parent->getFunctionName() << " ->\t"
-				<< edge.child->getFunctionName() << std::endl;
-
-
 		if (visitedNodes.find(edge.child) != visitedNodes.end()) {
 			numberOfSkippedEdges++;
 			continue;
@@ -52,8 +46,33 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 
 void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
+
+	// TODO this number should be in a config file
+	const int nanosPerInstrumentedCall = 4;
+
+	unsigned long long numberOfInstrumentedCalls;
+	unsigned long long instrumentationOverhead;
+
+	for (auto pair : (*graph)) {
+		auto childNode = pair.second;
+
+		for (auto parentNode : childNode->getParentNodes()) {
+			if(childNode->isSpantreeParent(parentNode)) {
+				continue;
+			} else {
+				unsigned long long numberOfCalls = childNode->getNumberOfCalls(parentNode);
+				numberOfInstrumentedCalls += numberOfCalls;
+				instrumentationOverhead += (numberOfCalls * nanosPerInstrumentedCall);
+			}
+		}
+	}
+
 	std::cout << "\t" << numberOfSkippedEdges <<
 			" edge(s) not part of Spanning Tree" << std::endl;
+	std::cout << "\tinstrumentedCalls: " << numberOfInstrumentedCalls
+			<< " | instrumentationOverhead: " << instrumentationOverhead << " ns" << std::endl
+			<< "\t" << "that is: " << instrumentationOverhead/1e9 <<" s"<< std::endl;
+
 }
 
 

@@ -47,6 +47,7 @@ public:
 	// spanning tree stuff
 	void setSpantreeParent(std::shared_ptr<CgNode> parentNode);
 	bool isSpantreeParent(std::shared_ptr<CgNode>);
+	std::shared_ptr<CgNode> getSpantreeParent();
 
 
 	void updateNodeAttributes(int samplesPerSecond);
