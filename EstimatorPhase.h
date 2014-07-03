@@ -11,6 +11,9 @@
 #include "CgHelper.h"
 
 struct CgReport {
+	unsigned int instrumentedMethods;
+	unsigned int overallMethods;
+
 	unsigned long long instrumentedCalls;
 	unsigned long long unwindSamples;
 

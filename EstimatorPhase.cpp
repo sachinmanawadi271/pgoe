@@ -19,12 +19,15 @@ void EstimatorPhase::generateReport() {
 		auto node = pair.second;
 
 		if(node->isInstrumented()) {
+			report.instrumentedMethods += 1;
 			report.instrumentedCalls += node->getNumberOfCalls();
 		}
 		if(node->isUnwound()) {
 			report.unwindSamples += node->getExpectedNumberOfSamples();
 		}
 	}
+
+	report.overallMethods = graph->size();
 
 	report.instrumentationOverhead = report.instrumentedCalls * nanosPerInstrumentedCall;
 	report.unwindOverhead = report.unwindSamples * nanosPerUnwindSample;
@@ -41,11 +44,13 @@ void EstimatorPhase::printReport() {
 	double overallOverhead = report.instrumentationOverhead+report.unwindOverhead;
 
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << "\tinstrumentedCalls: " << report.instrumentedCalls
+	std::cout << "\t" << "instrumented " << report.instrumentedMethods
+			<< " of " << report.overallMethods << " methods" << std::endl
+			<< "\t" << "instrumentedCalls: " << report.instrumentedCalls
 			<< " | instrumentationOverhead: " << report.instrumentationOverhead << " ns" << std::endl
-			<< "\tunwindSamples: " << report.unwindSamples
+			<< "\t" << "unwindSamples: " << report.unwindSamples
 			<< " | undwindOverhead: " << report.unwindOverhead << " ns" << std::endl
-			<< "\toverallOverhead: " << overallOverhead	<< " ns"
+			<< "\t" << "overallOverhead: " << overallOverhead	<< " ns"
 			<< " | that is: " << overallOverhead/1e9 <<" s"<< std::endl;
 
 	printAdditionalReport();

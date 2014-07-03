@@ -6,7 +6,7 @@ CgNode::CgNode(std::string function){
 	this->parentNodes = std::set<std::shared_ptr<CgNode> >();
 	this->childNodes = std::set<std::shared_ptr<CgNode> >();
 
-	this->spantreeParent = NULL;
+	this->spantreeParents = std::set<std::shared_ptr<CgNode> >();
 
 	this->line = -1;
 	this->state = CgNodeState::NONE;
@@ -34,16 +34,12 @@ void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
 	parentNodes.insert(parentNode);
 }
 
-void CgNode::setSpantreeParent(std::shared_ptr<CgNode> parentNode) {
-	this->spantreeParent = parentNode;
+void CgNode::addSpantreeParent(std::shared_ptr<CgNode> parentNode) {
+	this->spantreeParents.insert(parentNode);
 }
 
 bool CgNode::isSpantreeParent(std::shared_ptr<CgNode> parentNode) {
-	return this->spantreeParent->isSameFunction(parentNode);
-}
-
-std::shared_ptr<CgNode> CgNode::getSpantreeParent() {
-	return this->spantreeParent;
+	return this->spantreeParents.find(parentNode) != spantreeParents.end();
 }
 
 void CgNode::updateNodeAttributes(int samplesPerSecond) {

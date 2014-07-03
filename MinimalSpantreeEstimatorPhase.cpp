@@ -26,19 +26,36 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 	}
 
 	std::set<std::shared_ptr<CgNode> > visitedNodes;
-	// check if all nodes are contained in span tree yet
+	visitedNodes.insert(mainMethod);
+
 	while(!pq.empty()) {
 
 		// try to insert edge with highest call count into span tree
 		auto edge = pq.top();
 		pq.pop();
 
-		if (visitedNodes.find(edge.child) != visitedNodes.end()) {
+		// XXX
+		std::cout << "#" << edge.calls
+				<< "\t" << edge.parent->getFunctionName()
+				<< "  ->\t" << edge.child->getFunctionName() << std::endl;
+		for(auto v : visitedNodes) {
+			std::cout << v->getFunctionName() << ", ";
+		}
+		std::cout << std::endl;
+
+		bool childVisited = visitedNodes.find(edge.child) != visitedNodes.end();
+		bool parentVisited = visitedNodes.find(edge.parent) != visitedNodes.end();
+
+		if (!childVisited) {
+			visitedNodes.insert(edge.child);
+			edge.child->addSpantreeParent(edge.parent);
+
+		} else if(childVisited && !parentVisited) {
+			visitedNodes.insert(edge.parent);
+			edge.child->addSpantreeParent(edge.parent);
+		} else {
 			numberOfSkippedEdges++;
 			continue;
-		} else {
-			visitedNodes.insert(edge.child);
-			edge.child->setSpantreeParent(edge.parent);
 		}
 
 	}
@@ -50,8 +67,8 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 	// TODO this number should be in a config file
 	const int nanosPerInstrumentedCall = 4;
 
-	unsigned long long numberOfInstrumentedCalls;
-	unsigned long long instrumentationOverhead;
+	unsigned long long numberOfInstrumentedCalls = 0;
+	unsigned long long instrumentationOverhead = 0;
 
 	for (auto pair : (*graph)) {
 		auto childNode = pair.second;
@@ -60,7 +77,14 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 			if(childNode->isSpantreeParent(parentNode)) {
 				continue;
 			} else {
-				unsigned long long numberOfCalls = childNode->getNumberOfCalls(parentNode);
+
+				unsigned long long numberOfCalls;
+				// special case, instrumentation at call site
+				if (!CgHelper::isConjunction(childNode)) {
+					// XXX numberOfCalls =
+				}
+
+				numberOfCalls = childNode->getNumberOfCalls(parentNode);
 				numberOfInstrumentedCalls += numberOfCalls;
 				instrumentationOverhead += (numberOfCalls * nanosPerInstrumentedCall);
 			}
