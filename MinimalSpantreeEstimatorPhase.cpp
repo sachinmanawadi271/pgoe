@@ -3,7 +3,8 @@
 
 MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
-		EstimatorPhase(graph, "MinimalSpantree"){
+		EstimatorPhase(graph, "MinimalSpantree"),
+		numberOfSkippedEdges(0) {
 }
 
 MinimalSpantreeEstimatorPhase::~MinimalSpantreeEstimatorPhase() {
@@ -17,7 +18,7 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 		auto parentNode = pair.second;
 		for (auto childNode : parentNode->getChildNodes()) {
 			pq.push(SpantreeEdge({
-				(int) childNode->getNumberOfCalls(parentNode),
+				childNode->getNumberOfCalls(parentNode),
 				childNode,
 				parentNode
 			}));
@@ -25,8 +26,6 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 	}
 
 	std::set<std::shared_ptr<CgNode> > visitedNodes;
-	visitedNodes.insert(mainMethod);
-
 	// check if all nodes are contained in span tree yet
 	while(!pq.empty()) {
 
@@ -34,7 +33,14 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 		auto edge = pq.top();
 		pq.pop();
 
+		// XXX
+		std::cout << edge.calls << "\t"
+				<< edge.parent->getFunctionName() << " ->\t"
+				<< edge.child->getFunctionName() << std::endl;
+
+
 		if (visitedNodes.find(edge.child) != visitedNodes.end()) {
+			numberOfSkippedEdges++;
 			continue;
 		} else {
 			visitedNodes.insert(edge.child);
@@ -46,7 +52,8 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 
 void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << ">>\t" << "NOT IMPLEMENTED YET!!" << std::endl;
+	std::cout << "\t" << numberOfSkippedEdges <<
+			" edge(s) not part of Spanning Tree" << std::endl;
 }
 
 

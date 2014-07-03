@@ -5,7 +5,7 @@ void a(int i)__attribute__((noinline));
 void b()__attribute__((noinline));
 
 void print(){
-	printf("Hello world");
+	printf("Hello world\n");
 }
 
 void a(int i){

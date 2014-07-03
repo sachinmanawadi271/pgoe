@@ -5,14 +5,14 @@
 #include "EstimatorPhase.h"
 
 struct SpantreeEdge {
-	int calls;
+	unsigned long long calls;
 	std::shared_ptr<CgNode> child;
 	std::shared_ptr<CgNode> parent;
 };
 
 struct MoreCalls {
 	bool operator() (const SpantreeEdge& lhs, const SpantreeEdge& rhs) {
-		return lhs.calls >= rhs.calls;
+		return lhs.calls < rhs.calls;
 	}
 };
 
@@ -26,6 +26,8 @@ public:
 	void printReport();
 protected:
 	void printAdditionalReport();
+private:
+	int numberOfSkippedEdges;
 };
 
 #endif
