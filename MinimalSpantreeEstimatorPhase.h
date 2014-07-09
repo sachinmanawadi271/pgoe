@@ -17,6 +17,10 @@ struct MoreCalls {
 	}
 };
 
+/**
+ * RN: this phase can run independent of all others except for RemoveUnrelatedNodes
+ * The results turned out to be less optimal than we expected
+ */
 class MinimalSpantreeEstimatorPhase : public EstimatorPhase {
 public:
 	MinimalSpantreeEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);

@@ -166,24 +166,33 @@ MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPha
 MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPhase() {
 }
 
-void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(
+		std::shared_ptr<CgNode> mainMethod) {
+
 	for (auto graphPair : (*graph)) {
 		// If the node was not selected previously, we continue
 		if (!graphPair.second->isInstrumented()) {
 			continue;
 		}
 
-		// If it was selected, we try to move the hook upwards
-		auto cur = graphPair.second;
-		while (cur->getParentNodes().size() == 1) {
-			if ((*cur->getParentNodes().begin())->getChildNodes().size()>1) {
-				break;
+		auto nextAncestor = graphPair.second;
+		auto minimalCalls = nextAncestor;
+
+		// If it was selected, look for a "cheaper" node upwards
+		while (CgHelper::hasUniqueParent(nextAncestor)) {
+
+			nextAncestor = CgHelper::getUniqueParent(nextAncestor);
+			if (nextAncestor->getChildNodes().size()>1) {
+				break;	// don't move if parent has multiple children
 			}
 
-			cur = *cur->getParentNodes().begin(); // This should be safe...
+			if (nextAncestor->getNumberOfCalls() < minimalCalls->getNumberOfCalls()) {
+				minimalCalls = nextAncestor;
+			}
 		}
+
 		graphPair.second->setState(CgNodeState::NONE);
-		cur->setState(CgNodeState::INSTRUMENT);
+		minimalCalls->setState(CgNodeState::INSTRUMENT);
 	}
 }
 

@@ -6,6 +6,15 @@ namespace CgHelper {
 	bool isConjunction(std::shared_ptr<CgNode> node) {
 		return (node->getParentNodes().size() > 1);
 	}
+	/** returns true for nodes with exactly one parent */
+	bool hasUniqueParent(std::shared_ptr<CgNode> node) {
+		return (node->getParentNodes().size() == 1);
+	}
+
+	/** returns the first and unique parent of a node, NO error handling */
+	std::shared_ptr<CgNode> getUniqueParent(std::shared_ptr<CgNode> node) {
+		return *(node->getParentNodes().begin());
+	}
 
 	/** returns true if either instrumented
 	 *  or on unique path that is instrumented above */

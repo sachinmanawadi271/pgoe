@@ -8,6 +8,9 @@
 namespace CgHelper {
 
 	bool isConjunction(std::shared_ptr<CgNode> node);
+	bool hasUniqueParent(std::shared_ptr<CgNode> node);
+
+	std::shared_ptr<CgNode> getUniqueParent(std::shared_ptr<CgNode> node);
 
 	bool isOnInstrumentedPath(std::shared_ptr<CgNode> node);
 
