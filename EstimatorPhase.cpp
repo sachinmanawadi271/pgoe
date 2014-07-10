@@ -163,8 +163,7 @@ MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPha
 MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPhase() {
 }
 
-void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(
-		std::shared_ptr<CgNode> mainMethod) {
+void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 
 	for (auto graphPair : (*graph)) {
 		// If the node was not selected previously, we continue
@@ -206,18 +205,44 @@ void MoveInstrumentationUpwardsEstimatorPhase::printAdditionalReport() {
 DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
 		EstimatorPhase(graph, "DeleteOneInstrumentation"),
-		deletedNodes(0) {
+		deletedInstrumentationMarkers(0) {
 }
 
 DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase() {
 }
 
 void DeleteOneInstrumentationEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
-	// TODO RN: insert intelligent code here
+
+	for (auto pair : (*graph)) {
+		auto node = pair.second;
+
+		if (!CgHelper::isConjunction(node) || node->isUnwound()) {
+			continue;	// nothing to do here
+		}
+		// check that all parents are initially instrumented
+		for (auto parentNode : node->getParentNodes()) {
+			if (CgHelper::getInstumentationOverheadOfPath(parentNode) == 0) {
+				continue;
+			}
+		}
+
+		unsigned long long expensivePath = 0;
+		std::shared_ptr<CgNode> mostExpensiveParent = 0;
+		// TODO RN: the heuristic is far from perfect, this might block another node that has the same parent
+		for (auto parentNode : node->getParentNodes()) {
+			auto pathCosts = CgHelper::getInstumentationOverheadOfPath(parentNode);
+			if (pathCosts > expensivePath) {
+				mostExpensiveParent = parentNode;
+			}
+		}
+
+		CgHelper::removeInstrumentationOnPath(mostExpensiveParent);
+		deletedInstrumentationMarkers++;
+	}
 }
 
 void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
-	std::cout << "\t" << "deleted " << deletedNodes << " instrumentation marker(s)" << std::endl;
+	std::cout << "\t" << "deleted " << deletedInstrumentationMarkers << " instrumentation marker(s)" << std::endl;
 }
 
 //// UNWIND ESTIMATOR PHASE
@@ -277,7 +302,7 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 }
 
 void UnwindEstimatorPhase::printAdditionalReport() {
-	std::cout << "\t" << "Unwound " << unwoundNodes << " leaf node(s) of "
+	std::cout << "\t" << "unwound " << unwoundNodes << " leaf node(s) of "
 			<< unwindCandidates << " candidate(s)" << std::endl;
 }
 

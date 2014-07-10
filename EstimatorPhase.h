@@ -92,6 +92,9 @@ private:
 	int movedInstrumentations;
 };
 
+/**
+ * For every conjunction, delete instrumentation in the most expensive parent node.
+ */
 class DeleteOneInstrumentationEstimatorPhase : public EstimatorPhase {
 public:
 	DeleteOneInstrumentationEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
@@ -101,7 +104,7 @@ public:
 protected:
 	void printAdditionalReport();
 private:
-	int deletedNodes;
+	int deletedInstrumentationMarkers;
 };
 
 /**
