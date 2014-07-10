@@ -223,6 +223,8 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 
 			unwindCandidates++;
 
+			// TODO: use the actual benefit (with remaining instrumentation)
+			// TODO: consider inserting multiple parallel unwind nodes at the same time, accumulate overhead
 			unsigned long long expectedUnwindOverheadNanos =
 					node->getExpectedNumberOfSamples() * CgConfig::nanosPerUnwindSample;
 
