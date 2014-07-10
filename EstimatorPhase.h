@@ -46,6 +46,9 @@ protected:
 	virtual void printAdditionalReport() {}
 };
 
+/**
+ * Remove nodes from the graph that are not connected to the main() method.
+ */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
 	RemoveUnrelatedNodesEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
@@ -64,7 +67,7 @@ private:
 #include <set>
 
 /**
- * Instrument call conjunctions
+ * Instrument all call conjunctions.
  */
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
@@ -75,7 +78,7 @@ public:
 };
 
 /**
- * While possible - Move instrumentation hooks upwards along a call chain
+ * Move Instrumentation hooks upwards a call chain if overhead decreases.
  */
 class MoveInstrumentationUpwardsEstimatorPhase : public EstimatorPhase {
 public:
@@ -83,10 +86,14 @@ public:
 	~MoveInstrumentationUpwardsEstimatorPhase();
 
 	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+protected:
+	void printAdditionalReport();
+private:
+	int movedInstrumentations;
 };
 
 /**
- * Select all leaves for unwind.
+ * Local Unwind from all leaf nodes.
  * Remove redundant instrumentation.
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
@@ -95,6 +102,11 @@ public:
 	~UnwindEstimatorPhase();
 
 	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+protected:
+	void printAdditionalReport();
+private:
+	int unwoundNodes;
+	int unwindCandidates;
 };
 
 #endif

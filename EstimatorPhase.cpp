@@ -107,7 +107,7 @@ void RemoveUnrelatedNodesEstimatorPhase::printReport() {
 
 void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << "\t" << "Removed " << numRemovedNodes << " unrelated nodes."	<< std::endl;
+	std::cout << "\t" << "Removed " << numRemovedNodes << " unrelated node(s)."	<< std::endl;
 }
 
 //// INSTRUMENT ESTIMATOR PHASE
@@ -156,7 +156,8 @@ void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 
 MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
-		EstimatorPhase(graph, "MoveInstrumentationUpwards") {
+		EstimatorPhase(graph, "MoveInstrumentationUpwards"),
+		movedInstrumentations(0) {
 }
 
 MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPhase() {
@@ -187,16 +188,26 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(
 			}
 		}
 
-		graphPair.second->setState(CgNodeState::NONE);
-		minimalCalls->setState(CgNodeState::INSTRUMENT);
+		if (!minimalCalls->isSameFunction(graphPair.second)) {
+			graphPair.second->setState(CgNodeState::NONE);
+			minimalCalls->setState(CgNodeState::INSTRUMENT);
+			movedInstrumentations++;
+		}
 	}
+}
+
+void MoveInstrumentationUpwardsEstimatorPhase::printAdditionalReport() {
+	std::cout << "\t" << "moved " << movedInstrumentations
+			<< " instrumentation marker(s)" << std::endl;
 }
 
 //// UNWIND ESTIMATOR PHASE
 
 UnwindEstimatorPhase::UnwindEstimatorPhase(
 		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
-		EstimatorPhase(graph, "Unwind") {
+		EstimatorPhase(graph, "Unwind"),
+		unwoundNodes(0),
+		unwindCandidates(0) {
 }
 
 UnwindEstimatorPhase::~UnwindEstimatorPhase() {
@@ -210,6 +221,8 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 		// first select all leafs that are conjunctions
 		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
 
+			unwindCandidates++;
+
 			unsigned long long expectedUnwindOverheadNanos =
 					node->getExpectedNumberOfSamples() * CgConfig::nanosPerUnwindSample;
 
@@ -219,6 +232,7 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 			if (expectedUnwindOverheadNanos < expectedInstrumentationOverheadNanos) {
 
 				node->setState(CgNodeState::UNWIND);
+				unwoundNodes++;
 
 				// remove redundant instrumentation in direct parents
 				for (auto parentNode : node->getParentNodes()) {
@@ -239,5 +253,10 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 			}
 		}
 	}
+}
+
+void UnwindEstimatorPhase::printAdditionalReport() {
+	std::cout << "\t" << "Unwound " << unwoundNodes << " leaf node(s) of "
+			<< unwindCandidates << " candidate(s)" << std::endl;
 }
 
