@@ -201,6 +201,25 @@ void MoveInstrumentationUpwardsEstimatorPhase::printAdditionalReport() {
 			<< " instrumentation marker(s)" << std::endl;
 }
 
+//// DELETE ONE INSTRUMENTATION ESTIMATOR PHASE
+
+DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase(
+		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		EstimatorPhase(graph, "DeleteOneInstrumentation"),
+		deletedNodes(0) {
+}
+
+DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase() {
+}
+
+void DeleteOneInstrumentationEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+	// TODO RN: insert intelligent code here
+}
+
+void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
+	std::cout << "\t" << "deleted " << deletedNodes << " instrumentation marker(s)" << std::endl;
+}
+
 //// UNWIND ESTIMATOR PHASE
 
 UnwindEstimatorPhase::UnwindEstimatorPhase(

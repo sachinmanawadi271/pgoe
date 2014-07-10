@@ -92,6 +92,18 @@ private:
 	int movedInstrumentations;
 };
 
+class DeleteOneInstrumentationEstimatorPhase : public EstimatorPhase {
+public:
+	DeleteOneInstrumentationEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	~DeleteOneInstrumentationEstimatorPhase();
+
+	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+protected:
+	void printAdditionalReport();
+private:
+	int deletedNodes;
+};
+
 /**
  * Local Unwind from all leaf nodes.
  * Remove redundant instrumentation.
