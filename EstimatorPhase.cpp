@@ -227,11 +227,12 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(std::shared_ptr<CgNode>
 		}
 
 		unsigned long long expensivePath = 0;
-		std::shared_ptr<CgNode> mostExpensiveParent = 0;
+		std::shared_ptr<CgNode> mostExpensiveParent;
 		// TODO RN: the heuristic is far from perfect, this might block another node that has the same parent
 		for (auto parentNode : node->getParentNodes()) {
 			auto pathCosts = CgHelper::getInstumentationOverheadOfPath(parentNode);
-			if (pathCosts > expensivePath) {
+			// for some strange reason there are edges with 0 calls in the spec profiles
+			if (pathCosts >= expensivePath) {
 				mostExpensiveParent = parentNode;
 			}
 		}
