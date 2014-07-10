@@ -16,19 +16,48 @@ namespace CgHelper {
 		return *(node->getParentNodes().begin());
 	}
 
-	/** returns true if either instrumented
-	 *  or on unique path that is instrumented above */
-	bool isOnInstrumentedPath(std::shared_ptr<CgNode> node) {
+	/** returns overhead of the call path of a node */
+	unsigned long long getInstumentationOverheadOfPath(std::shared_ptr<CgNode> node) {
+
 
 		if (node->isInstrumented()) {
+
+			if(node->isRootNode()) {	// main method has no callers
+				return CgConfig::nanosPerInstrumentedCall;
+			}
+			return node->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
+		}
+		if (isConjunction(node) || node->isRootNode()) {
+			return 0;
+		}
+		// single parent
+		auto parentNode = getUniqueParent(node);
+		return getInstumentationOverheadOfPath(parentNode);
+	}
+
+	/** returns the overhead caused by a call path */
+	unsigned long long getInstrumentationOverheadOfConjunction(
+			std::shared_ptr<CgNode> conjunctionNode) {
+
+		auto parents = conjunctionNode->getParentNodes();
+
+		return std::accumulate(parents.begin(), parents.end(), 0,
+				[] (int i, std::shared_ptr<CgNode> parent) {
+					return i + getInstumentationOverheadOfPath(parent);
+				});
+	}
+
+	/** removes the instrumentation of a call path.
+	 * 	returns false if no instrumentation found */
+	bool removeInstrumentationOnPath(std::shared_ptr<CgNode> node) {
+		if (node->isInstrumented()) {
+			node->setState(CgNodeState::NONE);
 			return true;
 		}
 		if (isConjunction(node) || node->isRootNode()) {
 			return false;
 		}
-		// single parent
-		auto parentNode = *(node->getParentNodes().begin());
-		return isOnInstrumentedPath(parentNode);
+		return removeInstrumentationOnPath(getUniqueParent(node));
 	}
 
 	/** true if the two nodes are connected via spanning tree edges */

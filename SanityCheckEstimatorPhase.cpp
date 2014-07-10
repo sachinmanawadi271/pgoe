@@ -19,7 +19,7 @@ void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) 
 			// all parents' call paths have to be instrumented
 			for (auto parentNode : node->getParentNodes()) {
 
-				if(!CgHelper::isOnInstrumentedPath(parentNode)) {
+				if(!CgHelper::getInstumentationOverheadOfPath(parentNode)) {
 					numberOfErrors++;
 					std::cerr << "ERROR: Inconsistency in conjunction node: " << node->getFunctionName() << std::endl
 							<< "  path of : " << parentNode->getFunctionName() << " not instrumented" << std::endl;

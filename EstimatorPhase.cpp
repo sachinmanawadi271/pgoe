@@ -11,10 +11,6 @@ EstimatorPhase::EstimatorPhase(
 
 void EstimatorPhase::generateReport() {
 
-	// TODO refactor these somewhere outside
-	const unsigned int nanosPerInstrumentedCall = 4;
-	const unsigned int nanosPerUnwindSample = 4000;
-
 	for(auto pair : (*graph) ) {
 		auto node = pair.second;
 
@@ -29,8 +25,8 @@ void EstimatorPhase::generateReport() {
 
 	report.overallMethods = graph->size();
 
-	report.instrumentationOverhead = report.instrumentedCalls * nanosPerInstrumentedCall;
-	report.unwindOverhead = report.unwindSamples * nanosPerUnwindSample;
+	report.instrumentationOverhead = report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall;
+	report.unwindOverhead = report.unwindSamples * CgConfig::nanosPerUnwindSample;
 
 	report.phaseName = name;
 }
@@ -211,25 +207,35 @@ void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 	for (auto pair : (*graph)) {
 		auto node = pair.second;
 
-		// select all leaves
+		// first select all leafs that are conjunctions
 		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
-			node->setState(CgNodeState::UNWIND);
-		}
 
-		// remove redundant instrumentation in direct parents
-		for (auto parentNode : node->getParentNodes()) {
+			unsigned long long expectedUnwindOverheadNanos =
+					node->getExpectedNumberOfSamples() * CgConfig::nanosPerUnwindSample;
 
-			bool redundantInstrumentation = true;
-			for (auto childOfParentNode : parentNode->getChildNodes()) {
+			unsigned long long expectedInstrumentationOverheadNanos =
+					CgHelper::getInstrumentationOverheadOfConjunction(node);
 
-				if (!childOfParentNode->isUnwound()
-						&& CgHelper::isConjunction(childOfParentNode)) {
-					redundantInstrumentation = false;
+			if (expectedUnwindOverheadNanos < expectedInstrumentationOverheadNanos) {
+
+				node->setState(CgNodeState::UNWIND);
+
+				// remove redundant instrumentation in direct parents
+				for (auto parentNode : node->getParentNodes()) {
+
+					bool redundantInstrumentation = true;
+					for (auto childOfParentNode : parentNode->getChildNodes()) {
+
+						if (!childOfParentNode->isUnwound()
+								&& CgHelper::isConjunction(childOfParentNode)) {
+							redundantInstrumentation = false;
+						}
+					}
+
+					if (redundantInstrumentation) {
+						CgHelper::removeInstrumentationOnPath(parentNode);
+					}
 				}
-			}
-
-			if (redundantInstrumentation) {
-				parentNode->setState(CgNodeState::NONE);
 			}
 		}
 	}

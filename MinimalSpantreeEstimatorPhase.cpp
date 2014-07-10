@@ -45,9 +45,6 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 
-	// TODO this number should be in a config file
-	const int nanosPerInstrumentedCall = 4;
-
 	unsigned long long numberOfInstrumentedCalls = 0;
 	unsigned long long instrumentationOverhead = 0;
 
@@ -61,7 +58,7 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 
 				unsigned long long numberOfCalls = childNode->getNumberOfCalls(parentNode);
 				numberOfInstrumentedCalls += numberOfCalls;
-				instrumentationOverhead += (numberOfCalls * nanosPerInstrumentedCall);
+				instrumentationOverhead += (numberOfCalls * CgConfig::nanosPerInstrumentedCall);
 			}
 		}
 	}

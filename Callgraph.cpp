@@ -13,7 +13,7 @@ Callgraph::Callgraph(int samplesPerSecond) :
 //	phases.push(new MinimalSpantreeEstimatorPhase(&graph));	// XXX deactivated
 	phases.push(new InstrumentEstimatorPhase(&graph));
 	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
-//	phases.push(new UnwindEstimatorPhase(&graph));	// RN TODO: fix after previous changes
+	phases.push(new UnwindEstimatorPhase(&graph));
 	phases.push(new SanityCheckEstimatorPhase(&graph));
 }
 
