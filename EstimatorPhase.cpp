@@ -217,28 +217,29 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(std::shared_ptr<CgNode>
 		auto node = pair.second;
 
 		if (!CgHelper::isConjunction(node) || node->isUnwound()) {
-			continue;	// nothing to do here
+			continue;
 		}
-		// check that all parents are initially instrumented
-		for (auto parentNode : node->getParentNodes()) {
-			if (CgHelper::getInstumentationOverheadOfPath(parentNode) == 0) {
-				continue;
-			}
+
+		if (!CgHelper::allParentsPathsInstrumented(node)) {
+			continue;
 		}
 
 		unsigned long long expensivePath = 0;
-		std::shared_ptr<CgNode> mostExpensiveParent;
+		std::shared_ptr<CgNode> mostExpensiveParent = 0;
+
 		// TODO RN: the heuristic is far from perfect, this might block another node that has the same parent
 		for (auto parentNode : node->getParentNodes()) {
 			auto pathCosts = CgHelper::getInstumentationOverheadOfPath(parentNode);
 			// for some strange reason there are edges with 0 calls in the spec profiles
-			if (pathCosts >= expensivePath) {
+			if (pathCosts > expensivePath && CgHelper::instrumentationCanBeDeleted(parentNode)) {
 				mostExpensiveParent = parentNode;
 			}
 		}
 
-		CgHelper::removeInstrumentationOnPath(mostExpensiveParent);
-		deletedInstrumentationMarkers++;
+		if(mostExpensiveParent) {
+			CgHelper::removeInstrumentationOnPath(mostExpensiveParent);
+			deletedInstrumentationMarkers++;
+		}
 	}
 }
 

@@ -19,6 +19,9 @@ namespace CgHelper {
 
 	std::shared_ptr<CgNode> getUniqueParent(std::shared_ptr<CgNode> node);
 
+	bool instrumentationCanBeDeleted(std::shared_ptr<CgNode> node);
+	bool allParentsPathsInstrumented(std::shared_ptr<CgNode> conjunctionNode);
+
 	unsigned long long getInstrumentationOverheadOfConjunction(std::shared_ptr<CgNode> conjunctionNode);
 	unsigned long long getInstumentationOverheadOfPath(std::shared_ptr<CgNode> node);
 

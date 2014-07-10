@@ -7,6 +7,8 @@ $(call check-var-defined,CUBE_LIBRARY_PATH)
 #CXXFLAGS=-std=c++11
 CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
 
+DEBUG=-g
+
 SOURCES=main.cpp CgNode.cpp Callgraph.cpp EstimatorPhase.cpp \
 SanityCheckEstimatorPhase.cpp MinimalSpantreeEstimatorPhase.cpp CgHelper.cpp
 
@@ -20,7 +22,7 @@ LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 #LDFLAGS+=-L/home/ci24amun/myRoot/gcc/openmpi/cube/4.2.1/lib -lcube4 -lz
 
 CubeCallGraphTool-mice:
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(SOURCES) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(SOURCES) $(LDFLAGS) $(DEBUG)
 
 CubeCallGraphTool-lcluster:	# RN: i have no idea if this is still valid
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(SOURCES) $(LDFLAGS)

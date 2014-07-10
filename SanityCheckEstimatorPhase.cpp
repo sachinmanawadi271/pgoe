@@ -14,15 +14,22 @@ void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) 
 	for (auto pair : (*graph)) {
 		auto node = pair.second;
 
-		if(CgHelper::isConjunction(node) && !node->isUnwound()) {
+		if(!CgHelper::isConjunction(node) || node->isUnwound()) {
+			continue;
+		}
 
-			// all parents' call paths have to be instrumented
-			for (auto parentNode : node->getParentNodes()) {
+		bool oneUninstrumentedPath = false;
 
-				if(!CgHelper::getInstumentationOverheadOfPath(parentNode)) {
+		// all parents' call paths BUT ONE have to be instrumented
+		for (auto parentNode : node->getParentNodes()) {
+
+			if(CgHelper::getInstumentationOverheadOfPath(parentNode) == 0) {
+				if(oneUninstrumentedPath) {
 					numberOfErrors++;
 					std::cerr << "ERROR: Inconsistency in conjunction node: " << node->getFunctionName() << std::endl
 							<< "  path of : " << parentNode->getFunctionName() << " not instrumented" << std::endl;
+				} else {
+					oneUninstrumentedPath = true;
 				}
 			}
 		}

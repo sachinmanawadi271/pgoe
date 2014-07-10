@@ -10,11 +10,11 @@ Callgraph::Callgraph(int samplesPerSecond) :
 
 	// XXX phases are always hardcoded and predetermined for now
 	phases.push(new RemoveUnrelatedNodesEstimatorPhase(&graph));
-//	phases.push(new MinimalSpantreeEstimatorPhase(&graph));	// XXX deactivated
+//	phases.push(new MinimalSpantreeEstimatorPhase(&graph));	// XXX does not hinder other phases
 	phases.push(new InstrumentEstimatorPhase(&graph));
 	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
 	phases.push(new DeleteOneInstrumentationEstimatorPhase(&graph));
-	phases.push(new UnwindEstimatorPhase(&graph));
+//	phases.push(new UnwindEstimatorPhase(&graph)); 	// TODO deactivated
 	phases.push(new SanityCheckEstimatorPhase(&graph));
 }
 
