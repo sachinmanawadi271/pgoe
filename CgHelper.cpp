@@ -18,30 +18,21 @@ namespace CgHelper {
 
 	/** returns overhead of the call path of a node */
 	unsigned long long getInstrumentationOverheadOfPath(std::shared_ptr<CgNode> node) {
-		// XXX RN: this method has slowly grown up to a real mess
-		if (node->isInstrumented()) {
+		auto instrumentedNode = getInstrumentedNodeOnPath(node);
 
-			if(node->isRootNode()) {	// main method has no callers
+		if (instrumentedNode) {
+			if(instrumentedNode->isRootNode()) {	// main method has no callers
 				return CgConfig::nanosPerInstrumentedCall;
 			}
-			return node->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
-		}
-
-		if (isConjunction(node) || node->isRootNode()) {
+			return instrumentedNode->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
+		} else {
 			return 0;
 		}
-		// single parent
-		auto parentNode = getUniqueParent(node);
-
-		// if the parent has multiple children, instrumentation cannot be moved up there
-		if (parentNode->getChildNodes().size() > 1) {
-			return 0;
-		}
-
-		return getInstrumentationOverheadOfPath(parentNode);
 	}
 
+	/** returns a pointer to the node that is instrumented up that call path */
 	std::shared_ptr<CgNode> getInstrumentedNodeOnPath(std::shared_ptr<CgNode> node) {
+		// XXX RN: this method has slowly grown up to a real mess
 		if (node->isInstrumented()) {
 			return node;
 		}
@@ -60,6 +51,11 @@ namespace CgHelper {
 		return getInstrumentedNodeOnPath(parentNode);
 	}
 
+	/**
+	 * returns true if the node can be deleted and all call paths can still be reconstructed.
+	 * The node has to be the direct parent of a call conjunction.
+	 * Checks the call path reconstruction for all child nodes.
+	 */
 	bool instrumentationCanBeDeleted(std::shared_ptr<CgNode> node) {
 		for (auto childNode : node->getChildNodes()) {
 
