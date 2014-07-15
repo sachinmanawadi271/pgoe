@@ -13,6 +13,6 @@ BENCHMARKS=`find $SPEC_PATH -name *.cubex`
 for bm in $BENCHMARKS ;do
 	FILE=$(basename $bm)
 	
-	$CCG $SPEC_PATH/$FILE 1000 &> $SPEC_OUTPUT/$FILE.log
+	$CCG $SPEC_PATH/$FILE $1 &> $SPEC_OUTPUT/$FILE.log
 done
 

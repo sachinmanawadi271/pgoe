@@ -85,6 +85,13 @@ namespace CgHelper {
 		if (isConjunction(node) || node->isRootNode()) {
 			return false;
 		}
+
+		// there can not be instrumentation up here if the parent has multiple children
+		auto uniqueParent = getUniqueParent(node);
+		if (uniqueParent->getChildNodes().size()>1) {
+			return false;
+		}
+
 		return removeInstrumentationOnPath(getUniqueParent(node));
 	}
 
