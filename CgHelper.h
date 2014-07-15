@@ -3,6 +3,7 @@
 #define CGNODEHELPER_H_
 
 #include <memory>
+#include <queue>
 #include <numeric>	// for std::accumulate
 #include "CgNode.h"
 
@@ -24,6 +25,9 @@ namespace CgHelper {
 
 	unsigned long long getInstrumentationOverheadOfConjunction(std::shared_ptr<CgNode> conjunctionNode);
 	unsigned long long getInstumentationOverheadOfPath(std::shared_ptr<CgNode> node);
+	std::shared_ptr<CgNode> getInstrumentedNodeOnPath(std::shared_ptr<CgNode> node);
+
+	bool reachableFrom(std::shared_ptr<CgNode> parentNode, std::shared_ptr<CgNode> childNode);
 
 	bool removeInstrumentationOnPath(std::shared_ptr<CgNode> node);
 

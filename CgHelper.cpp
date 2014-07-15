@@ -41,6 +41,25 @@ namespace CgHelper {
 		return getInstumentationOverheadOfPath(parentNode);
 	}
 
+	std::shared_ptr<CgNode> getInstrumentedNodeOnPath(std::shared_ptr<CgNode> node) {
+		if (node->isInstrumented()) {
+			return node;
+		}
+
+		if (isConjunction(node) || node->isRootNode()) {
+			return NULL;
+		}
+		// single parent
+		auto parentNode = getUniqueParent(node);
+
+		// if the parent has multiple children, instrumentation cannot be moved up there
+		if (parentNode->getChildNodes().size() > 1) {
+			return NULL;
+		}
+
+		return getInstrumentedNodeOnPath(parentNode);
+	}
+
 	bool instrumentationCanBeDeleted(std::shared_ptr<CgNode> node) {
 		for (auto childNode : node->getChildNodes()) {
 			if (	   isConjunction(childNode)
@@ -93,6 +112,33 @@ namespace CgHelper {
 		}
 
 		return removeInstrumentationOnPath(getUniqueParent(node));
+	}
+
+	bool reachableFrom(std::shared_ptr<CgNode> parentNode, std::shared_ptr<CgNode> childNode) {
+
+		std::set<std::shared_ptr<CgNode> > visitedNodes;
+		std::queue<std::shared_ptr<CgNode> > workQueue;
+		workQueue.push(parentNode);
+
+		while (!workQueue.empty()) {
+
+			auto node = workQueue.front();
+			workQueue.pop();
+
+			if (node->isSameFunction(childNode)) {
+				return true;
+			}
+
+			visitedNodes.insert(node);
+
+			for (auto childNode : node->getChildNodes()) {
+				if (visitedNodes.find(childNode) == visitedNodes.end()) {
+					workQueue.push(childNode);
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/** true if the two nodes are connected via spanning tree edges */

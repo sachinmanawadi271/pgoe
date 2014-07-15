@@ -18,21 +18,42 @@ void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) 
 			continue;
 		}
 
-		bool oneUninstrumentedPath = false;
+		std::shared_ptr<CgNode> oneUninstrumentedPath = 0;
+		std::set<std::shared_ptr<CgNode> > instrumentedPaths;
 
 		// all parents' call paths BUT ONE have to be instrumented
 		for (auto parentNode : node->getParentNodes()) {
 
+
 			if(CgHelper::getInstumentationOverheadOfPath(parentNode) == 0) {
 				if(oneUninstrumentedPath) {
 					numberOfErrors++;
-					std::cerr << "ERROR: Inconsistency in conjunction node: " << node->getFunctionName() << std::endl
-							<< "  path of : " << parentNode->getFunctionName() << " not instrumented" << std::endl;
+					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
+							<< "\"" << std::endl
+							<< "  paths of \"" << parentNode->getFunctionName()
+							<< "\" and \"" << oneUninstrumentedPath->getFunctionName()
+							<< "\" not instrumented" << std::endl;
 				} else {
-					oneUninstrumentedPath = true;
+					oneUninstrumentedPath = parentNode;
+				}
+			} else {
+				instrumentedPaths.insert(parentNode);
+			}
+		}
+		// check that the uninstrumented path is not reachable from another instrumented node
+		if (oneUninstrumentedPath) {
+			for (auto instrumentedPath : instrumentedPaths) {
+				if (CgHelper::reachableFrom(instrumentedPath, oneUninstrumentedPath)) {
+					numberOfErrors++;
+					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
+							<< "\"" << std::endl
+							<< "  uninstrumented parent \""<< oneUninstrumentedPath->getFunctionName()
+							<< "\" is reachable from instrumented node \""
+							<< instrumentedPath->getFunctionName() << "\"" << std::endl;
 				}
 			}
 		}
+
 	}
 
 	// XXX idea: check that there is no instrumentation below unwound nodes
