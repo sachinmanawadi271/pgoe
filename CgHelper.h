@@ -24,7 +24,7 @@ namespace CgHelper {
 	bool allParentsPathsInstrumented(std::shared_ptr<CgNode> conjunctionNode);
 
 	unsigned long long getInstrumentationOverheadOfConjunction(std::shared_ptr<CgNode> conjunctionNode);
-	unsigned long long getInstumentationOverheadOfPath(std::shared_ptr<CgNode> node);
+	unsigned long long getInstrumentationOverheadOfPath(std::shared_ptr<CgNode> node);
 	std::shared_ptr<CgNode> getInstrumentedNodeOnPath(std::shared_ptr<CgNode> node);
 
 	bool reachableFrom(std::shared_ptr<CgNode> parentNode, std::shared_ptr<CgNode> childNode);

@@ -25,7 +25,7 @@ void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) 
 		for (auto parentNode : node->getParentNodes()) {
 
 
-			if(CgHelper::getInstumentationOverheadOfPath(parentNode) == 0) {
+			if(CgHelper::getInstrumentedNodeOnPath(parentNode) == NULL) {
 				if(oneUninstrumentedPath) {
 					numberOfErrors++;
 					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()

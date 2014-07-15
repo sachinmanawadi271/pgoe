@@ -17,7 +17,7 @@ namespace CgHelper {
 	}
 
 	/** returns overhead of the call path of a node */
-	unsigned long long getInstumentationOverheadOfPath(std::shared_ptr<CgNode> node) {
+	unsigned long long getInstrumentationOverheadOfPath(std::shared_ptr<CgNode> node) {
 		// XXX RN: this method has slowly grown up to a real mess
 		if (node->isInstrumented()) {
 
@@ -38,7 +38,7 @@ namespace CgHelper {
 			return 0;
 		}
 
-		return getInstumentationOverheadOfPath(parentNode);
+		return getInstrumentationOverheadOfPath(parentNode);
 	}
 
 	std::shared_ptr<CgNode> getInstrumentedNodeOnPath(std::shared_ptr<CgNode> node) {
@@ -62,10 +62,23 @@ namespace CgHelper {
 
 	bool instrumentationCanBeDeleted(std::shared_ptr<CgNode> node) {
 		for (auto childNode : node->getChildNodes()) {
+
 			if (	   isConjunction(childNode)
 					&& !childNode->isUnwound()
 					&& !allParentsPathsInstrumented(childNode)) {
 				return false;
+			}
+
+			for (auto parentOfChildNode : childNode->getParentNodes()) {
+				auto instrumentedParent = getInstrumentedNodeOnPath(parentOfChildNode);
+
+				// if the to be removed instrumentation can be reached from another instrumented nodes
+				// the call paths can not be reconstructed any longer
+				if(		   instrumentedParent
+						&& !parentOfChildNode->isSameFunction(node)
+						&& reachableFrom(instrumentedParent, node)) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -77,7 +90,7 @@ namespace CgHelper {
 
 		return std::accumulate(parents.begin(), parents.end(), true,
 				[] (bool b, std::shared_ptr<CgNode> parent) {
-					return b && (getInstumentationOverheadOfPath(parent)!=0);
+					return b && (getInstrumentationOverheadOfPath(parent)!=0);
 				});
 	}
 
@@ -89,7 +102,7 @@ namespace CgHelper {
 
 		return std::accumulate(parents.begin(), parents.end(), 0,
 				[] (int i, std::shared_ptr<CgNode> parent) {
-					return i + getInstumentationOverheadOfPath(parent);
+					return i + getInstrumentationOverheadOfPath(parent);
 				});
 	}
 
@@ -116,6 +129,7 @@ namespace CgHelper {
 
 	bool reachableFrom(std::shared_ptr<CgNode> parentNode, std::shared_ptr<CgNode> childNode) {
 
+		// XXX RN: once again code duplication
 		std::set<std::shared_ptr<CgNode> > visitedNodes;
 		std::queue<std::shared_ptr<CgNode> > workQueue;
 		workQueue.push(parentNode);
