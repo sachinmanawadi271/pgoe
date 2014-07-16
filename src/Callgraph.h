@@ -27,6 +27,7 @@ public:
 
 	void updateNodeAttributes();
 
+	void registerEstimatorPhases();
 	void thatOneLargeMethod();	// TODO RN: rename
 
 	void print();

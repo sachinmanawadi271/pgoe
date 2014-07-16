@@ -1,7 +1,7 @@
 #include "SanityCheckEstimatorPhase.h"
 
 SanityCheckEstimatorPhase::SanityCheckEstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph) :
+		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "SanityCheck"),
 		numberOfErrors(0){
 }
@@ -11,8 +11,7 @@ SanityCheckEstimatorPhase::~SanityCheckEstimatorPhase() {}
 void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 
-	for (auto pair : (*graph)) {
-		auto node = pair.second;
+	for (auto node : (*graph)) {
 
 		// unwound nodes are fine as they are
 		if(!CgHelper::isConjunction(node) || node->isUnwound()) {

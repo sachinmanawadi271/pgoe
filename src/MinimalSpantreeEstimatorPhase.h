@@ -23,7 +23,7 @@ struct MoreCalls {
  */
 class MinimalSpantreeEstimatorPhase : public EstimatorPhase {
 public:
-	MinimalSpantreeEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
+	MinimalSpantreeEstimatorPhase(CgNodePtrSet* graph);
 	~MinimalSpantreeEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);

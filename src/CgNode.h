@@ -8,6 +8,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <unordered_set>
+
 // XXX RN: switch these out for unordered hash equivalents some time?
 #include <map>
 #include <set>
@@ -20,6 +22,8 @@ enum CgNodeState {
 
 class CgNode;
 typedef std::shared_ptr<CgNode> CgNodePtr;	// hopefully this typedef helps readability
+
+typedef std::unordered_set<CgNodePtr> CgNodePtrSet;
 
 class CgNode {
 

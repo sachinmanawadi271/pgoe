@@ -7,15 +7,6 @@
 
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
-
-	// XXX RN: there is no registration mechanism because there is only one meaningful order
-	phases.push(new RemoveUnrelatedNodesEstimatorPhase(&graph));
-//	phases.push(new MinimalSpantreeEstimatorPhase(&graph));	// XXX does not hinder other phases
-	phases.push(new InstrumentEstimatorPhase(&graph));
-	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
-	phases.push(new DeleteOneInstrumentationEstimatorPhase(&graph));
-	phases.push(new UnwindEstimatorPhase(&graph));
-	phases.push(new SanityCheckEstimatorPhase(&graph));
 }
 
 int Callgraph::putFunction(std::string parentName, std::string childName) {
@@ -111,7 +102,25 @@ int helper(int i, std::pair< std::string, CgNodePtr> pair) {
 	return i;
 }
 
+void Callgraph::registerEstimatorPhases() {
+	CgNodePtrSet* graphNodes = new CgNodePtrSet();
+	for (auto pair : graph) {
+		graphNodes->insert(pair.second);
+	}
+
+	// XXX RN: there is no registration mechanism because there is only one meaningful order
+	phases.push(new RemoveUnrelatedNodesEstimatorPhase(graphNodes));
+//	phases.push(new MinimalSpantreeEstimatorPhase(graphNodes));	// XXX does not hinder other phases
+	phases.push(new InstrumentEstimatorPhase(graphNodes));
+	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(graphNodes));
+	phases.push(new DeleteOneInstrumentationEstimatorPhase(graphNodes));
+	phases.push(new UnwindEstimatorPhase(graphNodes));
+	phases.push(new SanityCheckEstimatorPhase(graphNodes));
+}
+
 void Callgraph::thatOneLargeMethod() {
+
+	registerEstimatorPhases();
 
 	updateNodeAttributes();
 

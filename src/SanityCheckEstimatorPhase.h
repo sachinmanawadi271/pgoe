@@ -13,7 +13,7 @@
  */
 class SanityCheckEstimatorPhase : public EstimatorPhase {
 public:
-	SanityCheckEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
+	SanityCheckEstimatorPhase(CgNodePtrSet* graph);
 	~SanityCheckEstimatorPhase();
 	/** does NOT modify the graph */
 	void modifyGraph(CgNodePtr mainMethod);

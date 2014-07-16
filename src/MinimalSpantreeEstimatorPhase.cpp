@@ -2,7 +2,7 @@
 #include "MinimalSpantreeEstimatorPhase.h"
 
 MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph) :
+		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "MinimalSpantree"),
 		numberOfSkippedEdges(0) {
 }
@@ -14,8 +14,7 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	std::priority_queue<SpantreeEdge, std::vector<SpantreeEdge>, MoreCalls> pq;
 	// get all edges
-	for (auto pair : (*graph)) {
-		auto parentNode = pair.second;
+	for (auto parentNode : (*graph)) {
 		for (auto childNode : parentNode->getChildNodes()) {
 			pq.push(SpantreeEdge({
 				childNode->getNumberOfCalls(parentNode), childNode, parentNode
@@ -48,8 +47,7 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 	unsigned long long numberOfInstrumentedCalls = 0;
 	unsigned long long instrumentationOverhead = 0;
 
-	for (auto pair : (*graph)) {
-		auto childNode = pair.second;
+	for (auto childNode : (*graph)) {
 
 		for (auto parentNode : childNode->getParentNodes()) {
 			if(childNode->isSpantreeParent(parentNode)) {

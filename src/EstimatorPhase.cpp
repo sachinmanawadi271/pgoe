@@ -1,8 +1,7 @@
 
 #include "EstimatorPhase.h"
 
-EstimatorPhase::EstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph, std::string name) :
+EstimatorPhase::EstimatorPhase(CgNodePtrSet* graph, std::string name) :
 
 		graph(graph),
 		report({0}),// this hopefully initializes all members to 0
@@ -11,8 +10,7 @@ EstimatorPhase::EstimatorPhase(
 
 void EstimatorPhase::generateReport() {
 
-	for(auto pair : (*graph) ) {
-		auto node = pair.second;
+	for(auto node : (*graph)) {
 
 		if(node->isInstrumented()) {
 			report.instrumentedMethods += 1;
@@ -55,9 +53,11 @@ void EstimatorPhase::printReport() {
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
 
 RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph) :
+		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "RemoveUnrelated"),
 		numRemovedNodes(0) {
+///XXX
+	std::cout << "###" << graph->size() << std::endl;
 }
 
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
@@ -87,12 +87,10 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	}
 
-	for (auto pair : (*graph)) {
-		auto node = pair.second;
-
+	for (auto node : (*graph)) {
 		// remove nodes that were not reachable from the main method
 		if (visitedNodes.find(node) == visitedNodes.end()) {
-			graph->erase(node->getFunctionName());
+			graph->erase(node);
 			numRemovedNodes++;
 		}
 	}
@@ -113,7 +111,7 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 //// INSTRUMENT ESTIMATOR PHASE
 
 InstrumentEstimatorPhase::InstrumentEstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph) :
+		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "Instrument") {
 }
 
@@ -155,7 +153,7 @@ void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 //// MOVE INSTRUMENTATION UPWARDS ESTIMATOR PHASE
 
 MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph) :
+		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "MoveInstrumentationUpwards"),
 		movedInstrumentations(0) {
 }
@@ -165,13 +163,12 @@ MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPh
 
 void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	for (auto graphPair : (*graph)) {
+	for (auto nextAncestor : (*graph)) {
 		// If the node was not selected previously, we continue
-		if (!graphPair.second->isInstrumented()) {
+		if (!nextAncestor->isInstrumented()) {
 			continue;
 		}
 
-		auto nextAncestor = graphPair.second;
 		auto minimalCalls = nextAncestor;
 
 		// If it was selected, look for a "cheaper" node upwards
@@ -187,8 +184,8 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 			}
 		}
 
-		if (!minimalCalls->isSameFunction(graphPair.second)) {
-			graphPair.second->setState(CgNodeState::NONE);
+		if (!minimalCalls->isSameFunction(nextAncestor)) {
+			nextAncestor->setState(CgNodeState::NONE);
 			minimalCalls->setState(CgNodeState::INSTRUMENT);
 			movedInstrumentations++;
 		}
@@ -203,7 +200,7 @@ void MoveInstrumentationUpwardsEstimatorPhase::printAdditionalReport() {
 //// DELETE ONE INSTRUMENTATION ESTIMATOR PHASE
 
 DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph) :
+		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "DeleteOneInstrumentation"),
 		deletedInstrumentationMarkers(0) {
 }
@@ -213,8 +210,7 @@ DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase(
 
 void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	for (auto pair : (*graph)) {
-		auto node = pair.second;
+	for (auto node : (*graph)) {
 
 		if (!CgHelper::isConjunction(node) || node->isUnwound()) {
 			continue;
@@ -250,7 +246,7 @@ void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
 //// UNWIND ESTIMATOR PHASE
 
 UnwindEstimatorPhase::UnwindEstimatorPhase(
-		std::map<std::string, CgNodePtr>* graph) :
+		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "Unwind"),
 		unwoundNodes(0),
 		unwindCandidates(0) {
@@ -261,8 +257,7 @@ UnwindEstimatorPhase::~UnwindEstimatorPhase() {
 
 void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	for (auto pair : (*graph)) {
-		auto node = pair.second;
+	for (auto node : (*graph)) {
 
 		// first select all leafs that are conjunctions
 		if (node->isLeafNode() && CgHelper::isConjunction(node)) {

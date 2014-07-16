@@ -5,7 +5,8 @@
 #include <iostream>
 
 #include <memory>
-#include <map>
+//#include <map>
+#include <unordered_set>
 
 #include "CgNode.h"
 #include "CgHelper.h"
@@ -27,7 +28,7 @@ struct CgReport {
 
 class EstimatorPhase {
 public:
-	EstimatorPhase(std::map<std::string, CgNodePtr>* graph, std::string name);
+	EstimatorPhase(CgNodePtrSet* graph, std::string name);
 	virtual ~EstimatorPhase() {}
 
 	virtual void modifyGraph(CgNodePtr mainMethod) = 0;
@@ -38,7 +39,7 @@ public:
 	virtual void printReport();
 
 protected:
-	std::map<std::string, CgNodePtr>* graph;
+	CgNodePtrSet* graph;
 
 	CgReport report;
 	std::string name;
@@ -52,7 +53,7 @@ protected:
  */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
-	RemoveUnrelatedNodesEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
+	RemoveUnrelatedNodesEstimatorPhase(CgNodePtrSet* graph);
 	~RemoveUnrelatedNodesEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -72,7 +73,7 @@ private:
  */
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
-	InstrumentEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
+	InstrumentEstimatorPhase(CgNodePtrSet* graph);
 	~InstrumentEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -83,7 +84,7 @@ public:
  */
 class MoveInstrumentationUpwardsEstimatorPhase : public EstimatorPhase {
 public:
-	MoveInstrumentationUpwardsEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
+	MoveInstrumentationUpwardsEstimatorPhase(CgNodePtrSet* graph);
 	~MoveInstrumentationUpwardsEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -98,7 +99,7 @@ private:
  */
 class DeleteOneInstrumentationEstimatorPhase : public EstimatorPhase {
 public:
-	DeleteOneInstrumentationEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
+	DeleteOneInstrumentationEstimatorPhase(CgNodePtrSet* graph);
 	~DeleteOneInstrumentationEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -114,7 +115,7 @@ private:
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
 public:
-	UnwindEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
+	UnwindEstimatorPhase(CgNodePtrSet* graph);
 	~UnwindEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
