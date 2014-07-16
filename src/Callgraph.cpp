@@ -20,8 +20,8 @@ Callgraph::Callgraph(int samplesPerSecond) :
 
 int Callgraph::putFunction(std::string parentName, std::string childName) {
 
-	std::shared_ptr<CgNode> parentNode;
-	std::shared_ptr<CgNode> childNode;
+	CgNodePtr parentNode;
+	CgNodePtr childNode;
 
 	int returnCode = 0;
 
@@ -39,7 +39,7 @@ int Callgraph::putFunction(std::string parentName, std::string childName) {
 		// Create a new node representing the caller
 		parentNode = std::make_shared<CgNode>(parentName);
 		graph.insert(
-				std::pair<std::string, std::shared_ptr<CgNode> >(parentName,
+				std::pair<std::string, CgNodePtr>(parentName,
 						parentNode));
 		returnCode++;
 #if DEBUG > 1
@@ -57,7 +57,7 @@ int Callgraph::putFunction(std::string parentName, std::string childName) {
 		// Create a new node representing the callee
 		childNode = std::make_shared<CgNode>(childName);
 		graph.insert(
-				std::pair<std::string, std::shared_ptr<CgNode> >(childName,
+				std::pair<std::string, CgNodePtr>(childName,
 						childNode));
 		returnCode++;
 #if DEBUG > 1
@@ -91,7 +91,7 @@ int Callgraph::putFunction(std::string parentName, std::string parentFilename,
 	return 0;
 }
 
-std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName) {
+CgNodePtr Callgraph::findNode(std::string functionName) {
 
 	for (auto node : graph) {
 		auto fName = node.second->getFunctionName();
@@ -104,7 +104,7 @@ std::shared_ptr<CgNode> Callgraph::findNode(std::string functionName) {
 
 }
 
-int helper(int i, std::pair< std::string, std::shared_ptr<CgNode> > pair) {
+int helper(int i, std::pair< std::string, CgNodePtr> pair) {
 	if(pair.second->isInstrumented()) {
 		return i+1;
 	}
@@ -137,7 +137,7 @@ void Callgraph::thatOneLargeMethod() {
 					graph.end(),
 					0,
 					// RN: i always wanted to use a lambda function in c++ for once
-					[] (int i, std::pair< std::string, std::shared_ptr<CgNode> > pair) {
+					[] (int i, std::pair< std::string, CgNodePtr> pair) {
 						return pair.second->isInstrumented() ? i+1 : i;
 					}
 			);
@@ -163,7 +163,7 @@ void Callgraph::print() {
 	std::cout << std::endl;
 }
 
-std::shared_ptr<CgNode> Callgraph::findMain() {
+CgNodePtr Callgraph::findMain() {
 
 	for (auto node : graph) {
 		auto fName = node.first;

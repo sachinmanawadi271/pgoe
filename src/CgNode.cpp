@@ -3,10 +3,10 @@
 
 CgNode::CgNode(std::string function){
 	this->functionName = function;
-	this->parentNodes = std::set<std::shared_ptr<CgNode> >();
-	this->childNodes = std::set<std::shared_ptr<CgNode> >();
+	this->parentNodes = std::set<CgNodePtr>();
+	this->childNodes = std::set<CgNodePtr>();
 
-	this->spantreeParents = std::set<std::shared_ptr<CgNode> >();
+	this->spantreeParents = std::set<CgNodePtr>();
 
 	this->line = -1;
 	this->state = CgNodeState::NONE;
@@ -19,13 +19,13 @@ CgNode::CgNode(std::string function){
 }
 
 
-void CgNode::addChildNode(std::shared_ptr<CgNode> childNode){
+void CgNode::addChildNode(CgNodePtr childNode){
 
 	childNodes.insert(childNode);
 }
 
 
-void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
+void CgNode::addParentNode(CgNodePtr parentNode){
 	for(auto node : parentNodes){
 		if(node->isSameFunction(parentNode)) {
 			return;
@@ -34,11 +34,11 @@ void CgNode::addParentNode(std::shared_ptr<CgNode> parentNode){
 	parentNodes.insert(parentNode);
 }
 
-void CgNode::addSpantreeParent(std::shared_ptr<CgNode> parentNode) {
+void CgNode::addSpantreeParent(CgNodePtr parentNode) {
 	this->spantreeParents.insert(parentNode);
 }
 
-bool CgNode::isSpantreeParent(std::shared_ptr<CgNode> parentNode) {
+bool CgNode::isSpantreeParent(CgNodePtr parentNode) {
 	return this->spantreeParents.find(parentNode) != spantreeParents.end();
 }
 
@@ -71,7 +71,7 @@ bool CgNode::isRootNode() {
 	return getParentNodes().empty();
 }
 
-bool CgNode::isSameFunction(std::shared_ptr<CgNode> cgNodeToCompareTo){
+bool CgNode::isSameFunction(CgNodePtr cgNodeToCompareTo){
 	if(this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0) {
 		return true;
 	}
@@ -98,15 +98,15 @@ void CgNode::dumpToDot(std::ofstream& outStream){
 	}
 }
 
-std::set<std::shared_ptr<CgNode> > CgNode::getChildNodes(){
+std::set<CgNodePtr> CgNode::getChildNodes(){
 	return childNodes;
 }
 
-std::set<std::shared_ptr<CgNode> > CgNode::getParentNodes(){
+std::set<CgNodePtr> CgNode::getParentNodes(){
 	return parentNodes;
 }
 
-void CgNode::addCallData(std::shared_ptr<CgNode> parentNode,
+void CgNode::addCallData(CgNodePtr parentNode,
 		unsigned long long calls, double timeInSeconds) {
 
 	this->numberOfCallsBy[parentNode] += calls;
@@ -135,7 +135,7 @@ unsigned long long CgNode::getNumberOfCalls(){
 	return numberOfCalls;
 }
 
-unsigned long long CgNode::getNumberOfCalls(std::shared_ptr<CgNode> parentNode) {
+unsigned long long CgNode::getNumberOfCalls(CgNodePtr parentNode) {
 	return numberOfCallsBy[parentNode];
 }
 

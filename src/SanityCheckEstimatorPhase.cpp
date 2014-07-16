@@ -1,14 +1,14 @@
 #include "SanityCheckEstimatorPhase.h"
 
 SanityCheckEstimatorPhase::SanityCheckEstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		std::map<std::string, CgNodePtr>* graph) :
 		EstimatorPhase(graph, "SanityCheck"),
 		numberOfErrors(0){
 }
 
 SanityCheckEstimatorPhase::~SanityCheckEstimatorPhase() {}
 
-void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	// check that all conjunctions are either instrumented or unwound
 	for (auto pair : (*graph)) {
@@ -18,8 +18,8 @@ void SanityCheckEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) 
 			continue;
 		}
 
-		std::shared_ptr<CgNode> oneUninstrumentedPath = 0;
-		std::set<std::shared_ptr<CgNode> > instrumentedPaths;
+		CgNodePtr oneUninstrumentedPath = 0;
+		std::set<CgNodePtr> instrumentedPaths;
 
 		// all parents' call paths BUT ONE have to be instrumented
 		for (auto parentNode : node->getParentNodes()) {

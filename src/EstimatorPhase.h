@@ -26,10 +26,10 @@ struct CgReport {
 
 class EstimatorPhase {
 public:
-	EstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph, std::string name);
+	EstimatorPhase(std::map<std::string, CgNodePtr >* graph, std::string name);
 	virtual ~EstimatorPhase() {}
 
-	virtual void modifyGraph(std::shared_ptr<CgNode> mainMethod) = 0;
+	virtual void modifyGraph(CgNodePtr mainMethod) = 0;
 
 	void generateReport();
 
@@ -37,7 +37,7 @@ public:
 	virtual void printReport();
 
 protected:
-	std::map<std::string, std::shared_ptr<CgNode> >* graph;
+	std::map<std::string, CgNodePtr >* graph;
 
 	CgReport report;
 	std::string name;
@@ -51,10 +51,10 @@ protected:
  */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
-	RemoveUnrelatedNodesEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	RemoveUnrelatedNodesEstimatorPhase(std::map<std::string, CgNodePtr >* graph);
 	~RemoveUnrelatedNodesEstimatorPhase();
 
-	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+	void modifyGraph(CgNodePtr mainMethod);
 
 	void printReport();
 protected:
@@ -71,10 +71,10 @@ private:
  */
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
-	InstrumentEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	InstrumentEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
 	~InstrumentEstimatorPhase();
 
-	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+	void modifyGraph(CgNodePtr mainMethod);
 };
 
 /**
@@ -82,10 +82,10 @@ public:
  */
 class MoveInstrumentationUpwardsEstimatorPhase : public EstimatorPhase {
 public:
-	MoveInstrumentationUpwardsEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	MoveInstrumentationUpwardsEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
 	~MoveInstrumentationUpwardsEstimatorPhase();
 
-	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+	void modifyGraph(CgNodePtr mainMethod);
 protected:
 	void printAdditionalReport();
 private:
@@ -97,10 +97,10 @@ private:
  */
 class DeleteOneInstrumentationEstimatorPhase : public EstimatorPhase {
 public:
-	DeleteOneInstrumentationEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	DeleteOneInstrumentationEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
 	~DeleteOneInstrumentationEstimatorPhase();
 
-	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+	void modifyGraph(CgNodePtr mainMethod);
 protected:
 	void printAdditionalReport();
 private:
@@ -113,10 +113,10 @@ private:
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
 public:
-	UnwindEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	UnwindEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
 	~UnwindEstimatorPhase();
 
-	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+	void modifyGraph(CgNodePtr mainMethod);
 protected:
 	void printAdditionalReport();
 private:

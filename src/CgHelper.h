@@ -15,23 +15,23 @@ namespace CgConfig {
 
 namespace CgHelper {
 
-	bool isConjunction(std::shared_ptr<CgNode> node);
-	bool hasUniqueParent(std::shared_ptr<CgNode> node);
+	bool isConjunction(CgNodePtr node);
+	bool hasUniqueParent(CgNodePtr node);
 
-	std::shared_ptr<CgNode> getUniqueParent(std::shared_ptr<CgNode> node);
+	CgNodePtr getUniqueParent(CgNodePtr node);
 
-	bool instrumentationCanBeDeleted(std::shared_ptr<CgNode> node);
-	bool allParentsPathsInstrumented(std::shared_ptr<CgNode> conjunctionNode);
+	bool instrumentationCanBeDeleted(CgNodePtr node);
+	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode);
 
-	unsigned long long getInstrumentationOverheadOfConjunction(std::shared_ptr<CgNode> conjunctionNode);
-	unsigned long long getInstrumentationOverheadOfPath(std::shared_ptr<CgNode> node);
-	std::shared_ptr<CgNode> getInstrumentedNodeOnPath(std::shared_ptr<CgNode> node);
+	unsigned long long getInstrumentationOverheadOfConjunction(CgNodePtr conjunctionNode);
+	unsigned long long getInstrumentationOverheadOfPath(CgNodePtr node);
+	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node);
 
-	bool reachableFrom(std::shared_ptr<CgNode> parentNode, std::shared_ptr<CgNode> childNode);
+	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode);
 
-	bool removeInstrumentationOnPath(std::shared_ptr<CgNode> node);
+	bool removeInstrumentationOnPath(CgNodePtr node);
 
-	bool isConnectedOnSpantree(std::shared_ptr<CgNode> n1, std::shared_ptr<CgNode> n2);
+	bool isConnectedOnSpantree(CgNodePtr n1, CgNodePtr n2);
 }
 
 #endif

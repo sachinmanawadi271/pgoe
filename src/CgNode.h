@@ -18,23 +18,26 @@ enum CgNodeState {
 	UNWIND
 };
 
+class CgNode;
+typedef std::shared_ptr<CgNode> CgNodePtr;	// hopefully this typedef helps readability
+
 class CgNode {
 
 public:
 	CgNode(std::string function);
-	void addChildNode(std::shared_ptr<CgNode> childNode);
-	void addParentNode(std::shared_ptr<CgNode> parentNode);
+	void addChildNode(CgNodePtr childNode);
+	void addParentNode(CgNodePtr parentNode);
 
-	bool isSameFunction(std::shared_ptr<CgNode> otherNode);
+	bool isSameFunction(CgNodePtr otherNode);
 
 	std::string getFunctionName();
 
-	std::set<std::shared_ptr<CgNode> > getChildNodes();
-	std::set<std::shared_ptr<CgNode> > getParentNodes();
+	std::set<CgNodePtr> getChildNodes();
+	std::set<CgNodePtr> getParentNodes();
 
-	void addCallData(std::shared_ptr<CgNode> parentNode, unsigned long long calls, double timeInSeconds);
+	void addCallData(CgNodePtr parentNode, unsigned long long calls, double timeInSeconds);
 	unsigned long long getNumberOfCalls();
-	unsigned long long getNumberOfCalls(std::shared_ptr<CgNode> parentNode);
+	unsigned long long getNumberOfCalls(CgNodePtr parentNode);
 
 	double getRuntimeInSeconds();
 	unsigned long long getExpectedNumberOfSamples();
@@ -45,8 +48,8 @@ public:
 	bool isInstrumented();
 
 	// spanning tree stuff
-	void addSpantreeParent(std::shared_ptr<CgNode> parentNode);
-	bool isSpantreeParent(std::shared_ptr<CgNode>);
+	void addSpantreeParent(CgNodePtr parentNode);
+	bool isSpantreeParent(CgNodePtr);
 
 	void updateNodeAttributes(int samplesPerSecond);
 
@@ -70,14 +73,14 @@ private:
 	double runtimeInSeconds;
 	unsigned long long expectedNumberOfSamples;
 
-	std::set<std::shared_ptr<CgNode> > childNodes;
-	std::set<std::shared_ptr<CgNode> > parentNodes;
+	std::set<CgNodePtr> childNodes;
+	std::set<CgNodePtr> parentNodes;
 
 	// parentNode -> number of calls by that parent
-	std::map<std::shared_ptr<CgNode>, unsigned long long> numberOfCallsBy;
+	std::map<CgNodePtr, unsigned long long> numberOfCallsBy;
 
 	// this is possibly the dumbest way to implement a spanning tree
-	std::set<std::shared_ptr<CgNode> > spantreeParents;
+	std::set<CgNodePtr> spantreeParents;
 
 	// node attributes
 	bool uniqueCallPath;

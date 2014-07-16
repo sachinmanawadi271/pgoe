@@ -3,21 +3,21 @@
 namespace CgHelper {
 
 	/** returns true for nodes with two or more parents */
-	bool isConjunction(std::shared_ptr<CgNode> node) {
+	bool isConjunction(CgNodePtr node) {
 		return (node->getParentNodes().size() > 1);
 	}
 	/** returns true for nodes with exactly one parent */
-	bool hasUniqueParent(std::shared_ptr<CgNode> node) {
+	bool hasUniqueParent(CgNodePtr node) {
 		return (node->getParentNodes().size() == 1);
 	}
 
 	/** returns the first and unique parent of a node, NO error handling */
-	std::shared_ptr<CgNode> getUniqueParent(std::shared_ptr<CgNode> node) {
+	CgNodePtr getUniqueParent(CgNodePtr node) {
 		return *(node->getParentNodes().begin());
 	}
 
 	/** returns overhead of the call path of a node */
-	unsigned long long getInstrumentationOverheadOfPath(std::shared_ptr<CgNode> node) {
+	unsigned long long getInstrumentationOverheadOfPath(CgNodePtr node) {
 		auto instrumentedNode = getInstrumentedNodeOnPath(node);
 
 		if (instrumentedNode) {
@@ -31,7 +31,7 @@ namespace CgHelper {
 	}
 
 	/** returns a pointer to the node that is instrumented up that call path */
-	std::shared_ptr<CgNode> getInstrumentedNodeOnPath(std::shared_ptr<CgNode> node) {
+	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node) {
 		// XXX RN: this method has slowly grown up to a real mess
 		if (node->isInstrumented()) {
 			return node;
@@ -56,7 +56,7 @@ namespace CgHelper {
 	 * The node has to be the direct parent of a call conjunction.
 	 * Checks the call path reconstruction for all child nodes.
 	 */
-	bool instrumentationCanBeDeleted(std::shared_ptr<CgNode> node) {
+	bool instrumentationCanBeDeleted(CgNodePtr node) {
 		for (auto childNode : node->getChildNodes()) {
 
 			if (	   isConjunction(childNode)
@@ -81,30 +81,30 @@ namespace CgHelper {
 	}
 
 	/** returns true if the call paths of all parents of a conjunction are instrumented */
-	bool allParentsPathsInstrumented(std::shared_ptr<CgNode> conjunctionNode) {
+	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode) {
 		auto parents = conjunctionNode->getParentNodes();
 
 		return std::accumulate(parents.begin(), parents.end(), true,
-				[] (bool b, std::shared_ptr<CgNode> parent) {
+				[] (bool b, CgNodePtr parent) {
 					return b && (getInstrumentationOverheadOfPath(parent)!=0);
 				});
 	}
 
 	/** returns the overhead caused by a call path */
 	unsigned long long getInstrumentationOverheadOfConjunction(
-			std::shared_ptr<CgNode> conjunctionNode) {
+			CgNodePtr conjunctionNode) {
 
 		auto parents = conjunctionNode->getParentNodes();
 
 		return std::accumulate(parents.begin(), parents.end(), 0,
-				[] (int i, std::shared_ptr<CgNode> parent) {
+				[] (int i, CgNodePtr parent) {
 					return i + getInstrumentationOverheadOfPath(parent);
 				});
 	}
 
 	/** removes the instrumentation of a call path.
 	 * 	returns false if no instrumentation found */
-	bool removeInstrumentationOnPath(std::shared_ptr<CgNode> node) {
+	bool removeInstrumentationOnPath(CgNodePtr node) {
 		if (node->isInstrumented()) {
 
 			node->setState(CgNodeState::NONE);
@@ -123,11 +123,11 @@ namespace CgHelper {
 		return removeInstrumentationOnPath(getUniqueParent(node));
 	}
 
-	bool reachableFrom(std::shared_ptr<CgNode> parentNode, std::shared_ptr<CgNode> childNode) {
+	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode) {
 
 		// XXX RN: once again code duplication
-		std::set<std::shared_ptr<CgNode> > visitedNodes;
-		std::queue<std::shared_ptr<CgNode> > workQueue;
+		std::set<CgNodePtr> visitedNodes;
+		std::queue<CgNodePtr> workQueue;
 		workQueue.push(parentNode);
 
 		while (!workQueue.empty()) {
@@ -153,9 +153,9 @@ namespace CgHelper {
 
 	/** true if the two nodes are connected via spanning tree edges */
 	// XXX RN: this method is ugly and has horrible complexity
-	bool isConnectedOnSpantree(std::shared_ptr<CgNode> n1, std::shared_ptr<CgNode> n2) {
+	bool isConnectedOnSpantree(CgNodePtr n1, CgNodePtr n2) {
 
-		std::set<std::shared_ptr<CgNode> > reachableNodes;
+		std::set<CgNodePtr> reachableNodes;
 		reachableNodes.insert(n1);
 
 		size_t size = 0;

@@ -19,10 +19,10 @@ public:
 	int putFunction(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
-	std::shared_ptr<CgNode> findNode(std::string functionName); // Finds FIRST node including functionName
-	std::shared_ptr<CgNode> findMain();
+	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName
+	CgNodePtr findMain();
 
-	std::vector<std::shared_ptr<CgNode> > getNodesRequiringInstrumentation();
+	std::vector<CgNodePtr> getNodesRequiringInstrumentation();
 	int getSize();
 
 	void updateNodeAttributes();
@@ -33,7 +33,7 @@ public:
 	void printDOT(std::string prefix);
 
 private:
-	std::map<std::string, std::shared_ptr<CgNode> > graph;
+	std::map<std::string, CgNodePtr> graph;
 
 	const int samplesPerSecond;
 

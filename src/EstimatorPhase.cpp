@@ -2,7 +2,7 @@
 #include "EstimatorPhase.h"
 
 EstimatorPhase::EstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph, std::string name) :
+		std::map<std::string, CgNodePtr>* graph, std::string name) :
 
 		graph(graph),
 		report({0}),// this hopefully initializes all members to 0
@@ -55,7 +55,7 @@ void EstimatorPhase::printReport() {
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
 
 RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		std::map<std::string, CgNodePtr>* graph) :
 		EstimatorPhase(graph, "RemoveUnrelated"),
 		numRemovedNodes(0) {
 }
@@ -63,14 +63,14 @@ RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
 }
 
-void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	if (mainMethod == NULL) {
 		std::cerr << "Received NULL as main method." << std::endl;
 		return;
 	}
 
-	std::set<std::shared_ptr<CgNode> > visitedNodes;
-	std::queue<std::shared_ptr<CgNode> > workQueue;
+	std::set<CgNodePtr> visitedNodes;
+	std::queue<CgNodePtr> workQueue;
 
 	/** XXX RN: code duplication */
 	workQueue.push(mainMethod);
@@ -113,21 +113,21 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 //// INSTRUMENT ESTIMATOR PHASE
 
 InstrumentEstimatorPhase::InstrumentEstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		std::map<std::string, CgNodePtr>* graph) :
 		EstimatorPhase(graph, "Instrument") {
 }
 
 InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
 }
 
-void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	if (mainMethod == NULL) {
 		std::cerr << "Received NULL as main method." << std::endl;
 		return;
 	}
 
-	std::queue<std::shared_ptr<CgNode> > workQueue;
-	std::set<std::shared_ptr<CgNode> > doneNodes;
+	std::queue<CgNodePtr> workQueue;
+	std::set<CgNodePtr> doneNodes;
 
 	/** XXX RN: code duplication */
 	workQueue.push(mainMethod);
@@ -155,7 +155,7 @@ void InstrumentEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
 //// MOVE INSTRUMENTATION UPWARDS ESTIMATOR PHASE
 
 MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		std::map<std::string, CgNodePtr>* graph) :
 		EstimatorPhase(graph, "MoveInstrumentationUpwards"),
 		movedInstrumentations(0) {
 }
@@ -163,7 +163,7 @@ MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPha
 MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPhase() {
 }
 
-void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	for (auto graphPair : (*graph)) {
 		// If the node was not selected previously, we continue
@@ -203,7 +203,7 @@ void MoveInstrumentationUpwardsEstimatorPhase::printAdditionalReport() {
 //// DELETE ONE INSTRUMENTATION ESTIMATOR PHASE
 
 DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		std::map<std::string, CgNodePtr>* graph) :
 		EstimatorPhase(graph, "DeleteOneInstrumentation"),
 		deletedInstrumentationMarkers(0) {
 }
@@ -211,7 +211,7 @@ DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase(
 DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase() {
 }
 
-void DeleteOneInstrumentationEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	for (auto pair : (*graph)) {
 		auto node = pair.second;
@@ -225,7 +225,7 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(std::shared_ptr<CgNode>
 		}
 
 		unsigned long long expensivePath = 0;
-		std::shared_ptr<CgNode> mostExpensiveParent = 0;
+		CgNodePtr mostExpensiveParent = 0;
 
 		// TODO RN: the heuristic is far from perfect, this might block another node that has the same parent
 		for (auto parentNode : node->getParentNodes()) {
@@ -250,7 +250,7 @@ void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
 //// UNWIND ESTIMATOR PHASE
 
 UnwindEstimatorPhase::UnwindEstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		std::map<std::string, CgNodePtr>* graph) :
 		EstimatorPhase(graph, "Unwind"),
 		unwoundNodes(0),
 		unwindCandidates(0) {
@@ -259,7 +259,7 @@ UnwindEstimatorPhase::UnwindEstimatorPhase(
 UnwindEstimatorPhase::~UnwindEstimatorPhase() {
 }
 
-void UnwindEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	for (auto pair : (*graph)) {
 		auto node = pair.second;

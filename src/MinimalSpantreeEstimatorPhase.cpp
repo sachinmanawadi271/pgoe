@@ -2,7 +2,7 @@
 #include "MinimalSpantreeEstimatorPhase.h"
 
 MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase(
-		std::map<std::string, std::shared_ptr<CgNode> >* graph) :
+		std::map<std::string, CgNodePtr>* graph) :
 		EstimatorPhase(graph, "MinimalSpantree"),
 		numberOfSkippedEdges(0) {
 }
@@ -10,7 +10,7 @@ MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase(
 MinimalSpantreeEstimatorPhase::~MinimalSpantreeEstimatorPhase() {
 }
 
-void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMethod) {
+void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	std::priority_queue<SpantreeEdge, std::vector<SpantreeEdge>, MoreCalls> pq;
 	// get all edges
@@ -23,7 +23,7 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(std::shared_ptr<CgNode> mainMeth
 		}
 	}
 
-	std::set<std::shared_ptr<CgNode> > visitedNodes;
+	std::set<CgNodePtr> visitedNodes;
 	visitedNodes.insert(mainMethod);
 
 	while(!pq.empty()) {

@@ -7,8 +7,8 @@
 
 struct SpantreeEdge {
 	unsigned long long calls;
-	std::shared_ptr<CgNode> child;
-	std::shared_ptr<CgNode> parent;
+	CgNodePtr child;
+	CgNodePtr parent;
 };
 
 struct MoreCalls {
@@ -23,10 +23,10 @@ struct MoreCalls {
  */
 class MinimalSpantreeEstimatorPhase : public EstimatorPhase {
 public:
-	MinimalSpantreeEstimatorPhase(std::map<std::string, std::shared_ptr<CgNode> >* graph);
+	MinimalSpantreeEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
 	~MinimalSpantreeEstimatorPhase();
 
-	void modifyGraph(std::shared_ptr<CgNode> mainMethod);
+	void modifyGraph(CgNodePtr mainMethod);
 
 	void printReport();
 protected:
