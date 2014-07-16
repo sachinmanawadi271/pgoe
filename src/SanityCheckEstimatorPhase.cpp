@@ -19,14 +19,14 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			continue;
 		}
 
-		CgNodePtr oneUninstrumentedPath = 0;
+		CgNodePtr oneUninstrumentedPath = NULL;
 		std::set<CgNodePtr> instrumentedPaths;
 
 		// all parents' call paths BUT ONE have to be instrumented
 		for (auto parentNode : node->getParentNodes()) {
 
-
 			if(CgHelper::getInstrumentedNodeOnPath(parentNode) == NULL) {
+
 				if(oneUninstrumentedPath) {
 					numberOfErrors++;
 					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
@@ -37,6 +37,7 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				} else {
 					oneUninstrumentedPath = parentNode;
 				}
+
 			} else {
 				instrumentedPaths.insert(parentNode);
 			}

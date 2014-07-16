@@ -8,7 +8,7 @@
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
 
-	// XXX phases are always hardcoded and predetermined for now
+	// XXX RN: there is no registration mechanism because there is only one meaningful order
 	phases.push(new RemoveUnrelatedNodesEstimatorPhase(&graph));
 //	phases.push(new MinimalSpantreeEstimatorPhase(&graph));	// XXX does not hinder other phases
 	phases.push(new InstrumentEstimatorPhase(&graph));

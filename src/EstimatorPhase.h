@@ -10,6 +10,7 @@
 #include "CgNode.h"
 #include "CgHelper.h"
 
+
 struct CgReport {
 	unsigned int instrumentedMethods;
 	unsigned int overallMethods;
@@ -26,7 +27,7 @@ struct CgReport {
 
 class EstimatorPhase {
 public:
-	EstimatorPhase(std::map<std::string, CgNodePtr >* graph, std::string name);
+	EstimatorPhase(std::map<std::string, CgNodePtr>* graph, std::string name);
 	virtual ~EstimatorPhase() {}
 
 	virtual void modifyGraph(CgNodePtr mainMethod) = 0;
@@ -37,7 +38,7 @@ public:
 	virtual void printReport();
 
 protected:
-	std::map<std::string, CgNodePtr >* graph;
+	std::map<std::string, CgNodePtr>* graph;
 
 	CgReport report;
 	std::string name;
@@ -51,7 +52,7 @@ protected:
  */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
-	RemoveUnrelatedNodesEstimatorPhase(std::map<std::string, CgNodePtr >* graph);
+	RemoveUnrelatedNodesEstimatorPhase(std::map<std::string, CgNodePtr>* graph);
 	~RemoveUnrelatedNodesEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
