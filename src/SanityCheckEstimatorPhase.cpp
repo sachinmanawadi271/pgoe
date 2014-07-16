@@ -10,10 +10,11 @@ SanityCheckEstimatorPhase::~SanityCheckEstimatorPhase() {}
 
 void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	// check that all conjunctions are either instrumented or unwound
+
 	for (auto pair : (*graph)) {
 		auto node = pair.second;
 
+		// unwound nodes are fine as they are
 		if(!CgHelper::isConjunction(node) || node->isUnwound()) {
 			continue;
 		}
@@ -52,6 +53,13 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 							<< instrumentedPath->getFunctionName() << "\"" << std::endl;
 				}
 			}
+		}
+		// check that the instrumented paths all have a unique instrumentation marker
+		if (instrumentedPaths.size() < node->getParentNodes().size()-1) {
+			std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
+					<< "\"" << std::endl
+					<< "  " << (node->getParentNodes().size() - instrumentedPaths.size())
+					<< " call paths not instrumented with unique marker." << std::endl;
 		}
 
 	}

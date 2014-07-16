@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 CCG=./CubeCallgraphTool
 # output is dumped here
 SPEC_OUTPUT=spec-output
@@ -7,6 +8,8 @@ SPEC_OUTPUT=spec-output
 #SPEC_PATH=/home/rness/test/scorep/spec-cubex-best
 SPEC_PATH=../spec-profiles
 
+rm -rf $SPEC_OUTPUT
+mkdir $SPEC_OUTPUT
 
 BENCHMARKS=`find $SPEC_PATH -name *.cubex`
 
