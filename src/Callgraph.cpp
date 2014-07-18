@@ -85,7 +85,7 @@ int Callgraph::putFunction(std::string parentName, std::string parentFilename,
 CgNodePtr Callgraph::findNode(std::string functionName) {
 
 	for (auto node : graphMapping) {
-		auto fName = node.second->getFunctionName();
+		auto fName = node.first;
 		if (fName.find(functionName) != std::string::npos) {
 			return node.second;
 		}
@@ -194,7 +194,7 @@ void Callgraph::printDOT(std::string prefix) {
 	for (auto mapPair : graphMapping) {
 
 		auto node = mapPair.second;
-		std::string functionName = node->getFunctionName();
+		std::string functionName = mapPair.first;
 
 		if (node->hasUniqueCallPath()) {
 			outfile << "\"" << functionName << "\"[color=blue]" << std::endl;
