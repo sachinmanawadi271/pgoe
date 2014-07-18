@@ -28,6 +28,14 @@ if(argc>2) {
 }
 Callgraph cg(samplesPerSecond);
 
+cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
+//cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
+cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
+cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
 // The cube documentation says one should always use a try/catch thing around
 try{
 	// Create cube instance

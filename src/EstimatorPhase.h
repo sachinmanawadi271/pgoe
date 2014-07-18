@@ -28,12 +28,14 @@ struct CgReport {
 
 class EstimatorPhase {
 public:
-	EstimatorPhase(CgNodePtrSet* graph, std::string name);
+	EstimatorPhase(std::string name);
 	virtual ~EstimatorPhase() {}
 
 	virtual void modifyGraph(CgNodePtr mainMethod) = 0;
 
 	void generateReport();
+
+	void setGraph(CgNodePtrSet* graph);
 
 	struct CgReport getReport();
 	virtual void printReport();
@@ -53,7 +55,7 @@ protected:
  */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
-	RemoveUnrelatedNodesEstimatorPhase(CgNodePtrSet* graph);
+	RemoveUnrelatedNodesEstimatorPhase();
 	~RemoveUnrelatedNodesEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -70,7 +72,7 @@ private:
  */
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
-	InstrumentEstimatorPhase(CgNodePtrSet* graph);
+	InstrumentEstimatorPhase();
 	~InstrumentEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -81,7 +83,7 @@ public:
  */
 class MoveInstrumentationUpwardsEstimatorPhase : public EstimatorPhase {
 public:
-	MoveInstrumentationUpwardsEstimatorPhase(CgNodePtrSet* graph);
+	MoveInstrumentationUpwardsEstimatorPhase();
 	~MoveInstrumentationUpwardsEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -96,7 +98,7 @@ private:
  */
 class DeleteOneInstrumentationEstimatorPhase : public EstimatorPhase {
 public:
-	DeleteOneInstrumentationEstimatorPhase(CgNodePtrSet* graph);
+	DeleteOneInstrumentationEstimatorPhase();
 	~DeleteOneInstrumentationEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -112,7 +114,7 @@ private:
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
 public:
-	UnwindEstimatorPhase(CgNodePtrSet* graph);
+	UnwindEstimatorPhase();
 	~UnwindEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);

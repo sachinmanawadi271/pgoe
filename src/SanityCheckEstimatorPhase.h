@@ -13,7 +13,7 @@
  */
 class SanityCheckEstimatorPhase : public EstimatorPhase {
 public:
-	SanityCheckEstimatorPhase(CgNodePtrSet* graph);
+	SanityCheckEstimatorPhase();
 	~SanityCheckEstimatorPhase();
 	/** does NOT modify the graph */
 	void modifyGraph(CgNodePtr mainMethod);

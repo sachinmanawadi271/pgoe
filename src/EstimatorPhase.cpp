@@ -1,10 +1,10 @@
 
 #include "EstimatorPhase.h"
 
-EstimatorPhase::EstimatorPhase(CgNodePtrSet* graph, std::string name) :
+EstimatorPhase::EstimatorPhase(std::string name) :
 
-		graph(graph),
-		report({0}),// this hopefully initializes all members to 0
+		graph(NULL),	// just so eclipse does not nag
+		report({0}),	// this hopefully initializes all members to 0
 		name(name) {
 }
 
@@ -27,6 +27,10 @@ void EstimatorPhase::generateReport() {
 	report.unwindOverhead = report.unwindSamples * CgConfig::nanosPerUnwindSample;
 
 	report.phaseName = name;
+}
+
+void EstimatorPhase::setGraph(CgNodePtrSet* graph) {
+	this->graph = graph;
 }
 
 CgReport EstimatorPhase::getReport() {
@@ -52,9 +56,8 @@ void EstimatorPhase::printReport() {
 
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
 
-RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(
-		CgNodePtrSet* graph) :
-		EstimatorPhase(graph, "RemoveUnrelated"),
+RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase() :
+		EstimatorPhase("RemoveUnrelated"),
 		numRemovedNodes(0) {
 }
 
@@ -108,9 +111,8 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 
 //// INSTRUMENT ESTIMATOR PHASE
 
-InstrumentEstimatorPhase::InstrumentEstimatorPhase(
-		CgNodePtrSet* graph) :
-		EstimatorPhase(graph, "Instrument") {
+InstrumentEstimatorPhase::InstrumentEstimatorPhase() :
+		EstimatorPhase("Instrument") {
 }
 
 InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
@@ -150,9 +152,8 @@ void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 //// MOVE INSTRUMENTATION UPWARDS ESTIMATOR PHASE
 
-MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase(
-		CgNodePtrSet* graph) :
-		EstimatorPhase(graph, "MoveInstrumentationUpwards"),
+MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase() :
+		EstimatorPhase("MoveInstrumentationUpwards"),
 		movedInstrumentations(0) {
 }
 
@@ -200,9 +201,8 @@ void MoveInstrumentationUpwardsEstimatorPhase::printAdditionalReport() {
 
 //// DELETE ONE INSTRUMENTATION ESTIMATOR PHASE
 
-DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase(
-		CgNodePtrSet* graph) :
-		EstimatorPhase(graph, "DeleteOneInstrumentation"),
+DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase() :
+		EstimatorPhase("DeleteOneInstrumentation"),
 		deletedInstrumentationMarkers(0) {
 }
 
@@ -246,9 +246,8 @@ void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
 
 //// UNWIND ESTIMATOR PHASE
 
-UnwindEstimatorPhase::UnwindEstimatorPhase(
-		CgNodePtrSet* graph) :
-		EstimatorPhase(graph, "Unwind"),
+UnwindEstimatorPhase::UnwindEstimatorPhase() :
+		EstimatorPhase("Unwind"),
 		unwoundNodes(0),
 		unwindCandidates(0) {
 }

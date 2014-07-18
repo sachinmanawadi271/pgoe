@@ -1,8 +1,7 @@
 #include "SanityCheckEstimatorPhase.h"
 
-SanityCheckEstimatorPhase::SanityCheckEstimatorPhase(
-		CgNodePtrSet* graph) :
-		EstimatorPhase(graph, "SanityCheck"),
+SanityCheckEstimatorPhase::SanityCheckEstimatorPhase() :
+		EstimatorPhase("SanityCheck"),
 		numberOfErrors(0){
 }
 

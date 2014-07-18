@@ -1,9 +1,8 @@
 
 #include "MinimalSpantreeEstimatorPhase.h"
 
-MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase(
-		CgNodePtrSet* graph) :
-		EstimatorPhase(graph, "MinimalSpantree"),
+MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase() :
+		EstimatorPhase("MinimalSpantree"),
 		numberOfSkippedEdges(0) {
 }
 

@@ -82,38 +82,36 @@ int Callgraph::putFunction(std::string parentName, std::string parentFilename,
 	return 0;
 }
 
+
+CgNodePtr Callgraph::findMain() {
+	return findNode("main");
+}
+
 CgNodePtr Callgraph::findNode(std::string functionName) {
 
 	for (auto node : graphMapping) {
 		auto fName = node.first;
-		if (fName.find(functionName) != std::string::npos) {
+		if (fName == functionName) {
 			return node.second;
 		}
 	}
-
 	return NULL;
-
 }
 
-void Callgraph::registerEstimatorPhases() {
+void Callgraph::registerEstimatorPhase(EstimatorPhase* phase) {
+	phases.push(phase);
+	phase->setGraph(&graph);
+}
 
+void Callgraph::optimizeGraph() {
 	for (auto pair : graphMapping) {
 		graph.insert(pair.second);
 	}
-
-	// XXX RN: there is no registration mechanism because there is only one meaningful order
-	phases.push(new RemoveUnrelatedNodesEstimatorPhase(&graph));
-//	phases.push(new MinimalSpantreeEstimatorPhase(&graph_));	// XXX does not hinder other phases
-	phases.push(new InstrumentEstimatorPhase(&graph));
-	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
-	phases.push(new DeleteOneInstrumentationEstimatorPhase(&graph));
-	phases.push(new UnwindEstimatorPhase(&graph));
-	phases.push(new SanityCheckEstimatorPhase(&graph));
 }
 
 void Callgraph::thatOneLargeMethod() {
 
-	registerEstimatorPhases();
+	optimizeGraph();
 
 	updateNodeAttributes();
 
@@ -151,19 +149,6 @@ void Callgraph::updateNodeAttributes() {
 	for (auto pair : graphMapping) {
 		pair.second->updateNodeAttributes(this->samplesPerSecond);
 	}
-}
-
-CgNodePtr Callgraph::findMain() {
-
-	for (auto node : graphMapping) {
-		auto fName = node.first;
-
-		if (fName.find("main") == 0) {	// starting with "main"
-			return node.second;
-		}
-	}
-
-	return NULL;
 }
 
 void Callgraph::printDOT(std::string prefix) {

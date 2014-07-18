@@ -23,7 +23,7 @@ struct MoreCalls {
  */
 class MinimalSpantreeEstimatorPhase : public EstimatorPhase {
 public:
-	MinimalSpantreeEstimatorPhase(CgNodePtrSet* graph);
+	MinimalSpantreeEstimatorPhase();
 	~MinimalSpantreeEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);

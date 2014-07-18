@@ -19,7 +19,7 @@ public:
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
 	void registerEstimatorPhase(EstimatorPhase* phase);
-	void registerEstimatorPhases();
+	void optimizeGraph();
 
 	void thatOneLargeMethod();	// TODO RN: rename
 
