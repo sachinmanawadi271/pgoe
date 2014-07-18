@@ -126,7 +126,7 @@ namespace CgHelper {
 	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode) {
 
 		// XXX RN: once again code duplication
-		std::set<CgNodePtr> visitedNodes;
+		CgNodePtrSet visitedNodes;
 		std::queue<CgNodePtr> workQueue;
 		workQueue.push(parentNode);
 
@@ -155,7 +155,7 @@ namespace CgHelper {
 	// XXX RN: this method is ugly and has horrible complexity
 	bool isConnectedOnSpantree(CgNodePtr n1, CgNodePtr n2) {
 
-		std::set<CgNodePtr> reachableNodes;
+		CgNodePtrSet reachableNodes;
 		reachableNodes.insert(n1);
 
 		size_t size = 0;

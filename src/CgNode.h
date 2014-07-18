@@ -9,10 +9,7 @@
 #include <fstream>
 
 #include <unordered_set>
-
-// XXX RN: switch these out for unordered hash equivalents some time?
-#include <map>
-#include <set>
+#include <unordered_map>
 
 enum CgNodeState {
 	NONE,
@@ -36,8 +33,8 @@ public:
 
 	std::string getFunctionName();
 
-	std::set<CgNodePtr> getChildNodes();
-	std::set<CgNodePtr> getParentNodes();
+	CgNodePtrSet getChildNodes();
+	CgNodePtrSet getParentNodes();
 
 	void addCallData(CgNodePtr parentNode, unsigned long long calls, double timeInSeconds);
 	unsigned long long getNumberOfCalls();
@@ -77,14 +74,14 @@ private:
 	double runtimeInSeconds;
 	unsigned long long expectedNumberOfSamples;
 
-	std::set<CgNodePtr> childNodes;
-	std::set<CgNodePtr> parentNodes;
+	CgNodePtrSet childNodes;
+	CgNodePtrSet parentNodes;
 
 	// parentNode -> number of calls by that parent
-	std::map<CgNodePtr, unsigned long long> numberOfCallsBy;
+	std::unordered_map<CgNodePtr, unsigned long long> numberOfCallsBy;
 
 	// this is possibly the dumbest way to implement a spanning tree
-	std::set<CgNodePtr> spantreeParents;
+	CgNodePtrSet spantreeParents;
 
 	// node attributes
 	bool uniqueCallPath;

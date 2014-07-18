@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include <memory>
-//#include <map>
+#include <queue>
 #include <unordered_set>
 
 #include "CgNode.h"
@@ -64,9 +64,6 @@ protected:
 private:
 	int numRemovedNodes;
 };
-
-#include <queue>
-#include <set>
 
 /**
  * Instrument all call conjunctions.

@@ -56,8 +56,6 @@ RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(
 		CgNodePtrSet* graph) :
 		EstimatorPhase(graph, "RemoveUnrelated"),
 		numRemovedNodes(0) {
-///XXX
-	std::cout << "###" << graph->size() << std::endl;
 }
 
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
@@ -69,7 +67,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		return;
 	}
 
-	std::set<CgNodePtr> visitedNodes;
+	CgNodePtrSet visitedNodes;
 	std::queue<CgNodePtr> workQueue;
 
 	/** XXX RN: code duplication */
@@ -125,7 +123,7 @@ void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 
 	std::queue<CgNodePtr> workQueue;
-	std::set<CgNodePtr> doneNodes;
+	CgNodePtrSet doneNodes;
 
 	/** XXX RN: code duplication */
 	workQueue.push(mainMethod);

@@ -1,7 +1,6 @@
 #ifndef CALLGRAPH_H
 #define CALLGRAPH_H
 
-#include <map>
 #include <string>
 #include <queue>
 #include <numeric>	// for std::accumulate
@@ -34,12 +33,14 @@ public:
 	void printDOT(std::string prefix);
 
 private:
-	std::map<std::string, CgNodePtr> graphMapping;
-
+	// this is a legacy structure used to parse the call graph
+	std::unordered_map<std::string, CgNodePtr> graphMapping;
+	// this set represents the call graph during the actual computation
 	CgNodePtrSet graph;
-
+	// the target frequency for sampling
 	const int samplesPerSecond;
 
+	// estimator phases run in a defined order
 	std::queue<EstimatorPhase*> phases;
 };
 

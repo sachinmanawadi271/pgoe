@@ -3,10 +3,10 @@
 
 CgNode::CgNode(std::string function){
 	this->functionName = function;
-	this->parentNodes = std::set<CgNodePtr>();
-	this->childNodes = std::set<CgNodePtr>();
+	this->parentNodes = CgNodePtrSet();
+	this->childNodes = CgNodePtrSet();
 
-	this->spantreeParents = std::set<CgNodePtr>();
+	this->spantreeParents = CgNodePtrSet();
 
 	this->line = -1;
 	this->state = CgNodeState::NONE;
@@ -98,11 +98,11 @@ void CgNode::dumpToDot(std::ofstream& outStream){
 	}
 }
 
-std::set<CgNodePtr> CgNode::getChildNodes(){
+CgNodePtrSet CgNode::getChildNodes(){
 	return childNodes;
 }
 
-std::set<CgNodePtr> CgNode::getParentNodes(){
+CgNodePtrSet CgNode::getParentNodes(){
 	return parentNodes;
 }
 

@@ -22,7 +22,7 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	}
 
-	std::set<CgNodePtr> visitedNodes;
+	CgNodePtrSet visitedNodes;
 	visitedNodes.insert(mainMethod);
 
 	while(!pq.empty()) {

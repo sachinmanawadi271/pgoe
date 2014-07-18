@@ -19,7 +19,7 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 
 		CgNodePtr oneUninstrumentedPath = NULL;
-		std::set<CgNodePtr> instrumentedPaths;
+		CgNodePtrSet instrumentedPaths;
 
 		// all parents' call paths BUT ONE have to be instrumented
 		for (auto parentNode : node->getParentNodes()) {
