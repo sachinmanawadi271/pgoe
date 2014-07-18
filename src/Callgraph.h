@@ -34,7 +34,9 @@ public:
 	void printDOT(std::string prefix);
 
 private:
-	std::map<std::string, CgNodePtr> graph;
+	std::map<std::string, CgNodePtr> graphMapping;
+
+	CgNodePtrSet graph;
 
 	const int samplesPerSecond;
 

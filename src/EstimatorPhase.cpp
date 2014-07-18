@@ -163,7 +163,10 @@ MoveInstrumentationUpwardsEstimatorPhase::~MoveInstrumentationUpwardsEstimatorPh
 
 void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	for (auto nextAncestor : (*graph)) {
+	for (auto node : (*graph)) {
+
+		auto nextAncestor = node;
+
 		// If the node was not selected previously, we continue
 		if (!nextAncestor->isInstrumented()) {
 			continue;
@@ -185,7 +188,7 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 		}
 
 		if (!minimalCalls->isSameFunction(nextAncestor)) {
-			nextAncestor->setState(CgNodeState::NONE);
+			node->setState(CgNodeState::NONE);
 			minimalCalls->setState(CgNodeState::INSTRUMENT);
 			movedInstrumentations++;
 		}

@@ -20,16 +20,16 @@ int Callgraph::putFunction(std::string parentName, std::string childName) {
 	std::cout << "Putting pair (caller, callee) : (" << parentName << ", " << childName << ") into graph." << std::endl;
 #endif
 
-	if (graph.find(parentName) != graph.end()) {
+	if (graphMapping.find(parentName) != graphMapping.end()) {
 		// A node representing the caller already exists
-		parentNode = graph.find(parentName)->second;
+		parentNode = graphMapping.find(parentName)->second;
 #if DEBUG > 1
 		std::cout << "fullQualifiedNameCaller (" << parentName << ") already exists in call graph" << std::endl;
 #endif
 	} else {
 		// Create a new node representing the caller
 		parentNode = std::make_shared<CgNode>(parentName);
-		graph.insert(
+		graphMapping.insert(
 				std::pair<std::string, CgNodePtr>(parentName,
 						parentNode));
 		returnCode++;
@@ -38,16 +38,16 @@ int Callgraph::putFunction(std::string parentName, std::string childName) {
 #endif
 	}
 
-	if (graph.find(childName) != graph.end()) {
+	if (graphMapping.find(childName) != graphMapping.end()) {
 		// A node representing the callee already exists
-		childNode = graph.find(childName)->second;
+		childNode = graphMapping.find(childName)->second;
 #if DEBUG > 1
 		std::cout << "fullQualifiedNameCallee (" << childName << ") already exists in call graph" << std::endl;
 #endif
 	} else {
 		// Create a new node representing the callee
 		childNode = std::make_shared<CgNode>(childName);
-		graph.insert(
+		graphMapping.insert(
 				std::pair<std::string, CgNodePtr>(childName,
 						childNode));
 		returnCode++;
@@ -84,7 +84,7 @@ int Callgraph::putFunction(std::string parentName, std::string parentFilename,
 
 CgNodePtr Callgraph::findNode(std::string functionName) {
 
-	for (auto node : graph) {
+	for (auto node : graphMapping) {
 		auto fName = node.second->getFunctionName();
 		if (fName.find(functionName) != std::string::npos) {
 			return node.second;
@@ -103,19 +103,18 @@ int helper(int i, std::pair< std::string, CgNodePtr> pair) {
 }
 
 void Callgraph::registerEstimatorPhases() {
-	CgNodePtrSet* graphNodes = new CgNodePtrSet();
-	for (auto pair : graph) {
-		graphNodes->insert(pair.second);
+	for (auto pair : graphMapping) {
+		graph.insert(pair.second);
 	}
 
 	// XXX RN: there is no registration mechanism because there is only one meaningful order
-	phases.push(new RemoveUnrelatedNodesEstimatorPhase(graphNodes));
-//	phases.push(new MinimalSpantreeEstimatorPhase(graphNodes));	// XXX does not hinder other phases
-	phases.push(new InstrumentEstimatorPhase(graphNodes));
-	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(graphNodes));
-	phases.push(new DeleteOneInstrumentationEstimatorPhase(graphNodes));
-	phases.push(new UnwindEstimatorPhase(graphNodes));
-	phases.push(new SanityCheckEstimatorPhase(graphNodes));
+	phases.push(new RemoveUnrelatedNodesEstimatorPhase(&graph));
+//	phases.push(new MinimalSpantreeEstimatorPhase(&graph_));	// XXX does not hinder other phases
+	phases.push(new InstrumentEstimatorPhase(&graph));
+	phases.push(new MoveInstrumentationUpwardsEstimatorPhase(&graph));
+	phases.push(new DeleteOneInstrumentationEstimatorPhase(&graph));
+	phases.push(new UnwindEstimatorPhase(&graph));
+	phases.push(new SanityCheckEstimatorPhase(&graph));
 }
 
 void Callgraph::thatOneLargeMethod() {
@@ -142,8 +141,8 @@ void Callgraph::thatOneLargeMethod() {
 	// final statistics
 	int instrumentedMethods =
 			std::accumulate(
-					graph.begin(),
-					graph.end(),
+					graphMapping.begin(),
+					graphMapping.end(),
 					0,
 					// RN: i always wanted to use a lambda function in c++ for once
 					[] (int i, std::pair< std::string, CgNodePtr> pair) {
@@ -155,13 +154,13 @@ void Callgraph::thatOneLargeMethod() {
 }
 
 void Callgraph::updateNodeAttributes() {
-	for (auto pair : graph) {
+	for (auto pair : graphMapping) {
 		pair.second->updateNodeAttributes(this->samplesPerSecond);
 	}
 }
 
 int Callgraph::getSize() {
-	return graph.size();
+	return graphMapping.size();
 }
 
 void Callgraph::print() {
@@ -174,7 +173,7 @@ void Callgraph::print() {
 
 CgNodePtr Callgraph::findMain() {
 
-	for (auto node : graph) {
+	for (auto node : graphMapping) {
 		auto fName = node.first;
 
 		if (fName.find("main") == 0) {	// starting with "main"
@@ -192,7 +191,7 @@ void Callgraph::printDOT(std::string prefix) {
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
-	for (auto mapPair : graph) {
+	for (auto mapPair : graphMapping) {
 
 		auto node = mapPair.second;
 		std::string functionName = node->getFunctionName();
@@ -216,7 +215,7 @@ void Callgraph::printDOT(std::string prefix) {
 				<< "\"]" << std::endl;
 	}
 
-	for (auto mapPair : graph) {
+	for (auto mapPair : graphMapping) {
 		mapPair.second->dumpToDot(outfile);
 	}
 	outfile << "\n}" << std::endl;
