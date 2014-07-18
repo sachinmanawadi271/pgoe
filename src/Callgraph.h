@@ -18,18 +18,11 @@ public:
 	int putFunction(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
-	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName
-	CgNodePtr findMain();
-
-	std::vector<CgNodePtr> getNodesRequiringInstrumentation();
-	int getSize();
-
-	void updateNodeAttributes();
-
+	void registerEstimatorPhase(EstimatorPhase* phase);
 	void registerEstimatorPhases();
+
 	void thatOneLargeMethod();	// TODO RN: rename
 
-	void print();
 	void printDOT(std::string prefix);
 
 private:
@@ -42,6 +35,12 @@ private:
 
 	// estimator phases run in a defined order
 	std::queue<EstimatorPhase*> phases;
+
+
+	void updateNodeAttributes();
+
+	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName
+	CgNodePtr findMain();
 };
 
 

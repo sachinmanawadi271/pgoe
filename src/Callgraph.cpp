@@ -95,14 +95,8 @@ CgNodePtr Callgraph::findNode(std::string functionName) {
 
 }
 
-int helper(int i, std::pair< std::string, CgNodePtr> pair) {
-	if(pair.second->isInstrumented()) {
-		return i+1;
-	}
-	return i;
-}
-
 void Callgraph::registerEstimatorPhases() {
+
 	for (auto pair : graphMapping) {
 		graph.insert(pair.second);
 	}
@@ -157,18 +151,6 @@ void Callgraph::updateNodeAttributes() {
 	for (auto pair : graphMapping) {
 		pair.second->updateNodeAttributes(this->samplesPerSecond);
 	}
-}
-
-int Callgraph::getSize() {
-	return graphMapping.size();
-}
-
-void Callgraph::print() {
-
-	auto mainNode = findMain();
-	mainNode->print();
-
-	std::cout << std::endl;
 }
 
 CgNodePtr Callgraph::findMain() {
