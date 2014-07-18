@@ -13,6 +13,15 @@
 #define SAMPLES_PER_SECOND 1e3
 ////
 
+void registerEstimatorPhases(Callgraph& cg) {
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
+//	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
+	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+}
 
 int main(int argc, char** argv){
 
@@ -26,15 +35,9 @@ int samplesPerSecond = SAMPLES_PER_SECOND;
 if(argc>2) {
 	samplesPerSecond = atoi(argv[2]);
 }
-Callgraph cg(samplesPerSecond);
 
-cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
-//cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
-cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
-cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-cg.registerEstimatorPhase(new UnwindEstimatorPhase());
-cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+Callgraph cg(samplesPerSecond);
+registerEstimatorPhases(cg);
 
 // The cube documentation says one should always use a try/catch thing around
 try{

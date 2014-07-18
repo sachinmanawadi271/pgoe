@@ -104,16 +104,20 @@ void Callgraph::registerEstimatorPhase(EstimatorPhase* phase) {
 }
 
 void Callgraph::optimizeGraph() {
+	// build the acceleration structure
 	for (auto pair : graphMapping) {
 		graph.insert(pair.second);
+	}
+
+	// also update all node attributes
+	for (auto node : graph) {
+		node->updateNodeAttributes(this->samplesPerSecond);
 	}
 }
 
 void Callgraph::thatOneLargeMethod() {
 
 	optimizeGraph();
-
-	updateNodeAttributes();
 
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();
@@ -143,12 +147,6 @@ void Callgraph::thatOneLargeMethod() {
 			);
 
 	std::cout << "instrumented methods: " << instrumentedMethods << std::endl;
-}
-
-void Callgraph::updateNodeAttributes() {
-	for (auto pair : graphMapping) {
-		pair.second->updateNodeAttributes(this->samplesPerSecond);
-	}
 }
 
 void Callgraph::printDOT(std::string prefix) {

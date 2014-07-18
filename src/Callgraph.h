@@ -37,8 +37,6 @@ private:
 	std::queue<EstimatorPhase*> phases;
 
 
-	void updateNodeAttributes();
-
 	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName
 	CgNodePtr findMain();
 };
