@@ -10,7 +10,8 @@ CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
 DEBUG=-g
 
 SOURCES=src/main.cpp src/CgNode.cpp src/Callgraph.cpp src/EstimatorPhase.cpp \
-src/SanityCheckEstimatorPhase.cpp src/MinimalSpantreeEstimatorPhase.cpp src/CgHelper.cpp
+src/SanityCheckEstimatorPhase.cpp src/MinimalSpantreeEstimatorPhase.cpp src/CgHelper.cpp \
+src/OptimalNodeBasedEstimatorPhase.cpp
 
 # MICE
 # source a script (e.g. /opt/scorep/load_cube-4.2.2-gcc4.6.sh) to load cube before compilation
