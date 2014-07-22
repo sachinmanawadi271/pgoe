@@ -30,10 +30,22 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		auto edge = pq.top();
 		pq.pop();
 
+		///XXX
+		std::cout << "# " << edge.parent->getFunctionName() << " --> " << edge.child->getFunctionName() << std::endl;
+
 		if (!CgHelper::isConnectedOnSpantree(edge.child, edge.parent)) {
+			///XXX
+			std::cout << "in" << std::endl;
+
 			visitedNodes.insert(edge.child);
+			visitedNodes.insert(edge.parent);
+
 			edge.child->addSpantreeParent(edge.parent);
 		} else {
+
+			///XXX
+			std::cout << "out" << std::endl;
+
 			numberOfSkippedEdges++;
 			continue;
 		}

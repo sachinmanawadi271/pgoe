@@ -15,7 +15,7 @@
 
 void registerEstimatorPhases(Callgraph& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
-//	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
+	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
 	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
