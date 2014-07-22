@@ -1,8 +1,5 @@
 #include "CgHelper.h"
 
-///XXX
-#include <cassert>
-
 namespace CgHelper {
 
 	/** returns true for nodes with two or more parents */
@@ -165,52 +162,24 @@ namespace CgHelper {
 
 			size = reachableNodes.size();
 
-			///XXX
-			std::cout << "\t" << "reachable: ";
-			for (auto node : reachableNodes) {
-				std::cout << node->getFunctionName() <<  " | ";
-			}
-			std::cout << std::endl;
+			CgNodePtrSet newlyReachableNodes;	// don't iterate over a modified container
+			newlyReachableNodes.insert(reachableNodes.begin(), reachableNodes.end());
 
-			CgNodePtrSet newlyReachableNodes;
-
-			for (auto node : reachableNodes) {
-
-				///XXX
-//				assert(node);
-//				std::cout << "\t\tnodes reachable from:" << node->getFunctionName() << std::endl;
+			for (auto node : newlyReachableNodes) {
 
 				for (auto parentNode : node->getParentNodes()) {
 					if(node->isSpantreeParent(parentNode)) {
-
-						///XXX
-//						std::cout << "\t\t\tparentNode: " << parentNode->getFunctionName() << std::endl;
-
-						newlyReachableNodes.insert(parentNode);
+						reachableNodes.insert(parentNode);
 					}
 				}
 				for (auto childNode : node->getChildNodes()) {
 					if (childNode->isSpantreeParent(node)) {
-
-						///XXX
-//						std::cout << "\t\t\tchildNode: " << childNode->getFunctionName() << std::endl;
-
-						newlyReachableNodes.insert(childNode);
+						reachableNodes.insert(childNode);
 					}
 				}
 
-				///XXX
-//				std::cout << "\t\t" << "next: " ;
-//				for (auto node : reachableNodes) {
-//					std::cout << node->getFunctionName() <<  " | ";
-//				}
-//				std::cout << std::endl;
-
 			}
-
-			reachableNodes.insert(newlyReachableNodes.begin(), newlyReachableNodes.end());
 		}
-
 		return reachableNodes.find(n2) != reachableNodes.end();
 	}
 

@@ -5,6 +5,8 @@
 #include <queue>
 #include <numeric>	// for std::accumulate
 
+#include <unordered_map>
+
 #include "CgNode.h"
 #include "EstimatorPhase.h"
 #include "SanityCheckEstimatorPhase.h"

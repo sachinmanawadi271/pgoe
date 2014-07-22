@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <unordered_set>
+#include <set>
 #include <unordered_map>
 
 enum CgNodeState {
@@ -20,7 +20,7 @@ enum CgNodeState {
 class CgNode;
 typedef std::shared_ptr<CgNode> CgNodePtr;	// hopefully this typedef helps readability
 
-typedef std::unordered_set<CgNodePtr> CgNodePtrSet;
+typedef std::set<CgNodePtr> CgNodePtrSet;
 
 class CgNode {
 
