@@ -162,10 +162,9 @@ namespace CgHelper {
 
 			size = reachableNodes.size();
 
-			CgNodePtrSet newlyReachableNodes;	// don't iterate over a modified container
-			newlyReachableNodes.insert(reachableNodes.begin(), reachableNodes.end());
-
-			for (auto node : newlyReachableNodes) {
+			// RN:	note that elements are inserted during iteration
+			// 		bad things may happen if an unordered container is used here
+			for (auto node : reachableNodes) {
 
 				for (auto parentNode : node->getParentNodes()) {
 					if(node->isSpantreeParent(parentNode)) {

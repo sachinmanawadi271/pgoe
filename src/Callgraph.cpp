@@ -1,9 +1,12 @@
 #include "Callgraph.h"
 
+#include <chrono>	// easy time measurement
+
 #define VERBOSE 0
 #define DEBUG 0
 
-#define PRINT_DOT_AFTER_EVERY_PHASE 1
+#define BENCHMARK_PHASES 1
+#define PRINT_DOT_AFTER_EVERY_PHASE 0
 
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
@@ -122,6 +125,9 @@ void Callgraph::thatOneLargeMethod() {
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();
 
+#if BENCHMARK_PHASES
+		auto startTime = std::chrono::system_clock::now();
+#endif
 		phase->modifyGraph(findMain());
 		phase->generateReport();
 
@@ -130,6 +136,13 @@ void Callgraph::thatOneLargeMethod() {
 		CgReport report = phase->getReport();
 		this->printDOT(report.phaseName);
 #endif
+
+#if BENCHMARK_PHASES
+		auto endTime = std::chrono::system_clock::now();
+		double calculationTime = (endTime-startTime).count()/1e6;
+		std::cout << "\t- " << "calculation took " << calculationTime << " sec" << std::endl;
+#endif
+
 		phases.pop();
 	}
 

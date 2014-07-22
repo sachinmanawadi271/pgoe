@@ -9,7 +9,9 @@
 #include <fstream>
 
 #include <set>
-#include <unordered_map>
+#include <map>
+
+#include <unordered_set>
 
 enum CgNodeState {
 	NONE,
@@ -18,9 +20,10 @@ enum CgNodeState {
 };
 
 class CgNode;
-typedef std::shared_ptr<CgNode> CgNodePtr;	// hopefully this typedef helps readability
+typedef std::shared_ptr<CgNode> 		CgNodePtr;	// hopefully this typedef helps readability
 
-typedef std::set<CgNodePtr> CgNodePtrSet;
+typedef std::set<CgNodePtr> 			CgNodePtrSet;
+typedef std::unordered_set<CgNodePtr> 	CgNodePtrUnorderedSet;
 
 class CgNode {
 
@@ -78,7 +81,7 @@ private:
 	CgNodePtrSet parentNodes;
 
 	// parentNode -> number of calls by that parent
-	std::unordered_map<CgNodePtr, unsigned long long> numberOfCallsBy;
+	std::map<CgNodePtr, unsigned long long> numberOfCallsBy;
 
 	// this is possibly the dumbest way to implement a spanning tree
 	CgNodePtrSet spantreeParents;
