@@ -33,6 +33,8 @@ private:
 
 
 	void findStartingState(CgNodePtr mainMethod);
+
+	void step();
 };
 
 struct OptimalNodeBasedConstraint {
@@ -60,21 +62,31 @@ struct OptimalNodeBasedConstraint {
 
 		return elements.size() == size;
 	}
+
+	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedConstraint& c) {
+		stream << "(" << c.size << ")[";
+		for (auto e : c.elements) {
+			stream << e->getFunctionName() << "|";
+		}
+		stream << "]";
+
+		return stream;
+	}
 };
 
 struct OptimalNodeBasedState {
-	CgNodePtrSet currentInstrumentation;
+	CgNodePtrSet nodeSet;
 	ConstraintContainer constraints;
 
-	OptimalNodeBasedState(CgNodePtrSet startingSet, ConstraintContainer startingConstraints) {
-		this->currentInstrumentation = startingSet;
-		this->constraints = startingConstraints;
+	OptimalNodeBasedState(CgNodePtrSet nodeSet, ConstraintContainer constraints) {
+		this->nodeSet = nodeSet;
+		this->constraints = constraints;
 	}
 
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
 
-		currentInstrumentation.erase(oldElement);
-		currentInstrumentation.insert(newElements.begin(), newElements.end());
+		nodeSet.erase(oldElement);
+		nodeSet.insert(newElements.begin(), newElements.end());
 
 		for (OptimalNodeBasedConstraint constraint : constraints) {
 			if (!constraint.validAfterExchange(oldElement, newElements)) {
@@ -83,7 +95,30 @@ struct OptimalNodeBasedState {
 		}
 		return true;
 	}
-};
+
+	unsigned long long getCosts() {
+
+		return std::accumulate( nodeSet.begin(), nodeSet.end(), 0,
+				[](unsigned long long calls, CgNodePtr node) {
+					return calls += node->getNumberOfCalls();
+				});
+	}
+
+	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedState& state) {
+
+		std::cout << "-- marked: ";
+		for (auto node : state.nodeSet) {
+			std::cout << node->getFunctionName() << ", ";
+		}
+		std::cout << "-- constraints: ";
+		for (auto c : state.constraints) {
+			std::cout << c << ", ";
+		}
+
+		std::cout << std::endl;
+			return stream;
+		}
+	};
 
 
 #endif

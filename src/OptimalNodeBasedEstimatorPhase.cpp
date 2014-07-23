@@ -1,6 +1,8 @@
 
 #include "OptimalNodeBasedEstimatorPhase.h"
 
+#define DEBUG 1
+
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),
 		optimalCosts(INT64_MAX){
@@ -9,33 +11,65 @@ OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 OptimalNodeBasedEstimatorPhase::~OptimalNodeBasedEstimatorPhase() {
 }
 
+void OptimalNodeBasedEstimatorPhase::step() {
+
+	if (stateStack.empty()) {
+		return;
+	}
+
+#if DEBUG
+	std::cout << stateStack.top() << std::endl;
+#endif
+
+	for (auto node : stateStack.top().nodeSet) {
+		auto parentNodes = node->getParentNodes();
+
+		auto newState(stateStack.top());
+
+#if DEBUG
+		std::cout << "   " << "+try switching \"" << node->getFunctionName()
+				<< "\" for: " << std::endl << "\t";
+		for (auto n : parentNodes) {
+			std::cout << "\"" << n->getFunctionName() << "\", ";
+		}
+		std::cout << std::endl;
+#endif
+
+		if (newState.validAfterExchange(node, parentNodes)) {
+			unsigned long long costs = newState.getCosts();
+
+			if (costs < optimalCosts) {
+				optimalCosts = costs;
+				optimalInstrumentation = newState.nodeSet;
+			}
+
+			stateStack.push(newState);
+			step();
+		}
+	}
+
+	stateStack.pop();
+
+}
+
 void OptimalNodeBasedEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	findStartingState(mainMethod);
-	///XXX
-	std::cout << " # Found starting state" << std::endl;
 
-	while (!stateStack.empty()) {
-
-		///XXX
-		std::cout << "  #loop" << std::endl;
-
-		// XXX RN i'm not sure this will work as intended if the stack is modified
-		for (auto node : stateStack.top().currentInstrumentation) {
-			auto parentNodes = node->getParentNodes();
-
-			auto newState(stateStack.top());
-
-			if (newState.validAfterExchange(node, parentNodes)) {
-				// TODO: calculate costs
-
-				stateStack.push(newState);
-			}
-
-		}
-
-		stateStack.pop();	// XXX is this correct?
+#if DEBUG
+	std::cout << "+Starting markers: ";
+	for (auto node : optimalInstrumentation) {
+		std::cout << "\"" << node->getFunctionName() << "\", ";
 	}
+	std::cout << std::endl;
+#endif
+
+	step();
+
+	for (auto node : optimalInstrumentation) {
+		node->setState(CgNodeState::INSTRUMENT);
+	}
+	mainMethod->setState(CgNodeState::NONE);
 
 }
 
