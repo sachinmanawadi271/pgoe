@@ -55,16 +55,10 @@ struct OptimalNodeBasedConstraint {
 	}
 
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
-		///XXX
-		std::cout << (*this);
-
 		size += (newElements.size() - 1);
 
 		elements.erase(oldElement);
 		elements.insert(newElements.begin(), newElements.end());
-
-		///XXX
-		std::cout << " --> " << (*this) << std::endl;
 
 		return elements.size() == size;
 	}
@@ -122,7 +116,8 @@ struct OptimalNodeBasedState {
 			std::cout << c << ", ";
 		}
 		std::cout << "--";
-			return stream;
+
+		return stream;
 	}
 };
 

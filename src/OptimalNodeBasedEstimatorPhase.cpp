@@ -1,7 +1,7 @@
 
 #include "OptimalNodeBasedEstimatorPhase.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),
@@ -18,7 +18,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 	}
 
 #if DEBUG
-	std::cout << stateStack.top() << std::endl;
+	std::cout << "+ push " << stateStack.top() << std::endl;
 #endif
 
 	for (auto node : stateStack.top().nodeSet) {
@@ -31,7 +31,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 		auto newState(stateStack.top());
 
 #if DEBUG
-		std::cout << "   " << "+try switching \"" << node->getFunctionName()
+		std::cout << "   " << "+ try switching \"" << node->getFunctionName()
 				<< "\" for:  [";
 		for (auto n : parentNodes) {
 			std::cout << "\"" << n->getFunctionName() << "\", ";
@@ -61,20 +61,17 @@ void OptimalNodeBasedEstimatorPhase::step() {
 	}
 
 	stateStack.pop();
+#if DEBUG
+	if (!stateStack.empty()) {
+			std::cout << "+ pop  " << stateStack.top() << std::endl;
+	}
+#endif
 
 }
 
 void OptimalNodeBasedEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	findStartingState(mainMethod);
-
-#if DEBUG
-	std::cout << "+Starting markers: ";
-	for (auto node : optimalInstrumentation) {
-		std::cout << "\"" << node->getFunctionName() << "\", ";
-	}
-	std::cout << std::endl;
-#endif
 
 	step();
 
