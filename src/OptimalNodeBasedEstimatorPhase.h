@@ -12,7 +12,7 @@
 struct OptimalNodeBasedConstraint;
 struct OptimalNodeBasedState;
 
-typedef std::vector<std::shared_ptr<OptimalNodeBasedConstraint> > ConstraintContainer;
+typedef std::vector<OptimalNodeBasedConstraint> ConstraintContainer;
 
 
 class OptimalNodeBasedEstimatorPhase : public EstimatorPhase {
@@ -94,8 +94,8 @@ struct OptimalNodeBasedState {
 		nodeSet.erase(oldElement);
 		nodeSet.insert(newElements.begin(), newElements.end());
 
-		for (auto constraint : constraints) {
-			if (!constraint->validAfterExchange(oldElement, newElements)) {
+		for (auto& constraint : constraints) {
+			if (!constraint.validAfterExchange(oldElement, newElements)) {
 				return false;
 			}
 		}
@@ -119,7 +119,7 @@ struct OptimalNodeBasedState {
 		}
 		std::cout << "-- constraints: ";
 		for (auto c : state.constraints) {
-			std::cout << (*c) << ", ";
+			std::cout << c << ", ";
 		}
 		std::cout << "--";
 			return stream;

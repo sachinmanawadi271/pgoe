@@ -105,8 +105,7 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 			}
 
 			startingParents.insert(currentParents.begin(), currentParents.end());
-			startingConstraints.push_back(
-					std::shared_ptr<OptimalNodeBasedConstraint>(new OptimalNodeBasedConstraint(currentParents)));
+			startingConstraints.push_back(OptimalNodeBasedConstraint(currentParents));
 		}
 	}
 
