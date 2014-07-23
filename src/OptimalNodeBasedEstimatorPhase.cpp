@@ -22,29 +22,41 @@ void OptimalNodeBasedEstimatorPhase::step() {
 #endif
 
 	for (auto node : stateStack.top().nodeSet) {
-		auto parentNodes = node->getParentNodes();
 
+		if (node->isRootNode()) {
+			continue;
+		}
+
+		auto parentNodes = node->getParentNodes();
 		auto newState(stateStack.top());
 
 #if DEBUG
 		std::cout << "   " << "+try switching \"" << node->getFunctionName()
-				<< "\" for: " << std::endl << "\t";
+				<< "\" for:  [";
 		for (auto n : parentNodes) {
 			std::cout << "\"" << n->getFunctionName() << "\", ";
 		}
-		std::cout << std::endl;
+		std::cout << "] ";
 #endif
 
-		if (newState.validAfterExchange(node, parentNodes)) {
+		if (!parentNodes.empty() && newState.validAfterExchange(node, parentNodes)) {
 			unsigned long long costs = newState.getCosts();
 
 			if (costs < optimalCosts) {
 				optimalCosts = costs;
 				optimalInstrumentation = newState.nodeSet;
 			}
+#if DEBUG
+			std::cout << "--> success" << std::endl;
+#endif
 
 			stateStack.push(newState);
 			step();
+
+		} else {
+#if DEBUG
+			std::cout << "--> fail" << std::endl;
+#endif
 		}
 	}
 
