@@ -303,3 +303,19 @@ void UnwindEstimatorPhase::printAdditionalReport() {
 			<< unwindCandidates << " candidate(s)" << std::endl;
 }
 
+//// UNWIND ESTIMATOR PHASE
+
+ResetEstimatorPhase::ResetEstimatorPhase() :
+		EstimatorPhase("Reset") {
+}
+
+ResetEstimatorPhase::~ResetEstimatorPhase() {
+}
+
+void ResetEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	for (auto node : (*graph)) {
+		node->setState(CgNodeState::NONE);
+		node->resetSpantreeParents();
+	}
+}
+

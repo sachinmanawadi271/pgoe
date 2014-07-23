@@ -54,6 +54,7 @@ public:
 	// spanning tree stuff
 	void addSpantreeParent(CgNodePtr parentNode);
 	bool isSpantreeParent(CgNodePtr);
+	void resetSpantreeParents();
 
 	void updateNodeAttributes(int samplesPerSecond);
 

@@ -125,4 +125,12 @@ private:
 	int unwindCandidates;
 };
 
+class ResetEstimatorPhase : public EstimatorPhase {
+public:
+	ResetEstimatorPhase();
+	~ResetEstimatorPhase();
+
+	void modifyGraph(CgNodePtr mainMethod);
+};
+
 #endif

@@ -42,6 +42,10 @@ bool CgNode::isSpantreeParent(CgNodePtr parentNode) {
 	return this->spantreeParents.find(parentNode) != spantreeParents.end();
 }
 
+void CgNode::resetSpantreeParents() {
+	this->spantreeParents.clear();
+}
+
 void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
 	// is leaf node
