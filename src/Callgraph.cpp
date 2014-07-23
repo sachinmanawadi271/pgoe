@@ -5,7 +5,7 @@
 #define VERBOSE 0
 #define DEBUG 0
 
-#define BENCHMARK_PHASES 1
+#define BENCHMARK_PHASES 0
 #define PRINT_DOT_AFTER_EVERY_PHASE 0
 
 Callgraph::Callgraph(int samplesPerSecond) :

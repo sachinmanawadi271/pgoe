@@ -68,7 +68,8 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 			" edge(s) not part of Spanning Tree" << std::endl;
 	std::cout << "\tinstrumentedCalls: " << numberOfInstrumentedCalls
 			<< " | instrumentationOverhead: " << instrumentationOverhead << " ns" << std::endl
-			<< "\t" << "that is: " << instrumentationOverhead/1e9 <<" s"<< std::endl;
+			<< "\t" << "overallOverhead: " << instrumentationOverhead << " ns"
+			<< " | that is: " << instrumentationOverhead/1e9 <<" s"<< std::endl;
 
 }
 
