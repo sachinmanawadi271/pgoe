@@ -83,7 +83,7 @@ bool CgNode::isSameFunction(CgNodePtr cgNodeToCompareTo){
 }
 
 
-std::string CgNode::getFunctionName(){
+std::string CgNode::getFunctionName() const {
 	return this->functionName;
 }
 
@@ -171,3 +171,9 @@ void CgNode::setFilename(std::string filename){
 void CgNode::setLineNumber(int line){
 	this->line = line;
 }
+
+std::ostream& operator<< (std::ostream& stream, const CgNode& n) {
+		stream << "\"" << n.getFunctionName() << "\"";
+
+		return stream;
+	}

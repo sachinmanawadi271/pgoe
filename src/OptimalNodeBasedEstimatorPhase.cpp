@@ -1,7 +1,7 @@
 
 #include "OptimalNodeBasedEstimatorPhase.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),

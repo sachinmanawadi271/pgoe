@@ -34,7 +34,7 @@ public:
 
 	bool isSameFunction(CgNodePtr otherNode);
 
-	std::string getFunctionName();
+	std::string getFunctionName() const;
 
 	CgNodePtrSet getChildNodes();
 	CgNodePtrSet getParentNodes();
@@ -69,6 +69,8 @@ public:
 
 	void print();
 	void printMinimal();
+
+	friend std::ostream& operator<< (std::ostream& stream, const CgNode& n);
 
 private:
 	std::string functionName;

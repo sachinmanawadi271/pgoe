@@ -60,7 +60,7 @@ struct OptimalNodeBasedConstraint {
 	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedConstraint& c) {
 		stream << "(" << c.size << ")[";
 		for (auto e : c.elements) {
-			stream << e->getFunctionName() << "|";
+			stream << *e << "|";
 		}
 		stream << "]";
 
@@ -104,7 +104,7 @@ struct OptimalNodeBasedState {
 
 		std::cout << "-- marked: ";
 		for (auto node : state.nodeSet) {
-			std::cout << node->getFunctionName() << ", ";
+			std::cout << *node << ", ";
 		}
 		std::cout << "-- constraints: ";
 		for (auto c : state.constraints) {
