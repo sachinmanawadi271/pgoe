@@ -12,8 +12,13 @@ OptimalNodeBasedEstimatorPhase::~OptimalNodeBasedEstimatorPhase() {
 void OptimalNodeBasedEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	findStartingState(mainMethod);
+	///XXX
+	std::cout << " # Found starting state" << std::endl;
 
 	while (!stateStack.empty()) {
+
+		///XXX
+		std::cout << "  #loop" << std::endl;
 
 		// XXX RN i'm not sure this will work as intended if the stack is modified
 		for (auto node : stateStack.top().currentInstrumentation) {
@@ -42,7 +47,7 @@ void OptimalNodeBasedEstimatorPhase::printAdditionalReport() {
 void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 
 	CgNodePtrSet startingParents = {mainMethod};	// main() is implicitly instrumented
-	ConstraintSet startingConstraints;
+	ConstraintContainer startingConstraints;
 
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
@@ -54,7 +59,7 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 			}
 
 			startingParents.insert(currentParents.begin(), currentParents.end());
-			startingConstraints.insert(OptimalNodeBasedConstraint(currentParents));
+			startingConstraints.push_back(OptimalNodeBasedConstraint(currentParents));
 		}
 	}
 

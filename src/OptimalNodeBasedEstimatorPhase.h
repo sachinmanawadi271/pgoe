@@ -7,11 +7,12 @@
 #include "CgHelper.h"
 
 #include <stack>
+#include <vector>
 
 struct OptimalNodeBasedConstraint;
 struct OptimalNodeBasedState;
 
-typedef std::set<OptimalNodeBasedConstraint> ConstraintSet;
+typedef std::vector<OptimalNodeBasedConstraint> ConstraintContainer;
 
 
 class OptimalNodeBasedEstimatorPhase : public EstimatorPhase {
@@ -63,9 +64,9 @@ struct OptimalNodeBasedConstraint {
 
 struct OptimalNodeBasedState {
 	CgNodePtrSet currentInstrumentation;
-	ConstraintSet constraints;
+	ConstraintContainer constraints;
 
-	OptimalNodeBasedState(CgNodePtrSet startingSet, ConstraintSet startingConstraints) {
+	OptimalNodeBasedState(CgNodePtrSet startingSet, ConstraintContainer startingConstraints) {
 		this->currentInstrumentation = startingSet;
 		this->constraints = startingConstraints;
 	}

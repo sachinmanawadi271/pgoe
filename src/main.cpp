@@ -6,6 +6,10 @@
 
 #include "Callgraph.h"
 
+#include "SanityCheckEstimatorPhase.h"
+#include "MinimalSpantreeEstimatorPhase.h"
+#include "OptimalNodeBasedEstimatorPhase.h"
+
 //// POOR MAN'S CONFIG
 #define VERBOSE 0
 #define PRINT_DOT 1
@@ -13,13 +17,19 @@
 #define SAMPLES_PER_SECOND 1e3
 ////
 
+// TODO RN: make this nice
+//void registerEstimatorPhases(Callgraph& cg) {
+//	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
+//	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+//	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
+//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+//	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//}
 void registerEstimatorPhases(Callgraph& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
-	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
-	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 }
 
