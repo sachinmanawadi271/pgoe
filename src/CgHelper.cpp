@@ -21,8 +21,8 @@ namespace CgHelper {
 		auto instrumentedNode = getInstrumentedNodeOnPath(node);
 
 		if (instrumentedNode) {
-			if(instrumentedNode->isRootNode()) {	// main method has no callers
-				return CgConfig::nanosPerInstrumentedCall;
+			if(instrumentedNode->isRootNode()) {
+				return 0;	// main() is implictly instrumented
 			}
 			return instrumentedNode->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
 		} else {

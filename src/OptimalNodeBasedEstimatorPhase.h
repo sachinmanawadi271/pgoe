@@ -46,20 +46,14 @@ struct OptimalNodeBasedConstraint {
 		size = elements.size();
 	}
 
-	// XXX RN: unused?
-	bool validAfterExchange(CgNodePtr oldElement, CgNodePtr newElement) {
-		elements.erase(oldElement);
-		elements.insert(newElement);
-
-		return elements.size() == size;
-	}
-
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
-		size += (newElements.size() - 1);
 
-		elements.erase(oldElement);
-		elements.insert(newElements.begin(), newElements.end());
+		if (elements.find(oldElement) != elements.end()) {
+			size += (newElements.size() - 1);
 
+			elements.erase(oldElement);
+			elements.insert(newElements.begin(), newElements.end());
+		}
 		return elements.size() == size;
 	}
 
@@ -85,9 +79,10 @@ struct OptimalNodeBasedState {
 
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
 
-		nodeSet.erase(oldElement);
-		nodeSet.insert(newElements.begin(), newElements.end());
-
+		if(nodeSet.find(oldElement) != nodeSet.end()) {
+			nodeSet.erase(oldElement);
+			nodeSet.insert(newElements.begin(), newElements.end());
+		}
 		for (auto& constraint : constraints) {
 			if (!constraint.validAfterExchange(oldElement, newElements)) {
 				return false;
