@@ -1,7 +1,7 @@
 
 #include "OptimalNodeBasedEstimatorPhase.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),
@@ -31,10 +31,9 @@ void OptimalNodeBasedEstimatorPhase::step() {
 		auto newState(stateStack.top());
 
 #if DEBUG
-		std::cout << "   " << "+ try switching \"" << node->getFunctionName()
-				<< "\" for:  [";
+		std::cout << "   " << "+ try switching " << *node	<< " for:  [";
 		for (auto n : parentNodes) {
-			std::cout << "\"" << n->getFunctionName() << "\", ";
+			std::cout << *n << ", ";
 		}
 		std::cout << "] ";
 #endif

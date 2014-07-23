@@ -319,3 +319,7 @@ void ResetEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 }
 
+void ResetEstimatorPhase::printAdditionalReport() {
+	std::cout << std::endl;
+}
+

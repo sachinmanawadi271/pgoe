@@ -28,11 +28,9 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 				if(oneUninstrumentedPath) {
 					numberOfErrors++;
-					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
-							<< "\"" << std::endl
-							<< "  paths of \"" << parentNode->getFunctionName()
-							<< "\" and \"" << oneUninstrumentedPath->getFunctionName()
-							<< "\" not instrumented" << std::endl;
+					std::cerr << "ERROR: Inconsistency in conjunction node: " << *node << std::endl
+							<< "  paths of " << *parentNode << " and " << *oneUninstrumentedPath
+							<< " not instrumented" << std::endl;
 				} else {
 					oneUninstrumentedPath = instrumentedNode;
 				}
@@ -43,11 +41,9 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 					instrumentedPaths.insert(instrumentedNode);
 				} else {
 					numberOfErrors++;
-					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
-							<< "\"" << std::endl
-							<< "  " << parentNode->getFunctionName()
-							<< " call path not instrumented with unique marker."
-							<< " (marker at: " << instrumentedNode->getFunctionName() << ")" << std::endl;
+					std::cerr << "ERROR: Inconsistency in conjunction node: " << *node << std::endl
+							<< "  " << *parentNode << " call path not instrumented with unique marker."
+							<< " (marker at: " << *instrumentedNode << ")" << std::endl;
 				}
 			}
 		}
@@ -56,11 +52,9 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			for (auto instrumentedPath : instrumentedPaths) {
 				if (CgHelper::reachableFrom(instrumentedPath, oneUninstrumentedPath)) {
 					numberOfErrors++;
-					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
-							<< "\"" << std::endl
-							<< "  uninstrumented parent \""<< oneUninstrumentedPath->getFunctionName()
-							<< "\" is reachable from instrumented node \""
-							<< instrumentedPath->getFunctionName() << "\"" << std::endl;
+					std::cerr << "ERROR: Inconsistency in conjunction node: " << *node << std::endl
+							<< "  uninstrumented parent "<< *oneUninstrumentedPath
+							<< " is reachable from instrumented node " << *instrumentedPath << std::endl;
 				}
 			}
 		}

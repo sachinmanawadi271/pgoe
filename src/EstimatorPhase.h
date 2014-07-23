@@ -131,6 +131,8 @@ public:
 	~ResetEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
+protected:
+	void printAdditionalReport();
 };
 
 #endif

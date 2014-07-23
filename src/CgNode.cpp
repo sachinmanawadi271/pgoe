@@ -96,7 +96,7 @@ void CgNode::dumpToDot(std::ofstream& outStream){
 			edgeColor = ", color=red, fontcolor=red";
 		}
 
-		outStream << "\"" << parentNode->getFunctionName() << "\" -> \"" << this->functionName
+		outStream << "\"" << *parentNode << "\" -> \"" << this->functionName
 				<< "\" [label=" << this->getNumberOfCalls(parentNode) << edgeColor << "];"
 				<< std::endl;
 	}
@@ -158,7 +158,7 @@ void CgNode::printMinimal(){
 void CgNode::print(){
 	std::cout << this->functionName << std::endl;
 	for(auto n : childNodes){
-		std::cout << "--" << n->getFunctionName() << std::endl;
+		std::cout << "--" << *n << std::endl;
 	}
 }
 
