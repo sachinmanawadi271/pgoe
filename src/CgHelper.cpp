@@ -33,20 +33,20 @@ namespace CgHelper {
 	/** returns a pointer to the node that is instrumented up that call path */
 	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node) {
 		// XXX RN: this method has slowly grown up to a real mess
-		if (node->isInstrumented()) {
+		if (node->isInstrumented() || node->isRootNode()) {
 			return node;
 		}
 
-		if (isConjunction(node) || node->isRootNode()) {
+		if (isConjunction(node)) {
 			return NULL;
 		}
 		// single parent
 		auto parentNode = getUniqueParent(node);
 
 		// if the parent has multiple children, instrumentation cannot be moved up there
-		if (parentNode->getChildNodes().size() > 1) {
-			return NULL;
-		}
+//		if (parentNode->getChildNodes().size() > 1) {
+//			return NULL;
+//		}
 
 		return getInstrumentedNodeOnPath(parentNode);
 	}

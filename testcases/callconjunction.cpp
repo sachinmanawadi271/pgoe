@@ -20,6 +20,8 @@ void bar(){
 
 void foo(){
 	a();
+	a();
+	bar();
 	bar();
 }
 

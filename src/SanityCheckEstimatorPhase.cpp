@@ -23,7 +23,8 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		// all parents' call paths BUT ONE have to be instrumented
 		for (auto parentNode : node->getParentNodes()) {
 
-			if(CgHelper::getInstrumentedNodeOnPath(parentNode) == NULL) {
+			auto instrumentedNode = CgHelper::getInstrumentedNodeOnPath(parentNode);
+			if(instrumentedNode == NULL || instrumentedNode->isSameFunction(mainMethod)) {
 
 				if(oneUninstrumentedPath) {
 					numberOfErrors++;
@@ -33,11 +34,21 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 							<< "\" and \"" << oneUninstrumentedPath->getFunctionName()
 							<< "\" not instrumented" << std::endl;
 				} else {
-					oneUninstrumentedPath = parentNode;
+					oneUninstrumentedPath = instrumentedNode;
 				}
 
 			} else {
-				instrumentedPaths.insert(parentNode);
+				// check that the instrumented paths all have a unique instrumentation marker
+				if (instrumentedPaths.find(instrumentedNode) == instrumentedPaths.end()) {
+					instrumentedPaths.insert(instrumentedNode);
+				} else {
+					numberOfErrors++;
+					std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
+							<< "\"" << std::endl
+							<< "  " << parentNode->getFunctionName()
+							<< " call path not instrumented with unique marker."
+							<< " (marker at: " << instrumentedNode->getFunctionName() << ")" << std::endl;
+				}
 			}
 		}
 		// check that the uninstrumented path is not reachable from another instrumented node
@@ -53,14 +64,6 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				}
 			}
 		}
-		// check that the instrumented paths all have a unique instrumentation marker
-		if (instrumentedPaths.size() < node->getParentNodes().size()-1) {
-			std::cerr << "ERROR: Inconsistency in conjunction node: \"" << node->getFunctionName()
-					<< "\"" << std::endl
-					<< "  " << (node->getParentNodes().size() - instrumentedPaths.size())
-					<< " call paths not instrumented with unique marker." << std::endl;
-		}
-
 	}
 
 	// XXX idea: check that there is no instrumentation below unwound nodes
