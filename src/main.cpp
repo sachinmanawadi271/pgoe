@@ -11,7 +11,6 @@
 #include "OptimalNodeBasedEstimatorPhase.h"
 
 //// POOR MAN'S CONFIG
-#define VERBOSE 0
 #define PRINT_DOT 1
 
 #define SAMPLES_PER_SECOND 1e3
@@ -66,9 +65,6 @@ try{
 	cube::Cube cube;
 	// Read our cube file
 	cube.openCubeReport( argv[1] );
-#if VERBOSE > 0
-	std::cout << "Reading input.. done." << std::endl;
-#endif
 	// Get the cube nodes
 	const std::vector<cube::Cnode*>& cnodes = cube.get_cnodev();
 	unsigned long long overallNumberOfCalls = 0;

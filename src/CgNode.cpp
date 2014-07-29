@@ -96,7 +96,7 @@ void CgNode::dumpToDot(std::ofstream& outStream){
 			edgeColor = ", color=red, fontcolor=red";
 		}
 
-		outStream << "\"" << *parentNode << "\" -> \"" << this->functionName
+		outStream << *parentNode << " -> \"" << this->functionName
 				<< "\" [label=" << this->getNumberOfCalls(parentNode) << edgeColor << "];"
 				<< std::endl;
 	}

@@ -8,6 +8,7 @@
 
 #include <stack>
 #include <vector>
+#include <functional>	// std::hash
 
 struct OptimalNodeBasedConstraint;
 struct OptimalNodeBasedState;
@@ -33,6 +34,8 @@ private:
 
 	unsigned long long numberOfSteps;
 
+	// optimization for large data sets
+	std::set<std::size_t> visitedCombinations;
 
 	void findStartingState(CgNodePtr mainMethod);
 
@@ -67,6 +70,11 @@ struct OptimalNodeBasedConstraint {
 		stream << "]";
 
 		return stream;
+	}
+
+	bool operator==(const OptimalNodeBasedConstraint& other) const {
+		return (size == other.size)
+				&& (elements == other.elements);
 	}
 };
 
@@ -117,6 +125,69 @@ struct OptimalNodeBasedState {
 		return stream;
 	}
 };
+
+
+namespace std {
+	template <>
+	struct hash<CgNode> {
+		size_t operator()(const CgNode& key) const {
+			// TODO RN: use Pointer address instead?
+			return hash<string>()(key.getFunctionName());
+		}
+	};
+
+	template <>
+	struct hash<CgNodePtrSet> {
+		size_t operator()(const CgNodePtrSet& key) const {
+
+			return std::accumulate(
+					key.begin(),
+					key.end(),
+					0,
+					[](size_t acc, const CgNodePtr n) {
+						// TODO RN: safe hash function
+						return acc ^ std::hash<CgNodePtr>()(n);
+					}
+			);
+		}
+	};
+
+	template <>
+	struct hash<OptimalNodeBasedConstraint> {
+		size_t operator()(const OptimalNodeBasedConstraint& key) const {
+
+			return hash<CgNodePtrSet>()(key.elements);
+		}
+	};
+
+	template <>
+	struct hash<ConstraintContainer> {
+		size_t operator()(const ConstraintContainer& key) const {
+
+			return std::accumulate(
+					key.begin(),
+					key.end(),
+					0,
+					[](size_t acc, const OptimalNodeBasedConstraint c) {
+						// TODO RN: safe hash function
+						return acc ^ std::hash<OptimalNodeBasedConstraint>()(c);
+					}
+			);
+		}
+	};
+
+	template <>
+	struct hash<OptimalNodeBasedState> {
+		size_t operator()(const OptimalNodeBasedState& key) const {
+
+			return hash<ConstraintContainer>()(key.constraints)
+					^ hash<CgNodePtrSet>()(key.nodeSet);
+		}
+	};
+}
+
+
+
 
 
 #endif

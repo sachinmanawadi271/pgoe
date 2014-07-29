@@ -18,6 +18,13 @@ void OptimalNodeBasedEstimatorPhase::step() {
 		return;
 	}
 
+	// skip already visited combinations
+	std::size_t hash = std::hash<OptimalNodeBasedState>()(stateStack.top());
+	if (visitedCombinations.find(hash) != visitedCombinations.end()) {
+		return;	// this combination has already been visited
+	}
+	visitedCombinations.insert(hash);
+
 	numberOfSteps++;
 
 #if DEBUG
@@ -111,3 +118,5 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 	optimalInstrumentation = startingParents;
 	stateStack.push(OptimalNodeBasedState(startingParents, startingConstraints));
 }
+
+
