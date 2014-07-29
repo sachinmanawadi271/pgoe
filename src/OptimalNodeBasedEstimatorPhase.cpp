@@ -5,7 +5,8 @@
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),
-		optimalCosts(INT64_MAX){
+		optimalCosts(INT64_MAX),
+		numberOfSteps(0) {
 }
 
 OptimalNodeBasedEstimatorPhase::~OptimalNodeBasedEstimatorPhase() {
@@ -16,6 +17,8 @@ void OptimalNodeBasedEstimatorPhase::step() {
 	if (stateStack.empty()) {
 		return;
 	}
+
+	numberOfSteps++;
 
 #if DEBUG
 	std::cout << "+ push " << stateStack.top() << std::endl;
@@ -82,7 +85,7 @@ void OptimalNodeBasedEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 }
 
 void OptimalNodeBasedEstimatorPhase::printAdditionalReport() {
-	// TODO additional report
+	std::cout << "\t" << "computation steps taken: " << numberOfSteps << std::endl;
 }
 
 /** fill the initial stack with all parents of conjunctions and all initial constraints */

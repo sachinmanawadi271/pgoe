@@ -31,6 +31,8 @@ private:
 	CgNodePtrSet optimalInstrumentation;
 	unsigned long long optimalCosts;
 
+	unsigned long long numberOfSteps;
+
 
 	void findStartingState(CgNodePtr mainMethod);
 
