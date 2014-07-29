@@ -103,10 +103,10 @@ struct OptimalNodeBasedState {
 	}
 
 	unsigned long long getCosts() {
-
-		return std::accumulate( nodeSet.begin(), nodeSet.end(), 0,
+		// note that the scumbag zero will break everything unless it is explicitly "ULL"
+		return std::accumulate( nodeSet.begin(), nodeSet.end(), 0ULL,
 				[](unsigned long long calls, CgNodePtr node) {
-					return calls += node->getNumberOfCalls();
+					return calls + node->getNumberOfCalls();
 				});
 	}
 
@@ -126,6 +126,11 @@ struct OptimalNodeBasedState {
 	}
 };
 
+template <class T>
+inline std::size_t hashCombine(const std::size_t seed, const T toBeHashed) {
+	// according to stackoverflow this is a decent hash function
+	return seed ^ ( std::hash<T>()(toBeHashed) + 0x9e3779b9 + (seed<<6) + (seed>>2) ) ;
+}
 
 namespace std {
 	template <>
@@ -145,8 +150,7 @@ namespace std {
 					key.end(),
 					0,
 					[](size_t acc, const CgNodePtr n) {
-						// TODO RN: safe hash function
-						return acc ^ std::hash<CgNodePtr>()(n);
+						return hashCombine<CgNodePtr>(acc, n);
 					}
 			);
 		}
@@ -169,8 +173,7 @@ namespace std {
 					key.end(),
 					0,
 					[](size_t acc, const OptimalNodeBasedConstraint c) {
-						// TODO RN: safe hash function
-						return acc ^ std::hash<OptimalNodeBasedConstraint>()(c);
+						return hashCombine<OptimalNodeBasedConstraint>(acc, c);
 					}
 			);
 		}
@@ -180,14 +183,11 @@ namespace std {
 	struct hash<OptimalNodeBasedState> {
 		size_t operator()(const OptimalNodeBasedState& key) const {
 
-			return hash<ConstraintContainer>()(key.constraints)
-					^ hash<CgNodePtrSet>()(key.nodeSet);
+			size_t hashFirst = hash<ConstraintContainer>()(key.constraints);
+			return hashCombine<CgNodePtrSet>(hashFirst, key.nodeSet);
 		}
 	};
 }
-
-
-
 
 
 #endif

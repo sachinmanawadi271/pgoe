@@ -52,6 +52,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 			unsigned long long costs = newState.getCosts();
 
 			if (costs < optimalCosts) {
+
 				optimalCosts = costs;
 				optimalInstrumentation = newState.nodeSet;
 			}
@@ -115,8 +116,12 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 		}
 	}
 
+	auto startingState = OptimalNodeBasedState(startingParents, startingConstraints);
+
 	optimalInstrumentation = startingParents;
-	stateStack.push(OptimalNodeBasedState(startingParents, startingConstraints));
+	optimalCosts = startingState.getCosts();
+
+	stateStack.push(startingState);
 }
 
 

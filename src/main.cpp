@@ -28,8 +28,8 @@
 //}
 void registerEstimatorPhases(Callgraph& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
-
-	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());
+	///XXX deactivated for development
+//	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
