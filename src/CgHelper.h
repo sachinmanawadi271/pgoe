@@ -10,7 +10,9 @@
 // TODO this numbers should be in a config file
 namespace CgConfig {
 	const unsigned int nanosPerInstrumentedCall = 4;
-	const unsigned int nanosPerUnwindSample = 4000;
+
+	const unsigned int nanosPerUnwindSample 	= 4000;
+	const unsigned int nanosPerUnwindStep 		= 200;
 }
 
 namespace CgHelper {

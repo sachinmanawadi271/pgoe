@@ -47,14 +47,15 @@ public:
 	unsigned long long getExpectedNumberOfSamples();
 
 
-	void setState(CgNodeState state);
-	bool isUnwound();
+	void setState(CgNodeState state, int numberOfUnwindSteps = 0);
 	bool isInstrumented();
+	bool isUnwound();
+	int getNumberOfUnwindSteps();
 
 	// spanning tree stuff
 	void addSpantreeParent(CgNodePtr parentNode);
 	bool isSpantreeParent(CgNodePtr);
-	void resetSpantreeParents();
+	void reset();
 
 	void updateNodeAttributes(int samplesPerSecond);
 
@@ -75,6 +76,8 @@ public:
 private:
 	std::string functionName;
 	CgNodeState state;
+
+	int numberOfUnwindSteps;
 
 	// note that these metrics are based on a profile and might be pessimistic
 	double runtimeInSeconds;

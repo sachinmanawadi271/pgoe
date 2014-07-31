@@ -17,14 +17,20 @@ void EstimatorPhase::generateReport() {
 			report.instrumentedCalls += node->getNumberOfCalls();
 		}
 		if(node->isUnwound()) {
-			report.unwindSamples += node->getExpectedNumberOfSamples();
+			unsigned long long unwindSamples = node->getExpectedNumberOfSamples();
+			unsigned long long unwindSteps = node->getNumberOfUnwindSteps();
+
+			double unwindCosts = unwindSamples * CgConfig::nanosPerUnwindSample
+					+ unwindSteps * CgConfig::nanosPerUnwindStep;
+
+			report.unwindSamples += unwindSamples;
+			report.unwindOverhead += unwindCosts;
 		}
 	}
 
 	report.overallMethods = graph->size();
 
 	report.instrumentationOverhead = report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall;
-	report.unwindOverhead = report.unwindSamples * CgConfig::nanosPerUnwindSample;
 
 	report.phaseName = name;
 }
@@ -274,7 +280,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 			if (expectedUnwindOverheadNanos < expectedInstrumentationOverheadNanos) {
 
-				node->setState(CgNodeState::UNWIND);
+				node->setState(CgNodeState::UNWIND, 1);
 				unwoundNodes++;
 
 				// remove redundant instrumentation in direct parents
@@ -314,8 +320,7 @@ ResetEstimatorPhase::~ResetEstimatorPhase() {
 
 void ResetEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
-		node->setState(CgNodeState::NONE);
-		node->resetSpantreeParents();
+		node->reset();
 	}
 }
 

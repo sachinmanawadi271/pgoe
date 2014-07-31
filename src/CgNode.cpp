@@ -10,6 +10,7 @@ CgNode::CgNode(std::string function){
 
 	this->line = -1;
 	this->state = CgNodeState::NONE;
+	this->numberOfUnwindSteps = 0;
 
 	this->runtimeInSeconds = 0.0;
 	this->expectedNumberOfSamples = 0L;
@@ -42,7 +43,10 @@ bool CgNode::isSpantreeParent(CgNodePtr parentNode) {
 	return this->spantreeParents.find(parentNode) != spantreeParents.end();
 }
 
-void CgNode::resetSpantreeParents() {
+void CgNode::reset() {
+	this->state = CgNodeState::NONE;
+	this->numberOfUnwindSteps = 0;
+
 	this->spantreeParents.clear();
 }
 
@@ -117,8 +121,15 @@ void CgNode::addCallData(CgNodePtr parentNode,
 	this->runtimeInSeconds += timeInSeconds;
 }
 
-void CgNode::setState(CgNodeState state){
+void CgNode::setState(CgNodeState state, int numberOfUnwindSteps){
+
 	this->state = state;
+
+	if (state==CgNodeState::UNWIND) {
+		this->numberOfUnwindSteps = numberOfUnwindSteps;
+	} else {
+		this->numberOfUnwindSteps = 0;
+	}
 }
 
 bool CgNode::isInstrumented(){
@@ -127,6 +138,10 @@ bool CgNode::isInstrumented(){
 
 bool CgNode::isUnwound() {
 	return state == CgNodeState::UNWIND;
+}
+
+int CgNode::getNumberOfUnwindSteps() {
+	return numberOfUnwindSteps;
 }
 
 unsigned long long CgNode::getNumberOfCalls(){
