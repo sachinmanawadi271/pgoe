@@ -1,7 +1,7 @@
 
 #include "OptimalNodeBasedEstimatorPhase.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),
@@ -113,7 +113,7 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 			}
 
 			startingParents.insert(currentParents.begin(), currentParents.end());
-			startingConstraints.push_back(OptimalNodeBasedConstraint(currentParents));
+			startingConstraints.push_back(OptimalNodeBasedConstraint(currentParents, node));
 		}
 	}
 

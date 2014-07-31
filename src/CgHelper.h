@@ -5,6 +5,8 @@
 #include <memory>
 #include <queue>
 #include <numeric>	// for std::accumulate
+#include <algorithm> 	// std::set_intersection
+
 #include "CgNode.h"
 
 // TODO this numbers should be in a config file
@@ -34,6 +36,10 @@ namespace CgHelper {
 	bool removeInstrumentationOnPath(CgNodePtr node);
 
 	bool isConnectedOnSpantree(CgNodePtr n1, CgNodePtr n2);
+
+	CgNodePtrSet getSuperNode(CgNodePtr conjunction);
+	CgNodePtrSet getAncestors(CgNodePtr child);
+	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b);
 }
 
 #endif

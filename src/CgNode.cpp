@@ -187,8 +187,8 @@ void CgNode::setLineNumber(int line){
 	this->line = line;
 }
 
-std::ostream& operator<< (std::ostream& stream, const CgNode& n) {
-		stream << "\"" << n.getFunctionName() << "\"";
+std::ostream& operator<<(std::ostream& stream, const CgNode& n) {
+	stream << "\"" << n.getFunctionName() << "\"";
 
-		return stream;
-	}
+	return stream;
+}

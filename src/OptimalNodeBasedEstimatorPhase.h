@@ -46,12 +46,37 @@ struct OptimalNodeBasedConstraint {
 	size_t size;
 	CgNodePtrSet elements;
 
-	OptimalNodeBasedConstraint(CgNodePtrSet elements) {
+	CgNodePtr conjunction;
+
+	CgNodePtrSet superNode;
+
+	OptimalNodeBasedConstraint(CgNodePtrSet elements, CgNodePtr conjunction) {
 		this->elements = elements;
 		size = elements.size();
+
+		this->conjunction = conjunction;
+
+		this->superNode = CgHelper::getSuperNode(conjunction);
 	}
 
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
+
+		// if there is already an element part of superNode
+		CgNodePtrSet elementsPartOfSuperNode = CgHelper::set_intersect(elements, superNode);
+
+		///XXX
+		std::cout << "# elementsPartOfSuperNode: " << elementsPartOfSuperNode.size() << std::endl;
+
+		if (!elementsPartOfSuperNode.empty()) {
+
+			bool oldIsPartOfSuperNode = (superNode.find(oldElement) != superNode.end());
+			CgNodePtrSet newElementsPartOfSuperNode = CgHelper::set_intersect(elements, superNode);
+			bool newIsPartOfSuperNode = !newElementsPartOfSuperNode.empty();
+
+			if (!oldIsPartOfSuperNode && newIsPartOfSuperNode) {
+				return false;
+			}
+		}
 
 		if (elements.find(oldElement) != elements.end()) {
 			size += (newElements.size() - 1);
@@ -76,6 +101,7 @@ struct OptimalNodeBasedConstraint {
 		return (size == other.size)
 				&& (elements == other.elements);
 	}
+
 };
 
 struct OptimalNodeBasedState {
@@ -112,15 +138,15 @@ struct OptimalNodeBasedState {
 
 	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedState& state) {
 
-		std::cout << "-- marked: ";
+		stream << "-- marked: ";
 		for (auto node : state.nodeSet) {
-			std::cout << *node << ", ";
+			stream << *node << ", ";
 		}
-		std::cout << "-- constraints: ";
+		stream << "-- constraints: ";
 		for (auto c : state.constraints) {
-			std::cout << c << ", ";
+			stream << c << ", ";
 		}
-		std::cout << "--";
+		stream << "--";
 
 		return stream;
 	}

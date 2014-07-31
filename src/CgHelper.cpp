@@ -52,7 +52,8 @@ namespace CgHelper {
 	}
 
 	/**
-	 * returns true if the node can be deleted and all call paths can still be reconstructed.
+	 * returns true if the instrumentation at a node can be deleted
+	 * and all call paths can still be reconstructed.
 	 * The node has to be the direct parent of a call conjunction.
 	 * Checks the call path reconstruction for all child nodes.
 	 */
@@ -180,6 +181,69 @@ namespace CgHelper {
 			}
 		}
 		return reachableNodes.find(n2) != reachableNodes.end();
+	}
+
+	/** XXX RN: this is horribly hacky */
+	CgNodePtrSet getSuperNode(CgNodePtr conjunction) {
+
+		CgNodePtrSet parentNodes = conjunction->getParentNodes();
+
+		std::vector<CgNodePtrSet> parentsAncestors;
+		for (auto parentNode : parentNodes) {
+			parentsAncestors.push_back( getAncestors(parentNode) );
+		}
+
+		CgNodePtrSet superNode;
+
+		for (CgNodePtrSet ancestors : parentsAncestors) {
+			for (CgNodePtrSet otherAncestors : parentsAncestors) {
+
+				if(ancestors==otherAncestors) {
+					continue;
+				}
+
+				CgNodePtrSet intersection = set_intersect(ancestors, otherAncestors);
+				superNode.insert(intersection.begin(), intersection.end());
+			}
+		}
+
+		return superNode;
+	}
+
+
+	CgNodePtrSet getAncestors(CgNodePtr startingNode) {
+
+		CgNodePtrSet ancestors;
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(startingNode);
+
+		while (!workQueue.empty()) {
+
+			auto node = workQueue.front();
+			workQueue.pop();
+
+			ancestors.insert(node);
+
+			for (auto parentNode : node->getParentNodes()) {
+				if (ancestors.find(parentNode) == ancestors.end()) {
+					workQueue.push(parentNode);
+				}
+			}
+		}
+
+		return ancestors;
+	}
+
+	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b) {
+
+		CgNodePtrSet intersect;
+
+		std::set_intersection(
+				a.begin(),a.end(),
+				b.begin(),b.end(),
+				std::inserter(intersect, intersect.begin()));
+
+		return intersect;
 	}
 
 }
