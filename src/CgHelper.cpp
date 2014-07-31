@@ -96,9 +96,9 @@ namespace CgHelper {
 
 		auto parents = conjunctionNode->getParentNodes();
 
-		return std::accumulate(parents.begin(), parents.end(), 0,
-				[] (int i, CgNodePtr parent) {
-					return i + getInstrumentationOverheadOfPath(parent);
+		return std::accumulate(parents.begin(), parents.end(), 0ULL,
+				[] (unsigned long long acc, CgNodePtr parent) {
+					return acc + getInstrumentationOverheadOfPath(parent);
 				});
 	}
 

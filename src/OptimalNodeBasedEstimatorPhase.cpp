@@ -21,6 +21,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 	// skip already visited combinations
 	std::size_t hash = std::hash<OptimalNodeBasedState>()(stateStack.top());
 	if (visitedCombinations.find(hash) != visitedCombinations.end()) {
+
 		return;	// this combination has already been visited
 	}
 	visitedCombinations.insert(hash);

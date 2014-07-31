@@ -133,34 +133,20 @@ inline std::size_t hashCombine(const std::size_t seed, const T toBeHashed) {
 }
 
 namespace std {
-	template <>
-	struct hash<CgNode> {
-		size_t operator()(const CgNode& key) const {
-			// TODO RN: use Pointer address instead?
-			return hash<string>()(key.getFunctionName());
-		}
-	};
 
 	template <>
 	struct hash<CgNodePtrSet> {
-		size_t operator()(const CgNodePtrSet& key) const {
+		inline size_t operator()(const CgNodePtrSet& key) const {
 
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					0,
+					(size_t) 0,
 					[](size_t acc, const CgNodePtr n) {
-						return hashCombine<CgNodePtr>(acc, n);
+						// use pointer address for hash of CgNode
+						return hashCombine<size_t>(acc, (size_t) n.get());
 					}
 			);
-		}
-	};
-
-	template <>
-	struct hash<OptimalNodeBasedConstraint> {
-		size_t operator()(const OptimalNodeBasedConstraint& key) const {
-
-			return hash<CgNodePtrSet>()(key.elements);
 		}
 	};
 
@@ -171,9 +157,9 @@ namespace std {
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					0,
+					(size_t) 0,
 					[](size_t acc, const OptimalNodeBasedConstraint c) {
-						return hashCombine<OptimalNodeBasedConstraint>(acc, c);
+						return hashCombine<CgNodePtrSet>(acc, c.elements);
 					}
 			);
 		}
