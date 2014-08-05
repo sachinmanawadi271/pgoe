@@ -16,27 +16,17 @@
 #define SAMPLES_PER_SECOND 1e3
 ////
 
-// TODO RN: make this nice
-//void registerEstimatorPhases(Callgraph& cg) {
-//	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
-//	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());		// XXX does not hinder other phases
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-//	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
-//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//}
 void registerEstimatorPhases(Callgraph& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
-	///XXX deactivated for development
-//	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());
+
+	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
 	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 
-	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+//	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());

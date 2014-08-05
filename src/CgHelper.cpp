@@ -31,6 +31,7 @@ namespace CgHelper {
 	}
 
 	/** returns a pointer to the node that is instrumented up that call path */
+	// TODO: check because of new nodeBased Conventions
 	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node) {
 		// XXX RN: this method has slowly grown up to a real mess
 		if (node->isInstrumented() || node->isRootNode()) {
@@ -57,6 +58,7 @@ namespace CgHelper {
 	 * The node has to be the direct parent of a call conjunction.
 	 * Checks the call path reconstruction for all child nodes.
 	 */
+	// TODO: check because of new nodeBased Conventions
 	bool instrumentationCanBeDeleted(CgNodePtr node) {
 		for (auto childNode : node->getChildNodes()) {
 
@@ -81,24 +83,8 @@ namespace CgHelper {
 		return true;
 	}
 
-//	bool allPathsInstrumented(CgNodePtr start) {
-//		if (start->isInstrumented()) {
-//			return true;
-//		}
-//
-//		if (start->isRootNode()) {
-//			return false;
-//		}
-//
-//		if (isConjunction(start)) {
-//			return allParentsPathsInstrumented(start);
-//		}
-//		// single parent
-//		return getInstrumentedNodeOnPath(getUniqueParent(start));
-//	}
-
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start) {
-		// TODO does this break for circles?
+		// TODO does this break for circles? it shouldn't because there can't be uninstrumented circles
 		CgNodePtrSet path = {start};
 
 		if (start->isInstrumented()) {
@@ -154,9 +140,8 @@ namespace CgHelper {
 
 				if (!intersection.empty()) {
 
-					// TODO: make this nicer (also don't return here)
 					std::cout << "ERROR in conjunction: " << *conjunctionNode << std::endl;
-					std::cout << "\t" << "Paths of " << *(pair.first)
+					std::cout << "    " << "Paths of " << *(pair.first)
 							<< " and " << *(otherPair.first) << " intersect!" << std::endl;
 
 					numberOfErrors++;
@@ -178,6 +163,7 @@ namespace CgHelper {
 	}
 
 	/** returns the overhead caused by a call path */
+	// TODO: check because of new nodeBased Conventions
 	unsigned long long getInstrumentationOverheadOfConjunction(
 			CgNodePtr conjunctionNode) {
 
@@ -191,6 +177,7 @@ namespace CgHelper {
 
 	/** removes the instrumentation of a call path.
 	 * 	returns false if no instrumentation found */
+	// TODO: check because of new nodeBased Conventions
 	bool removeInstrumentationOnPath(CgNodePtr node) {
 		if (node->isInstrumented()) {
 
@@ -269,34 +256,7 @@ namespace CgHelper {
 		return reachableNodes.find(n2) != reachableNodes.end();
 	}
 
-	/** XXX delete me */
-//	CgNodePtrSet getSuperNode(CgNodePtr conjunction) {
-//
-//		CgNodePtrSet parentNodes = conjunction->getParentNodes();
-//
-//		std::vector<CgNodePtrSet> parentsAncestors;
-//		for (auto parentNode : parentNodes) {
-//			parentsAncestors.push_back( getAncestors(parentNode) );
-//		}
-//
-//		CgNodePtrSet superNode;
-//
-//		for (CgNodePtrSet ancestors : parentsAncestors) {
-//			for (CgNodePtrSet otherAncestors : parentsAncestors) {
-//
-//				if(ancestors==otherAncestors) {
-//					continue;
-//				}
-//
-//				CgNodePtrSet intersection = set_intersect(ancestors, otherAncestors);
-//				superNode.insert(intersection.begin(), intersection.end());
-//			}
-//		}
-//
-//		return superNode;
-//	}
-
-
+	// XXX unused?
 	CgNodePtrSet getAncestors(CgNodePtr startingNode) {
 
 		CgNodePtrSet ancestors;
