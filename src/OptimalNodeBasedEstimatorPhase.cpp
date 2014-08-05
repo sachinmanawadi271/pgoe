@@ -1,7 +1,7 @@
 
 #include "OptimalNodeBasedEstimatorPhase.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),
@@ -106,14 +106,16 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
 
-			CgNodePtrSet currentParents;
+			CgNodePtrSetContainer constraintElements;
+			CgNodePtrSet parentNodes = node->getParentNodes();
 
-			for (auto parentNode : node->getParentNodes()) {
-				currentParents.insert(parentNode);
+			for (auto parentNode : parentNodes) {
+				CgNodePtrSet parentAsSet = {parentNode};
+				constraintElements.push_back(parentAsSet);
 			}
 
-			startingParents.insert(currentParents.begin(), currentParents.end());
-			startingConstraints.push_back(OptimalNodeBasedConstraint(currentParents, node));
+			startingParents.insert(parentNodes.begin(), parentNodes.end());
+			startingConstraints.push_back(OptimalNodeBasedConstraint(constraintElements, node));
 		}
 	}
 
@@ -123,6 +125,9 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 	optimalCosts = startingState.getCosts();
 
 	stateStack.push(startingState);
+
+	///XXX
+	std::cout << "# got starting set" << std::endl;
 }
 
 

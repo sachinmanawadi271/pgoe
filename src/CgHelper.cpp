@@ -183,6 +183,34 @@ namespace CgHelper {
 		return reachableNodes.find(n2) != reachableNodes.end();
 	}
 
+	/** XXX delete me */
+//	CgNodePtrSet getSuperNode(CgNodePtr conjunction) {
+//
+//		CgNodePtrSet parentNodes = conjunction->getParentNodes();
+//
+//		std::vector<CgNodePtrSet> parentsAncestors;
+//		for (auto parentNode : parentNodes) {
+//			parentsAncestors.push_back( getAncestors(parentNode) );
+//		}
+//
+//		CgNodePtrSet superNode;
+//
+//		for (CgNodePtrSet ancestors : parentsAncestors) {
+//			for (CgNodePtrSet otherAncestors : parentsAncestors) {
+//
+//				if(ancestors==otherAncestors) {
+//					continue;
+//				}
+//
+//				CgNodePtrSet intersection = set_intersect(ancestors, otherAncestors);
+//				superNode.insert(intersection.begin(), intersection.end());
+//			}
+//		}
+//
+//		return superNode;
+//	}
+
+
 	CgNodePtrSet getAncestors(CgNodePtr startingNode) {
 
 		CgNodePtrSet ancestors;

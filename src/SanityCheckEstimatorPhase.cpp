@@ -32,7 +32,7 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 							<< "  paths of " << *parentNode << " and " << *oneUninstrumentedPath
 							<< " not instrumented" << std::endl;
 				} else {
-					oneUninstrumentedPath = instrumentedNode;
+					oneUninstrumentedPath = parentNode;
 				}
 
 			} else {

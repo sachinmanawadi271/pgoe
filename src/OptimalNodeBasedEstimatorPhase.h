@@ -15,6 +15,8 @@ struct OptimalNodeBasedState;
 
 typedef std::vector<OptimalNodeBasedConstraint> ConstraintContainer;
 
+typedef std::vector<CgNodePtrSet> CgNodePtrSetContainer;
+
 
 class OptimalNodeBasedEstimatorPhase : public EstimatorPhase {
 public:
@@ -44,11 +46,11 @@ private:
 
 struct OptimalNodeBasedConstraint {
 	size_t size;
-	CgNodePtrSet elements;
+	CgNodePtrSetContainer elements;
 
 	CgNodePtr conjunction;	// maybe this will come handy later
 
-	OptimalNodeBasedConstraint(CgNodePtrSet elements, CgNodePtr conjunction) {
+	OptimalNodeBasedConstraint(CgNodePtrSetContainer elements, CgNodePtr conjunction) {
 		this->elements = elements;
 		size = elements.size();
 
@@ -57,25 +59,48 @@ struct OptimalNodeBasedConstraint {
 
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
 
-		if (elements.find(oldElement) != elements.end()) {
-			size += (newElements.size() - 1);
+		for (CgNodePtrSet& element : elements) {
+			if (element.find(oldElement) != element.end()) {
+				size += (newElements.size() - 1);
 
-			elements.erase(oldElement);
-			elements.insert(newElements.begin(), newElements.end());
+				element.insert(newElements.begin(), newElements.end());
+			}
 		}
-		return elements.size() == size;
+		return isValid();
+	}
+
+	bool isValid() {
+		for (CgNodePtrSet element : elements) {
+			for (CgNodePtrSet otherElement : elements) {
+
+				if (element == otherElement) {
+					continue;
+				}
+
+				CgNodePtrSet intersection = CgHelper::set_intersect(element, otherElement);
+				if (!intersection.empty()) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedConstraint& c) {
 		stream << "(" << c.size << ")[";
-		for (auto e : c.elements) {
-			stream << *e << "|";
+		for (auto element : c.elements) {
+			stream << "(";
+			for (auto n : element) {
+				stream << *n << "|";
+			}
+			stream << "),";
 		}
 		stream << "]";
 
 		return stream;
 	}
 
+	// XXX RN: where was this needed?
 	bool operator==(const OptimalNodeBasedConstraint& other) const {
 		return (size == other.size)
 				&& (elements == other.elements);
@@ -156,6 +181,22 @@ namespace std {
 	};
 
 	template <>
+	struct hash<CgNodePtrSetContainer> {
+		inline size_t operator()(const CgNodePtrSetContainer& key) const {
+
+			return std::accumulate(
+					key.begin(),
+					key.end(),
+					(size_t) 0,
+					[](size_t acc, const CgNodePtrSet ptrSet) {
+						size_t innerHash = hash<CgNodePtrSet>()(ptrSet);
+						return hashCombine<size_t>(acc, innerHash);
+					}
+			);
+		}
+	};
+
+	template <>
 	struct hash<ConstraintContainer> {
 		size_t operator()(const ConstraintContainer& key) const {
 
@@ -164,7 +205,7 @@ namespace std {
 					key.end(),
 					(size_t) 0,
 					[](size_t acc, const OptimalNodeBasedConstraint c) {
-						return hashCombine<CgNodePtrSet>(acc, c.elements);
+						return hashCombine<CgNodePtrSetContainer>(acc, c.elements);
 					}
 			);
 		}
