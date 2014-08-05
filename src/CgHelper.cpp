@@ -81,6 +81,92 @@ namespace CgHelper {
 		return true;
 	}
 
+//	bool allPathsInstrumented(CgNodePtr start) {
+//		if (start->isInstrumented()) {
+//			return true;
+//		}
+//
+//		if (start->isRootNode()) {
+//			return false;
+//		}
+//
+//		if (isConjunction(start)) {
+//			return allParentsPathsInstrumented(start);
+//		}
+//		// single parent
+//		return getInstrumentedNodeOnPath(getUniqueParent(start));
+//	}
+
+	CgNodePtrSet getInstrumentationPath(CgNodePtr start) {
+		// TODO does this break for circles?
+		CgNodePtrSet path = {start};
+
+		if (start->isInstrumented()) {
+			return path;
+		}
+		if (start->isRootNode()) {
+			return path;
+		}
+		if (hasUniqueParent(start)) {
+
+			auto parentNode = getUniqueParent(start);
+			auto parentPath = getInstrumentationPath(parentNode);
+			path.insert(parentPath.begin(), parentPath.end());
+			return path;
+		}
+
+		if (isConjunction(start)) {
+			for (auto parentNode : start->getParentNodes()) {
+
+				auto parentPath = getInstrumentationPath(parentNode);
+				path.insert(parentPath.begin(), parentPath.end());
+			}
+
+			return path;
+		}
+
+		std::cout << "Error: Unknown case in getInstrumentationPath()"
+				<< "start : " << *start << std::endl;
+		return CgNodePtrSet();
+	}
+
+	/**
+	 * Checks that the instrumentation paths above a conjunction node do not intersect.
+	 * Returns the Number Of Errors ! */
+	bool uniqueInstrumentationTest(CgNodePtr conjunctionNode) {
+
+		int numberOfErrors = 0;
+
+		auto parents = conjunctionNode->getParentNodes();
+		std::map<CgNodePtr, CgNodePtrSet> paths;
+
+		for (auto parentNode : parents) {
+			CgNodePtrSet path = getInstrumentationPath(parentNode);
+			paths[parentNode] = path;
+		}
+
+		for (auto pair : paths) {
+			for (auto otherPair : paths) {
+
+				if (pair==otherPair) {	continue; }
+
+				auto intersection = set_intersect(pair.second, otherPair.second);
+
+				if (!intersection.empty()) {
+
+					// TODO: make this nicer (also don't return here)
+					std::cout << "ERROR in conjunction: " << *conjunctionNode << std::endl;
+					std::cout << "\t" << "Paths of " << *(pair.first)
+							<< " and " << *(otherPair.first) << " intersect!" << std::endl;
+
+					numberOfErrors++;
+				}
+			}
+		}
+
+		return numberOfErrors;
+	}
+
 	/** returns true if the call paths of all parents of a conjunction are instrumented */
 	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode) {
 		auto parents = conjunctionNode->getParentNodes();
