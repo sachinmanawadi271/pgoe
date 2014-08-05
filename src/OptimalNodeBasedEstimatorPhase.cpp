@@ -125,9 +125,6 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 	optimalCosts = startingState.getCosts();
 
 	stateStack.push(startingState);
-
-	///XXX
-	std::cout << "# got starting set" << std::endl;
 }
 
 

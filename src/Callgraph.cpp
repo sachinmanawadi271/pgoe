@@ -5,8 +5,8 @@
 #define VERBOSE 0
 #define DEBUG 0
 
-#define BENCHMARK_PHASES 1
-#define PRINT_DOT_AFTER_EVERY_PHASE 1
+#define BENCHMARK_PHASES 0
+#define PRINT_DOT_AFTER_EVERY_PHASE 0
 
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
@@ -145,21 +145,6 @@ void Callgraph::thatOneLargeMethod() {
 
 		phases.pop();
 	}
-
-	// TODO more statistics, more abstraction
-	// final statistics
-	int instrumentedMethods =
-			std::accumulate(
-					graphMapping.begin(),
-					graphMapping.end(),
-					0,
-					// RN: i always wanted to use a lambda function in c++ for once
-					[] (int i, std::pair< std::string, CgNodePtr> pair) {
-						return pair.second->isInstrumented() ? i+1 : i;
-					}
-			);
-
-	std::cout << "instrumented methods: " << instrumentedMethods << std::endl;
 }
 
 void Callgraph::printDOT(std::string prefix) {
