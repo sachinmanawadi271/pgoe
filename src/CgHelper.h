@@ -37,7 +37,7 @@ namespace CgHelper {
 
 	bool isConnectedOnSpantree(CgNodePtr n1, CgNodePtr n2);
 
-	CgNodePtrSet getSuperNode(CgNodePtr conjunction);
+	// XXX RN are these methods still necessary?
 	CgNodePtrSet getAncestors(CgNodePtr child);
 	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b);
 }

@@ -46,37 +46,16 @@ struct OptimalNodeBasedConstraint {
 	size_t size;
 	CgNodePtrSet elements;
 
-	CgNodePtr conjunction;
-
-	CgNodePtrSet superNode;
+	CgNodePtr conjunction;	// maybe this will come handy later
 
 	OptimalNodeBasedConstraint(CgNodePtrSet elements, CgNodePtr conjunction) {
 		this->elements = elements;
 		size = elements.size();
 
 		this->conjunction = conjunction;
-
-		this->superNode = CgHelper::getSuperNode(conjunction);
 	}
 
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
-
-		// if there is already an element part of superNode
-		CgNodePtrSet elementsPartOfSuperNode = CgHelper::set_intersect(elements, superNode);
-
-		///XXX
-		std::cout << "# elementsPartOfSuperNode: " << elementsPartOfSuperNode.size() << std::endl;
-
-		if (!elementsPartOfSuperNode.empty()) {
-
-			bool oldIsPartOfSuperNode = (superNode.find(oldElement) != superNode.end());
-			CgNodePtrSet newElementsPartOfSuperNode = CgHelper::set_intersect(elements, superNode);
-			bool newIsPartOfSuperNode = !newElementsPartOfSuperNode.empty();
-
-			if (!oldIsPartOfSuperNode && newIsPartOfSuperNode) {
-				return false;
-			}
-		}
 
 		if (elements.find(oldElement) != elements.end()) {
 			size += (newElements.size() - 1);
