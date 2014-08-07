@@ -132,16 +132,16 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
 
-			CgNodePtrSetContainer constraintElements;
+//			CgNodePtrSetContainer constraintElements;
 			CgNodePtrSet parentNodes = node->getParentNodes();
 
-			for (auto parentNode : parentNodes) {
-				CgNodePtrSet parentAsSet = {parentNode};
-				constraintElements.push_back(parentAsSet);
-			}
+//			for (auto parentNode : parentNodes) {
+//				CgNodePtrSet parentAsSet = {parentNode};
+//				constraintElements.push_back(parentAsSet);
+//			}
 
 			startingParents.insert(parentNodes.begin(), parentNodes.end());
-			startingConstraints.push_back(OptimalNodeBasedConstraint(constraintElements, node));
+			startingConstraints.push_back(OptimalNodeBasedConstraint(parentNodes, node));
 		}
 	}
 

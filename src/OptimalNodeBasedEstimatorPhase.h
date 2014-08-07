@@ -47,11 +47,11 @@ private:
 
 struct OptimalNodeBasedConstraint {
 	size_t size;
-	CgNodePtrSetContainer elements;
+	CgNodePtrSet elements;
 
 	CgNodePtr conjunction;	// maybe this will come handy later
 
-	OptimalNodeBasedConstraint(CgNodePtrSetContainer elements, CgNodePtr conjunction) {
+	OptimalNodeBasedConstraint(CgNodePtrSet elements, CgNodePtr conjunction) {
 		this->elements = elements;
 		this->size = elements.size();
 
@@ -61,41 +61,39 @@ struct OptimalNodeBasedConstraint {
 	inline
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
 
-		for (CgNodePtrSet& element : elements) {
-			if (element.find(oldElement) != element.end()) {
+		if (elements.find(oldElement) != elements.end()) {
+			CgNodePtrSet intersection = CgHelper::set_intersect(elements, newElements);
+			elements.insert(newElements.begin(), newElements.end());
 
-				element.insert(newElements.begin(), newElements.end());
-			}
+			return intersection.empty();
+		} else {
+			return true;
 		}
-		return isValid();
 	}
 
 	/* true if there is no intersection between any of the subsets */
-	inline
-	bool isValid() {
-		CgNodePtrSet allElements;
-
-		size_t expectedSize = 0;
-
-		for (CgNodePtrSet element : elements) {
-
-			expectedSize += element.size();
-
-			for (CgNodePtr node : element) {
-				allElements.insert(node);
-			}
-		}
-		return allElements.size() == expectedSize;
-	}
+	//XXX deprecated
+//	inline
+//	bool isValid() {
+//		CgNodePtrSet allElements;
+//
+//		size_t expectedSize = 0;
+//
+//		for (CgNodePtrSet element : elements) {
+//
+//			expectedSize += element.size();
+//
+//			for (CgNodePtr node : element) {
+//				allElements.insert(node);
+//			}
+//		}
+//		return allElements.size() == expectedSize;
+//	}
 
 	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedConstraint& c) {
 		stream << "(" << c.size << ")[";
 		for (auto element : c.elements) {
-			stream << "(";
-			for (auto n : element) {
-				stream << *n << "|";
-			}
-			stream << "),";
+			stream << *element << ", ";
 		}
 		stream << "]";
 
@@ -171,12 +169,10 @@ namespace std {
 	struct hash<CgNodePtrSet> {
 		inline size_t operator()(const CgNodePtrSet& key) const {
 
-			size_t containerHash = std::hash<int>()((int) key.size());
-
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					(size_t) containerHash,
+					(size_t) 0,
 					[](size_t acc, const CgNodePtr n) {
 						// use pointer address for hash of CgNode
 						return hashCombine<size_t>(acc, (size_t) n.get());
@@ -189,12 +185,10 @@ namespace std {
 	struct hash<CgNodePtrSetContainer> {
 		inline size_t operator()(const CgNodePtrSetContainer& key) const {
 
-			size_t containerHash = std::hash<size_t>()(key.size());
-
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					(size_t) containerHash,
+					(size_t) 0,
 					[](size_t acc, const CgNodePtrSet ptrSet) {
 						size_t innerHash = hash<CgNodePtrSet>()(ptrSet);
 						return hashCombine<size_t>(acc, innerHash);
@@ -207,14 +201,12 @@ namespace std {
 	struct hash<ConstraintContainer> {
 		size_t operator()(const ConstraintContainer& key) const {
 
-			size_t containerHash = std::hash<size_t>()(key.size());
-
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					(size_t) containerHash,
+					(size_t) 0,
 					[](size_t acc, const OptimalNodeBasedConstraint c) {
-						return hashCombine<CgNodePtrSetContainer>(acc, c.elements);
+						return hashCombine<CgNodePtrSet>(acc, c.elements);
 					}
 			);
 		}
