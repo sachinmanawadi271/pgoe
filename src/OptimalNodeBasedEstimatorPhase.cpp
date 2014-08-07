@@ -2,7 +2,7 @@
 #include "OptimalNodeBasedEstimatorPhase.h"
 
 #define DEBUG 0
-#define USE_OPTIMIZED_ORDER 0	// XXX in the long term both cases should lead to the same results
+#define USE_OPTIMIZED_ORDER 1	// XXX in the long term both cases should lead to the same results
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 		EstimatorPhase("OptimalNodeBased"),
@@ -14,14 +14,14 @@ OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 OptimalNodeBasedEstimatorPhase::~OptimalNodeBasedEstimatorPhase() {
 }
 
-void OptimalNodeBasedEstimatorPhase::step() {
+void OptimalNodeBasedEstimatorPhase::step(OptimalNodeBasedState& startState) {
 
-	if (stateStack.empty()) {
-		return;
-	}
+//	if (stateStack.empty()) {
+//		return;
+//	}
 
 	// skip already visited combinations
-	std::size_t hash = std::hash<OptimalNodeBasedState>()(stateStack.top());
+	std::size_t hash = std::hash<OptimalNodeBasedState>()(startState);
 	if (visitedCombinations.find(hash) != visitedCombinations.end()) {
 		numberOfStepsAvoided++;
 		return;	// this combination has already been visited
@@ -29,9 +29,14 @@ void OptimalNodeBasedEstimatorPhase::step() {
 	visitedCombinations.insert(hash);
 
 	numberOfStepsTaken++;
+	///XXX
+	if(numberOfStepsTaken % 1000 == 0) {
+		std::cout << numberOfStepsTaken << " steps taken ("
+				<< numberOfStepsAvoided << " avoided)" << std::endl;
+	}
 
 #if DEBUG
-	std::cout << "+ push " << stateStack.top() << std::endl;
+	std::cout << "+ push " << startState << std::endl;
 #endif
 
 	// TODO RN: IS HASH FUNCTION REALLY BROKEN?
@@ -39,7 +44,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 #if USE_OPTIMIZED_ORDER
 	// order the nodes by their weight, then start to replace the most expensive
 	std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> pq;
-	for (auto node : stateStack.top().nodeSet) {
+	for (auto node : startState.nodeSet) {
 		pq.push(node);
 	}
 	while (!pq.empty()) {
@@ -47,7 +52,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 		pq.pop();
 
 #else
-	for (auto node : stateStack.top().nodeSet) {
+	for (auto node : startState.nodeSet) {
 #endif
 
 		if (node->isRootNode()) {
@@ -55,7 +60,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 		}
 
 		auto parentNodes = node->getParentNodes();
-		auto newState(stateStack.top());
+		auto newState(startState);
 
 #if DEBUG
 		std::cout << "   " << "+ try switching " << *node	<< " for:  [";
@@ -70,6 +75,10 @@ void OptimalNodeBasedEstimatorPhase::step() {
 
 			if (costs < optimalCosts) {
 
+				///XXX
+				std::cout << "minimum: "
+						<< optimalCosts*CgConfig::nanosPerInstrumentedCall/1e9 << " s" << std::endl;
+
 				optimalCosts = costs;
 				optimalInstrumentation = newState.nodeSet;
 			}
@@ -77,8 +86,8 @@ void OptimalNodeBasedEstimatorPhase::step() {
 			std::cout << "--> success" << std::endl;
 #endif
 
-			stateStack.push(newState);
-			step();
+//			stateStack.push(newState);
+			step(newState);
 
 		} else {
 #if DEBUG
@@ -87,7 +96,7 @@ void OptimalNodeBasedEstimatorPhase::step() {
 		}
 	}
 
-	stateStack.pop();
+//	stateStack.pop();
 #if DEBUG
 	if (!stateStack.empty()) {
 			std::cout << "+ pop  " << stateStack.top() << std::endl;
@@ -100,7 +109,7 @@ void OptimalNodeBasedEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	findStartingState(mainMethod);
 
-	step();
+	step(stateStack.top());
 
 	for (auto node : optimalInstrumentation) {
 		node->setState(CgNodeState::INSTRUMENT);

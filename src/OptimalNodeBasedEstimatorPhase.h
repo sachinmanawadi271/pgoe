@@ -42,7 +42,7 @@ private:
 
 	void findStartingState(CgNodePtr mainMethod);
 
-	void step();
+	void step(OptimalNodeBasedState& startState);
 };
 
 struct OptimalNodeBasedConstraint {
@@ -58,6 +58,7 @@ struct OptimalNodeBasedConstraint {
 		this->conjunction = conjunction;
 	}
 
+	inline
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
 
 		for (CgNodePtrSet& element : elements) {
@@ -69,21 +70,22 @@ struct OptimalNodeBasedConstraint {
 		return isValid();
 	}
 
+	/* true if there is no intersection between any of the subsets */
+	inline
 	bool isValid() {
+		CgNodePtrSet allElements;
+
+		size_t expectedSize = 0;
+
 		for (CgNodePtrSet element : elements) {
-			for (CgNodePtrSet otherElement : elements) {
 
-				if (element == otherElement) {
-					continue;
-				}
+			expectedSize += element.size();
 
-				CgNodePtrSet intersection = CgHelper::set_intersect(element, otherElement);
-				if (!intersection.empty()) {
-					return false;
-				}
+			for (CgNodePtr node : element) {
+				allElements.insert(node);
 			}
 		}
-		return true;
+		return allElements.size() == expectedSize;
 	}
 
 	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedConstraint& c) {
@@ -117,6 +119,7 @@ struct OptimalNodeBasedState {
 		this->constraints = constraints;
 	}
 
+	inline
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
 
 		if(nodeSet.find(oldElement) != nodeSet.end()) {

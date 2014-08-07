@@ -6,7 +6,7 @@
 #define DEBUG 0
 
 #define BENCHMARK_PHASES 0
-#define PRINT_DOT_AFTER_EVERY_PHASE 0
+#define PRINT_DOT_AFTER_EVERY_PHASE 1
 
 Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
