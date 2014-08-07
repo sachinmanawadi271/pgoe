@@ -34,7 +34,8 @@ private:
 	CgNodePtrSet optimalInstrumentation;
 	unsigned long long optimalCosts;
 
-	unsigned long long numberOfSteps;
+	unsigned long long numberOfStepsTaken;
+	unsigned long long numberOfStepsAvoided;
 
 	// optimization for large data sets
 	std::set<std::size_t> visitedCombinations;
@@ -52,7 +53,7 @@ struct OptimalNodeBasedConstraint {
 
 	OptimalNodeBasedConstraint(CgNodePtrSetContainer elements, CgNodePtr conjunction) {
 		this->elements = elements;
-		size = elements.size();
+		this->size = elements.size();
 
 		this->conjunction = conjunction;
 	}
@@ -61,7 +62,6 @@ struct OptimalNodeBasedConstraint {
 
 		for (CgNodePtrSet& element : elements) {
 			if (element.find(oldElement) != element.end()) {
-				size += (newElements.size() - 1);
 
 				element.insert(newElements.begin(), newElements.end());
 			}
@@ -159,7 +159,7 @@ struct OptimalNodeBasedState {
 template <class T>
 inline std::size_t hashCombine(const std::size_t seed, const T toBeHashed) {
 	// according to stackoverflow this is a decent hash function
-	return seed ^ ( std::hash<T>()(toBeHashed) + 0x9e3779b9 + (seed<<6) + (seed>>2) ) ;
+	return seed ^ ( std::hash<T>()(toBeHashed) + 0x9e3779b9UL + (seed<<6) + (seed>>2) ) ;
 }
 
 namespace std {
@@ -168,10 +168,12 @@ namespace std {
 	struct hash<CgNodePtrSet> {
 		inline size_t operator()(const CgNodePtrSet& key) const {
 
+			size_t containerHash = std::hash<int>()((int) key.size());
+
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					(size_t) 0,
+					(size_t) containerHash,
 					[](size_t acc, const CgNodePtr n) {
 						// use pointer address for hash of CgNode
 						return hashCombine<size_t>(acc, (size_t) n.get());
@@ -184,10 +186,12 @@ namespace std {
 	struct hash<CgNodePtrSetContainer> {
 		inline size_t operator()(const CgNodePtrSetContainer& key) const {
 
+			size_t containerHash = std::hash<size_t>()(key.size());
+
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					(size_t) 0,
+					(size_t) containerHash,
 					[](size_t acc, const CgNodePtrSet ptrSet) {
 						size_t innerHash = hash<CgNodePtrSet>()(ptrSet);
 						return hashCombine<size_t>(acc, innerHash);
@@ -200,10 +204,12 @@ namespace std {
 	struct hash<ConstraintContainer> {
 		size_t operator()(const ConstraintContainer& key) const {
 
+			size_t containerHash = std::hash<size_t>()(key.size());
+
 			return std::accumulate(
 					key.begin(),
 					key.end(),
-					(size_t) 0,
+					(size_t) containerHash,
 					[](size_t acc, const OptimalNodeBasedConstraint c) {
 						return hashCombine<CgNodePtrSetContainer>(acc, c.elements);
 					}
@@ -215,11 +221,17 @@ namespace std {
 	struct hash<OptimalNodeBasedState> {
 		size_t operator()(const OptimalNodeBasedState& key) const {
 
-			size_t hashFirst = hash<ConstraintContainer>()(key.constraints);
-			return hashCombine<CgNodePtrSet>(hashFirst, key.nodeSet);
+			size_t nodeSetHash = hash<CgNodePtrSet>()(key.nodeSet);
+			return hashCombine<ConstraintContainer>(nodeSetHash, key.constraints);
 		}
 	};
 }
+
+struct CalledMoreOften {
+	bool operator() (const CgNodePtr& lhs, const CgNodePtr& rhs) {
+		return lhs->getNumberOfCalls() < rhs->getNumberOfCalls();
+	}
+};
 
 
 #endif
