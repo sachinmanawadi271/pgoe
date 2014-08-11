@@ -67,9 +67,6 @@ int MinimalSpantreeEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr
 	for (auto parentNode : conjunctionNode->getParentNodes()) {
 		SpantreeEdgeSet path = getInstrumentationPathEdges(parentNode, conjunctionNode);
 		paths[parentNode] = path;
-
-		///XXX
-		std::cout << path.size() << std::endl;
 	}
 
 	for (auto pair : paths) {
@@ -95,17 +92,17 @@ int MinimalSpantreeEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr
 				std::cout << "    " << "Paths of " << *(pair.first) << " and " << *(otherPair.first)
 						<< " intersect!" << std::endl;
 
-				///XXX
-				std::cout << "\t[";
-				for (auto e : a) {
-					std::cout << e << " | ";
-				}
-				std::cout << "]" << std::endl;
-				std::cout << "\t[";
-				for (auto e : b) {
-					std::cout << e << " | ";
-				}
-				std::cout << "]" << std::endl;
+				///XXX RN: do we need that additional output?
+//				std::cout << "\t[";
+//				for (auto e : a) {
+//					std::cout << e << " | ";
+//				}
+//				std::cout << "]" << std::endl;
+//				std::cout << "\t[";
+//				for (auto e : b) {
+//					std::cout << e << " | ";
+//				}
+//				std::cout << "]" << std::endl;
 
 				numberOfErrors++;
 			}
