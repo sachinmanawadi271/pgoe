@@ -39,9 +39,9 @@ namespace CgHelper {
 	bool removeInstrumentationOnPath(CgNodePtr node);
 
 	bool isConnectedOnSpantree(CgNodePtr n1, CgNodePtr n2);
+	bool canReachSameConjunction(CgNodePtr n1, CgNodePtr n2);
 
-	// XXX RN are these methods still necessary?
-	CgNodePtrSet getAncestors(CgNodePtr child);
+	CgNodePtrSet getDescendants(CgNodePtr child);
 
 	inline
 	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b) {

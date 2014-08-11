@@ -30,8 +30,9 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		// try to insert edge with highest call count into span tree
 		auto edge = pq.top();
 		pq.pop();
-
-		if (!CgHelper::isConnectedOnSpantree(edge.child, edge.parent)) {
+///XXX
+//		if (!CgHelper::isConnectedOnSpantree(edge.child, edge.parent)) {
+		if (!CgHelper::canReachSameConjunction(edge.child, edge.parent)) {
 
 			visitedNodes.insert(edge.child);
 			visitedNodes.insert(edge.parent);

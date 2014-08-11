@@ -256,10 +256,18 @@ namespace CgHelper {
 		return reachableNodes.find(n2) != reachableNodes.end();
 	}
 
-	// XXX unused?
-	CgNodePtrSet getAncestors(CgNodePtr startingNode) {
+	bool canReachSameConjunction(CgNodePtr n1, CgNodePtr n2) {
 
-		CgNodePtrSet ancestors;
+		CgNodePtrSet n1Childs = getDescendants(n1);
+		CgNodePtrSet n2Childs = getDescendants(n2);
+
+		CgNodePtrSet intersect = set_intersect(n1Childs, n2Childs);
+		return !intersect.empty();
+	}
+
+	CgNodePtrSet getDescendants(CgNodePtr startingNode) {
+
+		CgNodePtrSet childs;
 		std::queue<CgNodePtr> workQueue;
 		workQueue.push(startingNode);
 
@@ -268,16 +276,17 @@ namespace CgHelper {
 			auto node = workQueue.front();
 			workQueue.pop();
 
-			ancestors.insert(node);
+			childs.insert(node);
 
-			for (auto parentNode : node->getParentNodes()) {
-				if (ancestors.find(parentNode) == ancestors.end()) {
-					workQueue.push(parentNode);
+			for (auto childNode : node->getChildNodes()) {
+				if (childNode->isSpantreeParent(node)
+						&& childs.find(childNode) == childs.end()) {
+					workQueue.push(childNode);
 				}
 			}
 		}
 
-		return ancestors;
+		return childs;
 	}
 
 }
