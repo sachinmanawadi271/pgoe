@@ -227,6 +227,7 @@ namespace CgHelper {
 
 	/** true if the two nodes are connected via spanning tree edges */
 	// XXX RN: this method is ugly and has horrible complexity
+	// XXX RN: deprecated!
 	bool isConnectedOnSpantree(CgNodePtr n1, CgNodePtr n2) {
 
 		CgNodePtrSet reachableNodes = {n1};
@@ -256,18 +257,19 @@ namespace CgHelper {
 		return reachableNodes.find(n2) != reachableNodes.end();
 	}
 
-	bool canReachSameConjunction(CgNodePtr n1, CgNodePtr n2) {
+	bool canReachSameConjunction(CgNodePtr below, CgNodePtr above) {
 
-		CgNodePtrSet n1Childs = getDescendants(n1);
-		CgNodePtrSet n2Childs = getDescendants(n2);
+		CgNodePtrSet belowReachableDescendants = getDescendants(below);
 
-		CgNodePtrSet childIntersect = set_intersect(n1Childs, n2Childs);
+		CgNodePtrSet aboveReachableDescendants;
+		for (auto ancestor : getAncestors(above)) {
+			CgNodePtrSet descendants = getDescendants(ancestor);
+			aboveReachableDescendants.insert(descendants.begin(), descendants.end());
+		}
 
-		CgNodePtrSet n1Ancestors = getAncestors(n1);
-		CgNodePtrSet n2Ancestors = getAncestors(n2);
+		CgNodePtrSet intersect = set_intersect(belowReachableDescendants, aboveReachableDescendants);
 
-		CgNodePtrSet ancestorIntersect = set_intersect(n1Ancestors, n2Ancestors);
-		return !childIntersect.empty() || !ancestorIntersect.empty();
+		return !intersect.empty();
 	}
 
 	CgNodePtrSet getDescendants(CgNodePtr startingNode) {

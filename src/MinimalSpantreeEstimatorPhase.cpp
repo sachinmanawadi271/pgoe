@@ -22,7 +22,7 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	}
 
-	CgNodePtrSet visitedNodes;
+	CgNodePtrSet visitedNodes;	// XXX RN: so this is unused now?
 	visitedNodes.insert(mainMethod);
 
 	while(!pq.empty()) {
@@ -30,8 +30,7 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		// try to insert edge with highest call count into span tree
 		auto edge = pq.top();
 		pq.pop();
-///XXX
-//		if (!CgHelper::isConnectedOnSpantree(edge.child, edge.parent)) {
+
 		if (!CgHelper::canReachSameConjunction(edge.child, edge.parent)) {
 
 			visitedNodes.insert(edge.child);
@@ -179,7 +178,6 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 			<< " | that is: " << instrumentationOverhead/1e9 <<" s"<< std::endl;
 
 	std::cout << "\t" << "built-in sanity check done with " << errorsFound << " error(s)." << std::endl;
-
 }
 
 
