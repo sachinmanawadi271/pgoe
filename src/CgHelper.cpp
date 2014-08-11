@@ -261,8 +261,13 @@ namespace CgHelper {
 		CgNodePtrSet n1Childs = getDescendants(n1);
 		CgNodePtrSet n2Childs = getDescendants(n2);
 
-		CgNodePtrSet intersect = set_intersect(n1Childs, n2Childs);
-		return !intersect.empty();
+		CgNodePtrSet childIntersect = set_intersect(n1Childs, n2Childs);
+
+		CgNodePtrSet n1Ancestors = getAncestors(n1);
+		CgNodePtrSet n2Ancestors = getAncestors(n2);
+
+		CgNodePtrSet ancestorIntersect = set_intersect(n1Ancestors, n2Ancestors);
+		return !childIntersect.empty() || !ancestorIntersect.empty();
 	}
 
 	CgNodePtrSet getDescendants(CgNodePtr startingNode) {
@@ -287,6 +292,30 @@ namespace CgHelper {
 		}
 
 		return childs;
+	}
+
+	CgNodePtrSet getAncestors(CgNodePtr startingNode) {
+
+		CgNodePtrSet ancestors;
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(startingNode);
+
+		while (!workQueue.empty()) {
+
+			auto node = workQueue.front();
+			workQueue.pop();
+
+			ancestors.insert(node);
+
+			for (auto parentNode : node->getParentNodes()) {
+				if (node->isSpantreeParent(parentNode)
+						&& ancestors.find(parentNode) == ancestors.end()) {
+					workQueue.push(parentNode);
+				}
+			}
+		}
+
+		return ancestors;
 	}
 
 }

@@ -42,6 +42,7 @@ namespace CgHelper {
 	bool canReachSameConjunction(CgNodePtr n1, CgNodePtr n2);
 
 	CgNodePtrSet getDescendants(CgNodePtr child);
+	CgNodePtrSet getAncestors(CgNodePtr child);
 
 	inline
 	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b) {
