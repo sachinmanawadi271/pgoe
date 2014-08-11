@@ -86,7 +86,6 @@ int MinimalSpantreeEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr
 					b.begin(),b.end(),
 					std::inserter(intersect, intersect.begin()));
 
-
 			if (!intersect.empty()) {
 
 				std::cout << "ERROR in conjunction: " << *conjunctionNode << std::endl;
@@ -134,6 +133,12 @@ SpantreeEdgeSet MinimalSpantreeEstimatorPhase::getInstrumentationPathEdges(CgNod
 			continue;	// this edge is already instrumented
 		}
 
+		if (edge.parent->isRootNode()) {
+			// add the implicit edge for the main function once it is reached
+			SpantreeEdge implicitRootEdge = SpantreeEdge( {0, edge.parent, edge.parent} );
+			visitedEdges.insert(implicitRootEdge);
+		}
+
 		for (auto grandParent : edge.parent->getParentNodes()) {
 			SpantreeEdge grandParentEdge = SpantreeEdge( { edge.parent->getNumberOfCalls(grandParent),
 					edge.parent, grandParent} );
@@ -173,7 +178,7 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 			<< "\t" << "overallOverhead: " << instrumentationOverhead << " ns"
 			<< " | that is: " << instrumentationOverhead/1e9 <<" s"<< std::endl;
 
-	std::cout << "\t" << "internal sanity check done with " << errorsFound << " error(s)." << std::endl;
+	std::cout << "\t" << "built-in sanity check done with " << errorsFound << " error(s)." << std::endl;
 
 }
 
