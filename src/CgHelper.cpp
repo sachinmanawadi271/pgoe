@@ -280,16 +280,4 @@ namespace CgHelper {
 		return ancestors;
 	}
 
-	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b) {
-
-		CgNodePtrSet intersect;
-
-		std::set_intersection(
-				a.begin(),a.end(),
-				b.begin(),b.end(),
-				std::inserter(intersect, intersect.begin()));
-
-		return intersect;
-	}
-
 }

@@ -15,7 +15,7 @@ struct OptimalNodeBasedState;
 
 typedef std::vector<OptimalNodeBasedConstraint> ConstraintContainer;
 
-typedef std::vector<CgNodePtrSet> CgNodePtrSetContainer;
+//typedef std::vector<CgNodePtrSet> CgNodePtrSetContainer;
 
 
 class OptimalNodeBasedEstimatorPhase : public EstimatorPhase {
@@ -46,15 +46,12 @@ private:
 };
 
 struct OptimalNodeBasedConstraint {
-	size_t size;
 	CgNodePtrSet elements;
 
 	CgNodePtr conjunction;	// maybe this will come handy later
 
 	OptimalNodeBasedConstraint(CgNodePtrSet elements, CgNodePtr conjunction) {
 		this->elements = elements;
-		this->size = elements.size();
-
 		this->conjunction = conjunction;
 	}
 
@@ -71,27 +68,8 @@ struct OptimalNodeBasedConstraint {
 		}
 	}
 
-	/* true if there is no intersection between any of the subsets */
-	//XXX deprecated
-//	inline
-//	bool isValid() {
-//		CgNodePtrSet allElements;
-//
-//		size_t expectedSize = 0;
-//
-//		for (CgNodePtrSet element : elements) {
-//
-//			expectedSize += element.size();
-//
-//			for (CgNodePtr node : element) {
-//				allElements.insert(node);
-//			}
-//		}
-//		return allElements.size() == expectedSize;
-//	}
-
 	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedConstraint& c) {
-		stream << "(" << c.size << ")[";
+		stream << "[";
 		for (auto element : c.elements) {
 			stream << *element << ", ";
 		}
@@ -99,13 +77,6 @@ struct OptimalNodeBasedConstraint {
 
 		return stream;
 	}
-
-	// XXX RN: where was this needed?
-	bool operator==(const OptimalNodeBasedConstraint& other) const {
-		return (size == other.size)
-				&& (elements == other.elements);
-	}
-
 };
 
 struct OptimalNodeBasedState {
@@ -133,6 +104,7 @@ struct OptimalNodeBasedState {
 		return true;
 	}
 
+	inline
 	unsigned long long getCosts() {
 		// note that the scumbag zero will break everything unless it is explicitly "ULL"
 		return std::accumulate( nodeSet.begin(), nodeSet.end(), 0ULL,
@@ -181,21 +153,21 @@ namespace std {
 		}
 	};
 
-	template <>
-	struct hash<CgNodePtrSetContainer> {
-		inline size_t operator()(const CgNodePtrSetContainer& key) const {
-
-			return std::accumulate(
-					key.begin(),
-					key.end(),
-					(size_t) 0,
-					[](size_t acc, const CgNodePtrSet ptrSet) {
-						size_t innerHash = hash<CgNodePtrSet>()(ptrSet);
-						return hashCombine<size_t>(acc, innerHash);
-					}
-			);
-		}
-	};
+//	template <>
+//	struct hash<CgNodePtrSetContainer> {
+//		inline size_t operator()(const CgNodePtrSetContainer& key) const {
+//
+//			return std::accumulate(
+//					key.begin(),
+//					key.end(),
+//					(size_t) 0,
+//					[](size_t acc, const CgNodePtrSet ptrSet) {
+//						size_t innerHash = hash<CgNodePtrSet>()(ptrSet);
+//						return hashCombine<size_t>(acc, innerHash);
+//					}
+//			);
+//		}
+//	};
 
 	template <>
 	struct hash<ConstraintContainer> {

@@ -21,17 +21,17 @@ void registerEstimatorPhases(Callgraph& cg) {
 
 	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());
 
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
-	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+//	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
+//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+//
+////	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 }
 

@@ -3,7 +3,8 @@
 
 MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase() :
 		EstimatorPhase("MinimalSpantree"),
-		numberOfSkippedEdges(0) {
+		numberOfSkippedEdges(0),
+		errorsFound(0) {
 }
 
 MinimalSpantreeEstimatorPhase::~MinimalSpantreeEstimatorPhase() {
@@ -42,6 +43,109 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			continue;
 		}
 	}
+
+	builtinSanityCheck();
+}
+
+void MinimalSpantreeEstimatorPhase::builtinSanityCheck() {
+
+	for (auto node : (*graph)) {
+
+		if (!CgHelper::isConjunction(node)) {
+			continue;
+		}
+
+		errorsFound += checkParentsForOverlappingCallpaths(node);
+	}
+}
+
+int MinimalSpantreeEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr conjunctionNode) {
+
+	int numberOfErrors = 0;
+	std::map<CgNodePtr, SpantreeEdgeSet> paths;
+
+	for (auto parentNode : conjunctionNode->getParentNodes()) {
+		SpantreeEdgeSet path = getInstrumentationPathEdges(parentNode, conjunctionNode);
+		paths[parentNode] = path;
+
+		///XXX
+		std::cout << path.size() << std::endl;
+	}
+
+	for (auto pair : paths) {
+		for (auto otherPair : paths) {
+
+			if (pair == otherPair) {
+				continue;
+			}
+
+			auto a = pair.second;
+			auto b = otherPair.second;
+			SpantreeEdgeSet intersect;
+
+			std::set_intersection(
+					a.begin(),a.end(),
+					b.begin(),b.end(),
+					std::inserter(intersect, intersect.begin()));
+
+
+			if (!intersect.empty()) {
+
+				std::cout << "ERROR in conjunction: " << *conjunctionNode << std::endl;
+				std::cout << "    " << "Paths of " << *(pair.first) << " and " << *(otherPair.first)
+						<< " intersect!" << std::endl;
+
+				///XXX
+				std::cout << "\t[";
+				for (auto e : a) {
+					std::cout << e << " | ";
+				}
+				std::cout << "]" << std::endl;
+				std::cout << "\t[";
+				for (auto e : b) {
+					std::cout << e << " | ";
+				}
+				std::cout << "]" << std::endl;
+
+				numberOfErrors++;
+			}
+		}
+	}
+
+	return numberOfErrors;
+}
+
+SpantreeEdgeSet MinimalSpantreeEstimatorPhase::getInstrumentationPathEdges(CgNodePtr startNode,
+		CgNodePtr childOfStartNode) {
+
+	SpantreeEdge startEdge = SpantreeEdge( { childOfStartNode->getNumberOfCalls(startNode),
+		childOfStartNode, startNode });
+
+	SpantreeEdgeSet visitedEdges;
+	std::queue<SpantreeEdge> workQueue;
+	workQueue.push(startEdge);
+
+	while (!workQueue.empty()) {
+
+		auto edge = workQueue.front();
+		workQueue.pop();
+
+		visitedEdges.insert(edge);
+
+		if (!edge.child->isSpantreeParent(edge.parent)) {
+			continue;	// this edge is already instrumented
+		}
+
+		for (auto grandParent : edge.parent->getParentNodes()) {
+			SpantreeEdge grandParentEdge = SpantreeEdge( { edge.parent->getNumberOfCalls(grandParent),
+					edge.parent, grandParent} );
+			if (visitedEdges.find(grandParentEdge) == visitedEdges.end()) {
+				workQueue.push(grandParentEdge);
+			}
+		}
+	}
+
+	return visitedEdges;
 }
 
 void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
@@ -70,6 +174,8 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 			<< " | instrumentationOverhead: " << instrumentationOverhead << " ns" << std::endl
 			<< "\t" << "overallOverhead: " << instrumentationOverhead << " ns"
 			<< " | that is: " << instrumentationOverhead/1e9 <<" s"<< std::endl;
+
+	std::cout << "\t" << "internal sanity check done with " << errorsFound << " error(s)." << std::endl;
 
 }
 

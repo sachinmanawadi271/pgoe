@@ -16,10 +16,6 @@ OptimalNodeBasedEstimatorPhase::~OptimalNodeBasedEstimatorPhase() {
 
 void OptimalNodeBasedEstimatorPhase::step(OptimalNodeBasedState& startState) {
 
-//	if (stateStack.empty()) {
-//		return;
-//	}
-
 	// skip already visited combinations
 	std::size_t hash = std::hash<OptimalNodeBasedState>()(startState);
 	if (visitedCombinations.find(hash) != visitedCombinations.end()) {
@@ -32,14 +28,8 @@ void OptimalNodeBasedEstimatorPhase::step(OptimalNodeBasedState& startState) {
 	///XXX
 	if(numberOfStepsTaken % 1000 == 0) {
 		std::cout << numberOfStepsTaken << " steps taken ("
-				<< numberOfStepsAvoided << " avoided)" << std::endl;
+				<< numberOfStepsAvoided << " avoided) " << std::endl;
 	}
-
-#if DEBUG
-	std::cout << "+ push " << startState << std::endl;
-#endif
-
-	// TODO RN: IS HASH FUNCTION REALLY BROKEN?
 
 #if USE_OPTIMIZED_ORDER
 	// order the nodes by their weight, then start to replace the most expensive
@@ -85,8 +75,6 @@ void OptimalNodeBasedEstimatorPhase::step(OptimalNodeBasedState& startState) {
 #if DEBUG
 			std::cout << "--> success" << std::endl;
 #endif
-
-//			stateStack.push(newState);
 			step(newState);
 
 		} else {
@@ -95,14 +83,6 @@ void OptimalNodeBasedEstimatorPhase::step(OptimalNodeBasedState& startState) {
 #endif
 		}
 	}
-
-//	stateStack.pop();
-#if DEBUG
-	if (!stateStack.empty()) {
-			std::cout << "+ pop  " << stateStack.top() << std::endl;
-	}
-#endif
-
 }
 
 void OptimalNodeBasedEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
@@ -132,13 +112,7 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
 
-//			CgNodePtrSetContainer constraintElements;
 			CgNodePtrSet parentNodes = node->getParentNodes();
-
-//			for (auto parentNode : parentNodes) {
-//				CgNodePtrSet parentAsSet = {parentNode};
-//				constraintElements.push_back(parentAsSet);
-//			}
 
 			startingParents.insert(parentNodes.begin(), parentNodes.end());
 			startingConstraints.push_back(OptimalNodeBasedConstraint(parentNodes, node));

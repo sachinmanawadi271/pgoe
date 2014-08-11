@@ -42,7 +42,19 @@ namespace CgHelper {
 
 	// XXX RN are these methods still necessary?
 	CgNodePtrSet getAncestors(CgNodePtr child);
-	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b);
+
+	inline
+	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b) {
+
+		CgNodePtrSet intersect;
+
+		std::set_intersection(
+				a.begin(),a.end(),
+				b.begin(),b.end(),
+				std::inserter(intersect, intersect.begin()));
+
+		return intersect;
+	}
 }
 
 #endif

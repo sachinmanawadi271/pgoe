@@ -19,5 +19,8 @@ for bm in $BENCHMARKS ;do
 	echo "running $SPEC_OUTPUT/$FILE.log"
 
 	$CCG $SPEC_PATH/$FILE $1 &> $SPEC_OUTPUT/$FILE.log
+
+	# generate the dot
+#	dottopng.sh Instrument-callgraph.dot spec-png/$FILE.png
 done
 
