@@ -230,7 +230,7 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		unsigned long long expensivePath = 0;
 		CgNodePtr mostExpensiveParent = 0;
 
-		// TODO RN: the heuristic is far from perfect, this might block another node that has the same parent
+		// XXX RN: the heuristic is far from perfect and might block another node with the same parent
 		for (auto parentNode : node->getParentNodes()) {
 			auto pathCosts = CgHelper::getInstrumentationOverheadOfPath(parentNode);
 			// for some strange reason there are edges with 0 calls in the spec profiles

@@ -18,19 +18,21 @@
 
 void registerEstimatorPhases(Callgraph& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
-
+	// edge based
 	cg.registerEstimatorPhase(new EdgeBasedOptimumEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	// heuristic
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
 	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	// node based
+	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 }
 
