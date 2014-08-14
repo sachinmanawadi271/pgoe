@@ -22,9 +22,6 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	}
 
-	CgNodePtrSet visitedNodes;	// XXX RN: so this is unused now?
-	visitedNodes.insert(mainMethod);
-
 	while(!pq.empty()) {
 
 		// try to insert edge with highest call count into span tree
@@ -32,9 +29,6 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		pq.pop();
 
 		if (!CgHelper::canReachSameConjunction(edge.child, edge.parent)) {
-
-			visitedNodes.insert(edge.child);
-			visitedNodes.insert(edge.parent);
 
 			edge.child->addSpantreeParent(edge.parent);
 		} else {

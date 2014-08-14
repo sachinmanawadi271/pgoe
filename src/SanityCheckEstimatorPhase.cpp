@@ -9,7 +9,6 @@ SanityCheckEstimatorPhase::~SanityCheckEstimatorPhase() {}
 
 void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-
 	for (auto node : (*graph)) {
 
 		// unwound nodes are fine as they are

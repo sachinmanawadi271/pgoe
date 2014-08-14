@@ -59,7 +59,7 @@ struct OptimalNodeBasedConstraint {
 	bool validAfterExchange(CgNodePtr oldElement, CgNodePtrSet newElements) {
 
 		if (elements.find(oldElement) != elements.end()) {
-			CgNodePtrSet intersection = CgHelper::set_intersect(elements, newElements);
+			CgNodePtrSet intersection = CgHelper::setIntersect(elements, newElements);
 			elements.insert(newElements.begin(), newElements.end());
 
 			return intersection.empty();
@@ -152,22 +152,6 @@ namespace std {
 			);
 		}
 	};
-
-//	template <>
-//	struct hash<CgNodePtrSetContainer> {
-//		inline size_t operator()(const CgNodePtrSetContainer& key) const {
-//
-//			return std::accumulate(
-//					key.begin(),
-//					key.end(),
-//					(size_t) 0,
-//					[](size_t acc, const CgNodePtrSet ptrSet) {
-//						size_t innerHash = hash<CgNodePtrSet>()(ptrSet);
-//						return hashCombine<size_t>(acc, innerHash);
-//					}
-//			);
-//		}
-//	};
 
 	template <>
 	struct hash<ConstraintContainer> {

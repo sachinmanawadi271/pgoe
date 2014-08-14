@@ -45,7 +45,7 @@ namespace CgHelper {
 	CgNodePtrSet getAncestors(CgNodePtr child);
 
 	inline
-	CgNodePtrSet set_intersect(CgNodePtrSet a, CgNodePtrSet b) {
+	CgNodePtrSet setIntersect(CgNodePtrSet a, CgNodePtrSet b) {
 
 		CgNodePtrSet intersect;
 

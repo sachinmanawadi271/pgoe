@@ -16,18 +16,23 @@ namespace CgHelper {
 		return *(node->getParentNodes().begin());
 	}
 
-	/** returns overhead of the call path of a node */
+	/** returns overhead of all the instrumented nodes of the call path. (node based) */
 	unsigned long long getInstrumentationOverheadOfPath(CgNodePtr node) {
-		auto instrumentedNode = getInstrumentedNodeOnPath(node);
 
-		if (instrumentedNode) {
-			if(instrumentedNode->isRootNode()) {
-				return 0;	// main() is implictly instrumented
+		unsigned long long costInNanos = 0ULL;
+
+		CgNodePtrSet instrumentationPaths = getInstrumentationPath(node);
+		for (auto potentiallyMarked : instrumentationPaths) {
+
+			// RN: the main function can be instrumented as this is part of the heuristic
+			if (potentiallyMarked->isInstrumented()) {
+
+				costInNanos += potentiallyMarked->getNumberOfCalls()
+						* CgConfig::nanosPerInstrumentedCall;
 			}
-			return instrumentedNode->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
-		} else {
-			return 0;
 		}
+
+		return costInNanos;
 	}
 
 	/** returns a pointer to the node that is instrumented up that call path */
@@ -44,10 +49,6 @@ namespace CgHelper {
 		// single parent
 		auto parentNode = getUniqueParent(node);
 
-		// if the parent has multiple children, instrumentation cannot be moved up there
-//		if (parentNode->getChildNodes().size() > 1) {
-//			return NULL;
-//		}
 
 		return getInstrumentedNodeOnPath(parentNode);
 	}
@@ -83,8 +84,9 @@ namespace CgHelper {
 		return true;
 	}
 
+	/** Returns a set of all nodes from the starting node up to the instrumented nodes.
+	 *  It should not break for cycles, because cycles have to be instrumented by definition. */
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start) {
-		// TODO does this break for circles? it shouldn't because there can't be uninstrumented circles
 		CgNodePtrSet path = {start};
 
 		if (start->isInstrumented()) {
@@ -117,7 +119,7 @@ namespace CgHelper {
 	}
 
 	/**
-	 * Checks that the instrumentation paths above a conjunction node do not intersect.
+	 * Checks the instrumentation paths (node based!) above a conjunction node for intersection.
 	 * Returns the Number Of Errors ! */
 	bool uniqueInstrumentationTest(CgNodePtr conjunctionNode) {
 
@@ -136,7 +138,7 @@ namespace CgHelper {
 
 				if (pair==otherPair) {	continue; }
 
-				auto intersection = set_intersect(pair.second, otherPair.second);
+				auto intersection = setIntersect(pair.second, otherPair.second);
 
 				if (!intersection.empty()) {
 
@@ -158,6 +160,7 @@ namespace CgHelper {
 
 		return std::accumulate(parents.begin(), parents.end(), true,
 				[] (bool b, CgNodePtr parent) {
+			// TODO: RN this should not work if the main() function is a parent
 					return b && (getInstrumentationOverheadOfPath(parent)!=0);
 				});
 	}
@@ -257,6 +260,8 @@ namespace CgHelper {
 		return reachableNodes.find(n2) != reachableNodes.end();
 	}
 
+	/** Returns true if the unique call path property for edges is violated
+	 *  once this edge is added */
 	bool canReachSameConjunction(CgNodePtr below, CgNodePtr above) {
 
 		CgNodePtrSet belowReachableDescendants = getDescendants(below);
@@ -267,11 +272,12 @@ namespace CgHelper {
 			aboveReachableDescendants.insert(descendants.begin(), descendants.end());
 		}
 
-		CgNodePtrSet intersect = set_intersect(belowReachableDescendants, aboveReachableDescendants);
+		CgNodePtrSet intersect = setIntersect(belowReachableDescendants, aboveReachableDescendants);
 
 		return !intersect.empty();
 	}
 
+	/** Returns a set of all descendants including the starting node */
 	CgNodePtrSet getDescendants(CgNodePtr startingNode) {
 
 		CgNodePtrSet childs;
@@ -296,6 +302,7 @@ namespace CgHelper {
 		return childs;
 	}
 
+	/** Returns a set of all ancestors including the startingNode */
 	CgNodePtrSet getAncestors(CgNodePtr startingNode) {
 
 		CgNodePtrSet ancestors;
