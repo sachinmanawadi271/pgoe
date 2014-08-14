@@ -7,7 +7,7 @@
 #include "Callgraph.h"
 
 #include "SanityCheckEstimatorPhase.h"
-#include "MinimalSpantreeEstimatorPhase.h"
+#include "EdgeBasedOptimumEstimatorPhase.h"
 #include "OptimalNodeBasedEstimatorPhase.h"
 
 //// POOR MAN'S CONFIG
@@ -19,13 +19,13 @@
 void registerEstimatorPhases(Callgraph& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
 
-	cg.registerEstimatorPhase(new MinimalSpantreeEstimatorPhase());
+	cg.registerEstimatorPhase(new EdgeBasedOptimumEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
 	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());

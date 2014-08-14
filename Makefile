@@ -10,7 +10,7 @@ CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
 DEBUG=-g
 
 SOURCES=src/main.cpp src/CgNode.cpp src/Callgraph.cpp src/EstimatorPhase.cpp \
-src/SanityCheckEstimatorPhase.cpp src/MinimalSpantreeEstimatorPhase.cpp src/CgHelper.cpp \
+src/SanityCheckEstimatorPhase.cpp src/EdgeBasedOptimumEstimatorPhase.cpp src/CgHelper.cpp \
 src/OptimalNodeBasedEstimatorPhase.cpp
 
 # MICE

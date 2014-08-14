@@ -1,16 +1,16 @@
 
-#include "MinimalSpantreeEstimatorPhase.h"
+#include "EdgeBasedOptimumEstimatorPhase.h"
 
-MinimalSpantreeEstimatorPhase::MinimalSpantreeEstimatorPhase() :
-		EstimatorPhase("MinimalSpantree"),
+EdgeBasedOptimumEstimatorPhase::EdgeBasedOptimumEstimatorPhase() :
+		EstimatorPhase("EdgeBasedOptimum"),
 		numberOfSkippedEdges(0),
 		errorsFound(0) {
 }
 
-MinimalSpantreeEstimatorPhase::~MinimalSpantreeEstimatorPhase() {
+EdgeBasedOptimumEstimatorPhase::~EdgeBasedOptimumEstimatorPhase() {
 }
 
-void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+void EdgeBasedOptimumEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	std::priority_queue<SpantreeEdge, std::vector<SpantreeEdge>, MoreCalls> pq;
 	// get all edges
@@ -41,7 +41,8 @@ void MinimalSpantreeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	builtinSanityCheck();
 }
 
-void MinimalSpantreeEstimatorPhase::builtinSanityCheck() {
+/** A sanity check for unique edge based instrumentation */
+void EdgeBasedOptimumEstimatorPhase::builtinSanityCheck() {
 
 	for (auto node : (*graph)) {
 
@@ -53,7 +54,9 @@ void MinimalSpantreeEstimatorPhase::builtinSanityCheck() {
 	}
 }
 
-int MinimalSpantreeEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr conjunctionNode) {
+/** Checks the parents of a conjunction for edge based intersection of instrumentation.
+ * 	Returns the number of errors. */
+int EdgeBasedOptimumEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr conjunctionNode) {
 
 	int numberOfErrors = 0;
 	std::map<CgNodePtr, SpantreeEdgeSet> paths;
@@ -105,7 +108,7 @@ int MinimalSpantreeEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr
 	return numberOfErrors;
 }
 
-SpantreeEdgeSet MinimalSpantreeEstimatorPhase::getInstrumentationPathEdges(CgNodePtr startNode,
+SpantreeEdgeSet EdgeBasedOptimumEstimatorPhase::getInstrumentationPathEdges(CgNodePtr startNode,
 		CgNodePtr childOfStartNode) {
 
 	SpantreeEdge startEdge = SpantreeEdge( { childOfStartNode->getNumberOfCalls(startNode),
@@ -144,7 +147,7 @@ SpantreeEdgeSet MinimalSpantreeEstimatorPhase::getInstrumentationPathEdges(CgNod
 	return visitedEdges;
 }
 
-void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
+void EdgeBasedOptimumEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 
 	unsigned long long numberOfInstrumentedCalls = 0;
@@ -175,7 +178,7 @@ void MinimalSpantreeEstimatorPhase::printAdditionalReport() {
 }
 
 
-void MinimalSpantreeEstimatorPhase::printReport() {
+void EdgeBasedOptimumEstimatorPhase::printReport() {
 	// only print the additional report
 	printAdditionalReport();
 }

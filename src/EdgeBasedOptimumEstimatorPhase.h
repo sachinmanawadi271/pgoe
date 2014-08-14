@@ -1,6 +1,6 @@
 
-#ifndef MINIMALSPANTREEESTIMATORPHASE_H_
-#define MINIMALSPANTREEESTIMATORPHASE_H_
+#ifndef EDGEBASEDOPTIMUMESTIMATORPHASE_H_
+#define EDGEBASEDOPTIMUMESTIMATORPHASE_H_
 
 #include "EstimatorPhase.h"
 #include "CgHelper.h"
@@ -42,10 +42,10 @@ struct MoreCalls {
  * The results turned out to be less optimal than we expected
  */
 // TODO RN: Rename! This has nothing to do with a Spantree any longer
-class MinimalSpantreeEstimatorPhase : public EstimatorPhase {
+class EdgeBasedOptimumEstimatorPhase : public EstimatorPhase {
 public:
-	MinimalSpantreeEstimatorPhase();
-	~MinimalSpantreeEstimatorPhase();
+	EdgeBasedOptimumEstimatorPhase();
+	~EdgeBasedOptimumEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
 

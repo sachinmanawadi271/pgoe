@@ -154,28 +154,38 @@ namespace CgHelper {
 		return numberOfErrors;
 	}
 
-	/** returns true if the call paths of all parents of a conjunction are instrumented */
+	/** returns true if the call paths of EVERY parent of a conjunction is instrumented */
 	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode) {
 		auto parents = conjunctionNode->getParentNodes();
 
 		return std::accumulate(parents.begin(), parents.end(), true,
 				[] (bool b, CgNodePtr parent) {
-			// TODO: RN this should not work if the main() function is a parent
 					return b && (getInstrumentationOverheadOfPath(parent)!=0);
 				});
 	}
 
 	/** returns the overhead caused by a call path */
-	// TODO: check because of new nodeBased Conventions
 	unsigned long long getInstrumentationOverheadOfConjunction(
 			CgNodePtr conjunctionNode) {
 
 		auto parents = conjunctionNode->getParentNodes();
 
-		return std::accumulate(parents.begin(), parents.end(), 0ULL,
-				[] (unsigned long long acc, CgNodePtr parent) {
-					return acc + getInstrumentationOverheadOfPath(parent);
-				});
+		CgNodePtrSet potentiallyInstrumented;
+		for (auto parentNode : parents) {
+			auto tmpSet = getInstrumentationPath(parentNode);
+			potentiallyInstrumented.insert(tmpSet.begin(), tmpSet.end());
+		}
+
+		// add costs if node is instrumented
+		return std::accumulate(
+				potentiallyInstrumented.begin(), potentiallyInstrumented.end(), 0ULL,
+				[] (unsigned long long acc, CgNodePtr node) {
+					if (node->isInstrumented()) {
+						return acc + (node->getNumberOfCalls()*CgConfig::nanosPerInstrumentedCall);
+					}
+					return acc;
+				}
+		);
 	}
 
 	/** removes the instrumentation of a call path.
