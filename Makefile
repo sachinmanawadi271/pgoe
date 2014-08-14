@@ -11,7 +11,7 @@ DEBUG=-g
 
 SOURCES=src/main.cpp src/CgNode.cpp src/Callgraph.cpp src/EstimatorPhase.cpp \
 src/SanityCheckEstimatorPhase.cpp src/EdgeBasedOptimumEstimatorPhase.cpp src/CgHelper.cpp \
-src/OptimalNodeBasedEstimatorPhase.cpp
+src/NodeBasedOptimumEstimatorPhase.cpp
 
 # MICE
 # source a script (e.g. /opt/scorep/load_cube-4.2.2-gcc4.6.sh) to load cube before compilation

@@ -8,7 +8,7 @@
 
 #include "SanityCheckEstimatorPhase.h"
 #include "EdgeBasedOptimumEstimatorPhase.h"
-#include "OptimalNodeBasedEstimatorPhase.h"
+#include "NodeBasedOptimumEstimatorPhase.h"
 
 //// POOR MAN'S CONFIG
 #define PRINT_DOT 1

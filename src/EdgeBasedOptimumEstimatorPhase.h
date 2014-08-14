@@ -7,41 +7,41 @@
 
 #include <algorithm> // for std::set_intersection
 
-struct SpantreeEdge {
+struct CgEdge {
 	unsigned long long calls;
 	CgNodePtr child;
 	CgNodePtr parent;
 
-	bool operator<(const SpantreeEdge& other) const {
+	bool operator<(const CgEdge& other) const {
 		return std::tie(calls, child, parent)
 				< std::tie(other.calls, other.child, other.parent);
 	}
 
-	friend bool operator==(const SpantreeEdge& lhs, const SpantreeEdge& rhs) {
+	friend bool operator==(const CgEdge& lhs, const CgEdge& rhs) {
 		return std::tie(lhs.calls, lhs.child, lhs.parent)
 						== std::tie(rhs.calls, rhs.child, rhs.parent);
 	}
 
-	friend std::ostream& operator<< (std::ostream& stream, const SpantreeEdge& c) {
+	friend std::ostream& operator<< (std::ostream& stream, const CgEdge& c) {
 		stream << "(" << *(c.parent) << ", "<< *(c.child) << ", " << c.calls << ")";
 
 		return stream;
  	}
 };
 
-typedef std::set<SpantreeEdge> SpantreeEdgeSet;
+typedef std::set<CgEdge> CgEdgeSet;
 
 struct MoreCalls {
-	bool operator() (const SpantreeEdge& lhs, const SpantreeEdge& rhs) {
+	bool operator() (const CgEdge& lhs, const CgEdge& rhs) {
 		return lhs.calls < rhs.calls;
 	}
 };
 
 /**
- * RN: this phase can run independent of all others except for RemoveUnrelatedNodes
- * The results turned out to be less optimal than we expected
+ * RN: this phase can run independent of all others except for RemoveUnrelatedNodes.
+ * The result is the optimal edge based instrumentation.
+ * Because of the edge based nature this phase is not compatible with the node based sanity check.
  */
-// TODO RN: Rename! This has nothing to do with a Spantree any longer
 class EdgeBasedOptimumEstimatorPhase : public EstimatorPhase {
 public:
 	EdgeBasedOptimumEstimatorPhase();
@@ -58,7 +58,7 @@ private:
 	int errorsFound;
 	void builtinSanityCheck();
 	int checkParentsForOverlappingCallpaths(CgNodePtr conjunctionNode);
-	SpantreeEdgeSet getInstrumentationPathEdges(CgNodePtr startNode, CgNodePtr startsChild);
+	CgEdgeSet getInstrumentationPathEdges(CgNodePtr startNode, CgNodePtr startsChild);
 
 };
 

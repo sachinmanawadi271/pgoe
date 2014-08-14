@@ -10,12 +10,10 @@
 #include <vector>
 #include <functional>	// std::hash
 
-struct OptimalNodeBasedConstraint;
-struct OptimalNodeBasedState;
+struct NodeBasedConstraint;
+struct NodeBasedState;
 
-typedef std::vector<OptimalNodeBasedConstraint> ConstraintContainer;
-
-//typedef std::vector<CgNodePtrSet> CgNodePtrSetContainer;
+typedef std::vector<NodeBasedConstraint> NodeBasedConstraintContainer;
 
 
 class OptimalNodeBasedEstimatorPhase : public EstimatorPhase {
@@ -29,7 +27,7 @@ protected:
 	void printAdditionalReport();
 
 private:
-	std::stack<OptimalNodeBasedState> stateStack;
+	std::stack<NodeBasedState> stateStack;
 
 	CgNodePtrSet optimalInstrumentation;
 	unsigned long long optimalCosts;
@@ -42,17 +40,16 @@ private:
 
 	void findStartingState(CgNodePtr mainMethod);
 
-	void step(OptimalNodeBasedState& startState);
+	void step(NodeBasedState& startState);
 };
 
-struct OptimalNodeBasedConstraint {
+struct NodeBasedConstraint {
 	CgNodePtrSet elements;
+	CgNodePtr conjunctionNode;	// maybe this will come handy later
 
-	CgNodePtr conjunction;	// maybe this will come handy later
-
-	OptimalNodeBasedConstraint(CgNodePtrSet elements, CgNodePtr conjunction) {
+	NodeBasedConstraint(CgNodePtrSet elements, CgNodePtr conjunction) {
 		this->elements = elements;
-		this->conjunction = conjunction;
+		this->conjunctionNode = conjunction;
 	}
 
 	inline
@@ -68,7 +65,7 @@ struct OptimalNodeBasedConstraint {
 		}
 	}
 
-	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedConstraint& c) {
+	friend std::ostream& operator<< (std::ostream& stream, const NodeBasedConstraint& c) {
 		stream << "[";
 		for (auto element : c.elements) {
 			stream << *element << ", ";
@@ -79,11 +76,11 @@ struct OptimalNodeBasedConstraint {
 	}
 };
 
-struct OptimalNodeBasedState {
+struct NodeBasedState {
 	CgNodePtrSet nodeSet;
-	ConstraintContainer constraints;
+	NodeBasedConstraintContainer constraints;
 
-	OptimalNodeBasedState(CgNodePtrSet nodeSet, ConstraintContainer constraints) {
+	NodeBasedState(CgNodePtrSet nodeSet, NodeBasedConstraintContainer constraints) {
 		this->nodeSet = nodeSet;
 		this->constraints = constraints;
 	}
@@ -113,7 +110,7 @@ struct OptimalNodeBasedState {
 				});
 	}
 
-	friend std::ostream& operator<< (std::ostream& stream, const OptimalNodeBasedState& state) {
+	friend std::ostream& operator<< (std::ostream& stream, const NodeBasedState& state) {
 
 		stream << "-- marked: ";
 		for (auto node : state.nodeSet) {
@@ -154,14 +151,14 @@ namespace std {
 	};
 
 	template <>
-	struct hash<ConstraintContainer> {
-		size_t operator()(const ConstraintContainer& key) const {
+	struct hash<NodeBasedConstraintContainer> {
+		size_t operator()(const NodeBasedConstraintContainer& key) const {
 
 			return std::accumulate(
 					key.begin(),
 					key.end(),
 					(size_t) 0,
-					[](size_t acc, const OptimalNodeBasedConstraint c) {
+					[](size_t acc, const NodeBasedConstraint c) {
 						return hashCombine<CgNodePtrSet>(acc, c.elements);
 					}
 			);
@@ -169,11 +166,11 @@ namespace std {
 	};
 
 	template <>
-	struct hash<OptimalNodeBasedState> {
-		size_t operator()(const OptimalNodeBasedState& key) const {
+	struct hash<NodeBasedState> {
+		size_t operator()(const NodeBasedState& key) const {
 
 			size_t nodeSetHash = hash<CgNodePtrSet>()(key.nodeSet);
-			return hashCombine<ConstraintContainer>(nodeSetHash, key.constraints);
+			return hashCombine<NodeBasedConstraintContainer>(nodeSetHash, key.constraints);
 		}
 	};
 }

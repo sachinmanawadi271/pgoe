@@ -1,11 +1,11 @@
 
-#include "OptimalNodeBasedEstimatorPhase.h"
+#include "NodeBasedOptimumEstimatorPhase.h"
 
 #define DEBUG 0
 #define USE_OPTIMIZED_ORDER 1	// XXX in the long term both cases should lead to the same results
 
 OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
-		EstimatorPhase("OptimalNodeBased"),
+		EstimatorPhase("NodeBasedOptimum"),
 		optimalCosts(INT64_MAX),
 		numberOfStepsTaken(0),
 		numberOfStepsAvoided(0) {
@@ -14,10 +14,10 @@ OptimalNodeBasedEstimatorPhase::OptimalNodeBasedEstimatorPhase() :
 OptimalNodeBasedEstimatorPhase::~OptimalNodeBasedEstimatorPhase() {
 }
 
-void OptimalNodeBasedEstimatorPhase::step(OptimalNodeBasedState& startState) {
+void OptimalNodeBasedEstimatorPhase::step(NodeBasedState& startState) {
 
 	// skip already visited combinations
-	std::size_t hash = std::hash<OptimalNodeBasedState>()(startState);
+	std::size_t hash = std::hash<NodeBasedState>()(startState);
 	if (visitedCombinations.find(hash) != visitedCombinations.end()) {
 		numberOfStepsAvoided++;
 		return;	// this combination has already been visited
@@ -26,7 +26,7 @@ void OptimalNodeBasedEstimatorPhase::step(OptimalNodeBasedState& startState) {
 
 	numberOfStepsTaken++;
 	///XXX
-	if(numberOfStepsTaken % 1000 == 0) {
+	if(numberOfStepsTaken % 10000 == 0) {
 		std::cout << numberOfStepsTaken << " steps taken ("
 				<< numberOfStepsAvoided << " avoided) " << std::endl;
 	}
@@ -107,7 +107,7 @@ void OptimalNodeBasedEstimatorPhase::printAdditionalReport() {
 void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 
 	CgNodePtrSet startingParents = {mainMethod};	// main() is implicitly instrumented
-	ConstraintContainer startingConstraints;
+	NodeBasedConstraintContainer startingConstraints;
 
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
@@ -115,11 +115,11 @@ void OptimalNodeBasedEstimatorPhase::findStartingState(CgNodePtr mainMethod) {
 			CgNodePtrSet parentNodes = node->getParentNodes();
 
 			startingParents.insert(parentNodes.begin(), parentNodes.end());
-			startingConstraints.push_back(OptimalNodeBasedConstraint(parentNodes, node));
+			startingConstraints.push_back(NodeBasedConstraint(parentNodes, node));
 		}
 	}
 
-	auto startingState = OptimalNodeBasedState(startingParents, startingConstraints);
+	auto startingState = NodeBasedState(startingParents, startingConstraints);
 
 	optimalInstrumentation = startingParents;
 	optimalCosts = startingState.getCosts();

@@ -12,11 +12,11 @@ EdgeBasedOptimumEstimatorPhase::~EdgeBasedOptimumEstimatorPhase() {
 
 void EdgeBasedOptimumEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	std::priority_queue<SpantreeEdge, std::vector<SpantreeEdge>, MoreCalls> pq;
+	std::priority_queue<CgEdge, std::vector<CgEdge>, MoreCalls> pq;
 	// get all edges
 	for (auto parentNode : (*graph)) {
 		for (auto childNode : parentNode->getChildNodes()) {
-			pq.push(SpantreeEdge({
+			pq.push(CgEdge({
 				childNode->getNumberOfCalls(parentNode), childNode, parentNode
 			}));
 		}
@@ -59,10 +59,10 @@ void EdgeBasedOptimumEstimatorPhase::builtinSanityCheck() {
 int EdgeBasedOptimumEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePtr conjunctionNode) {
 
 	int numberOfErrors = 0;
-	std::map<CgNodePtr, SpantreeEdgeSet> paths;
+	std::map<CgNodePtr, CgEdgeSet> paths;
 
 	for (auto parentNode : conjunctionNode->getParentNodes()) {
-		SpantreeEdgeSet path = getInstrumentationPathEdges(parentNode, conjunctionNode);
+		CgEdgeSet path = getInstrumentationPathEdges(parentNode, conjunctionNode);
 		paths[parentNode] = path;
 	}
 
@@ -75,7 +75,7 @@ int EdgeBasedOptimumEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePt
 
 			auto a = pair.second;
 			auto b = otherPair.second;
-			SpantreeEdgeSet intersect;
+			CgEdgeSet intersect;
 
 			std::set_intersection(
 					a.begin(),a.end(),
@@ -108,14 +108,14 @@ int EdgeBasedOptimumEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePt
 	return numberOfErrors;
 }
 
-SpantreeEdgeSet EdgeBasedOptimumEstimatorPhase::getInstrumentationPathEdges(CgNodePtr startNode,
+CgEdgeSet EdgeBasedOptimumEstimatorPhase::getInstrumentationPathEdges(CgNodePtr startNode,
 		CgNodePtr childOfStartNode) {
 
-	SpantreeEdge startEdge = SpantreeEdge( { childOfStartNode->getNumberOfCalls(startNode),
+	CgEdge startEdge = CgEdge( { childOfStartNode->getNumberOfCalls(startNode),
 		childOfStartNode, startNode });
 
-	SpantreeEdgeSet visitedEdges;
-	std::queue<SpantreeEdge> workQueue;
+	CgEdgeSet visitedEdges;
+	std::queue<CgEdge> workQueue;
 	workQueue.push(startEdge);
 
 	while (!workQueue.empty()) {
@@ -131,12 +131,12 @@ SpantreeEdgeSet EdgeBasedOptimumEstimatorPhase::getInstrumentationPathEdges(CgNo
 
 		if (edge.parent->isRootNode()) {
 			// add the implicit edge for the main function once it is reached
-			SpantreeEdge implicitRootEdge = SpantreeEdge( {0, edge.parent, edge.parent} );
+			CgEdge implicitRootEdge = CgEdge( {0, edge.parent, edge.parent} );
 			visitedEdges.insert(implicitRootEdge);
 		}
 
 		for (auto grandParent : edge.parent->getParentNodes()) {
-			SpantreeEdge grandParentEdge = SpantreeEdge( { edge.parent->getNumberOfCalls(grandParent),
+			CgEdge grandParentEdge = CgEdge( { edge.parent->getNumberOfCalls(grandParent),
 					edge.parent, grandParent} );
 			if (visitedEdges.find(grandParentEdge) == visitedEdges.end()) {
 				workQueue.push(grandParentEdge);
