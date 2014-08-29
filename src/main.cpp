@@ -8,12 +8,6 @@
 #include "EdgeBasedOptimumEstimatorPhase.h"
 #include "NodeBasedOptimumEstimatorPhase.h"
 
-//// POOR MAN'S CONFIG
-#define PRINT_DOT 1
-
-#define SAMPLES_PER_SECOND 1e3
-////
-
 void registerEstimatorPhases(Callgraph& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
 	// edge based
@@ -42,7 +36,7 @@ int main(int argc, char** argv){
 		exit(-1);
 	}
 
-	int samplesPerSecond = SAMPLES_PER_SECOND;
+	int samplesPerSecond = 1000;
 	if (argc > 2) {
 		samplesPerSecond = atoi(argv[2]);
 	}

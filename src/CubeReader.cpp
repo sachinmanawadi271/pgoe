@@ -43,7 +43,9 @@ Callgraph CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond
 		}
 		std::cout << "Finished construction .."
 				<< " numberOfCalls: " << overallNumberOfCalls
-				<< " | runtime: " << overallRuntime << " s" << std::endl;
+				<< " | runtime: " << overallRuntime << " s"
+				<< " | target samplesPerSecond : " << samplesPerSecond
+				<< std::endl;
 
 		return *cg;
 
