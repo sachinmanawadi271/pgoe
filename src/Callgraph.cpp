@@ -6,6 +6,7 @@
 #define DEBUG 0
 
 #define BENCHMARK_PHASES 0
+#define PRINT_FINAL_DOT 1
 #define PRINT_DOT_AFTER_EVERY_PHASE 1
 
 Callgraph::Callgraph(int samplesPerSecond) :
@@ -134,7 +135,7 @@ void Callgraph::thatOneLargeMethod() {
 		phase->printReport();
 #if PRINT_DOT_AFTER_EVERY_PHASE
 		CgReport report = phase->getReport();
-		this->printDOT(report.phaseName);
+		printDOT(report.phaseName);
 #endif
 
 #if BENCHMARK_PHASES
@@ -145,6 +146,11 @@ void Callgraph::thatOneLargeMethod() {
 
 		phases.pop();
 	}
+
+
+#if PRINT_FINAL_DOT
+	printDOT("final");
+#endif
 }
 
 void Callgraph::printDOT(std::string prefix) {

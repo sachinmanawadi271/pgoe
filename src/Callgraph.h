@@ -19,11 +19,8 @@ public:
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
 	void registerEstimatorPhase(EstimatorPhase* phase);
-	void optimizeGraph();
 
 	void thatOneLargeMethod();	// TODO RN: rename
-
-	void printDOT(std::string prefix);
 
 private:
 	// this is a legacy structure used to parse the call graph
@@ -36,6 +33,8 @@ private:
 	// estimator phases run in a defined order
 	std::queue<EstimatorPhase*> phases;
 
+	void optimizeGraph();
+	void printDOT(std::string prefix);
 
 	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName
 	CgNodePtr findMain();
