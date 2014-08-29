@@ -2,8 +2,7 @@
 #include <cstdlib>
 
 
-#include "Callgraph.h"
-#include "CubeReader.h" // XXX
+#include "CubeReader.h"
 
 #include "SanityCheckEstimatorPhase.h"
 #include "EdgeBasedOptimumEstimatorPhase.h"
@@ -48,11 +47,9 @@ int main(int argc, char** argv){
 		samplesPerSecond = atoi(argv[2]);
 	}
 
-	Callgraph cg(samplesPerSecond);
-	registerEstimatorPhases(cg);
+	Callgraph cg = CubeCallgraphBuilder::build(argv[1], samplesPerSecond);
 
-	CubeReader reader(&cg);
-	reader.readCubeReport(argv[1]);
+	registerEstimatorPhases(cg);
 
 	cg.thatOneLargeMethod();
 
