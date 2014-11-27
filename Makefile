@@ -18,16 +18,8 @@ src/NodeBasedOptimumEstimatorPhase.cpp
 INCLUDEFLAGS=-I. -I$(CUBE_INCLUDE_PATH)
 LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 
-#Lcluster
-#INCLUDEFLAGS=-I. -I/home/ci24amun/myRoot/gcc/openmpi/cube/4.2.1/include/cube/
-#LDFLAGS+=-L/home/ci24amun/myRoot/gcc/openmpi/cube/4.2.1/lib -lcube4 -lz
-
-CubeCallGraphTool-mice:
+CubeCallGraphTool:
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(SOURCES) $(LDFLAGS) $(DEBUG)
 
-CubeCallGraphTool-lcluster:	# RN: i have no idea if this is still valid
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(SOURCES) $(LDFLAGS)
-
-
 clean:
-	rm -rf *.o CubeCallgraphTool CubeOverheadEstimation
+	rm -rf *.o CubeCallgraphTool
