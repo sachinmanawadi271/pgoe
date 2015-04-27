@@ -227,6 +227,8 @@ namespace CgHelper {
 
 				if (visitedNodes.find(parentNode) != visitedNodes.end()) {
 					continue;
+				} else {
+					visitedNodes.insert(parentNode);
 				}
 
 				if (isValidMarkerPosition(parentNode, conjunction)) {
@@ -254,7 +256,7 @@ namespace CgHelper {
 	CgNodePtrSet getReachableConjunctions(CgNodePtrSet markerPositions) {
 		CgNodePtrSet reachableConjunctions;
 
-		CgNodePtrSet visitedNodes = markerPositions;
+		CgNodePtrSet visitedNodes;
 		std::queue<CgNodePtr> workQueue;
 		for (auto markerPos : markerPositions) {
 			workQueue.push(markerPos);
@@ -267,6 +269,8 @@ namespace CgHelper {
 			for (auto child : node->getChildNodes()) {
 				if (visitedNodes.find(child) != visitedNodes.end()) {
 					continue;
+				} else {
+					visitedNodes.insert(child);
 				}
 
 				workQueue.push(child);

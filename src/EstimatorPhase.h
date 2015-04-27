@@ -88,9 +88,8 @@ private:
 		CgNodePtrSet dependentConjunctions;
 		CgNodePtrSet markerPositions;
 
-		ConjunctionDependency(CgNodePtr dependentConjunctions, CgNodePtrSet markerPositions) {
-			CgNodePtrSet nodeSet = {dependentConjunctions};
-			this->dependentConjunctions = nodeSet;
+		ConjunctionDependency(CgNodePtrSet dependentConjunctions, CgNodePtrSet markerPositions) {
+			this->dependentConjunctions = dependentConjunctions;
 			this->markerPositions = markerPositions;
 		}
 	};

@@ -143,42 +143,47 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			continue;
 		}
 
+		CgNodePtrSet dependentConjunctions = {node};
 		CgNodePtrSet validMarkerPositions = CgHelper::getPotentialMarkerPositions(node);
-		ConjunctionDependency dependency(node, validMarkerPositions);
+
+//		///XXX
+//		std::cout << "\tstart: " << node->getFunctionName() << std::endl;
+
 		int numberOfDependentConjunctions = 0;
+		while (numberOfDependentConjunctions !=dependentConjunctions.size()) {
+			numberOfDependentConjunctions = dependentConjunctions.size();
 
-		while (numberOfDependentConjunctions != dependency.dependentConjunctions.size()) {
+			CgNodePtrSet reachableConjunctions = CgHelper::getReachableConjunctions(validMarkerPositions);
+//			reachableConjunctions.erase(dependentConjunctions.begin(), dependentConjunctions.end());
 
-			numberOfDependentConjunctions = dependency.dependentConjunctions.size();
+			for (auto depConj : dependentConjunctions) {
+				reachableConjunctions.erase(depConj);
+			}
 
-			CgNodePtrSet reachableConjunctions = CgHelper::getReachableConjunctions(dependency.markerPositions);
-//			reachableConjunctions.erase(dependency.dependentConjunctions.begin(), dependency.dependentConjunctions.end());
-
-			///XXX
-			std::cout << "numberOfDepConj: " << numberOfDependentConjunctions
-					<< " | reachable: " << reachableConjunctions.size() << std::endl;
+//			///XXX
+//			std::cout << "numberOfDepConj: " << numberOfDependentConjunctions
+//					<< " | reachable: " << reachableConjunctions.size()
+//					<< " | markers: " << validMarkerPositions.size() << std::endl;
 
 			for (auto reachableConjunction : reachableConjunctions) {
 				CgNodePtrSet otherValidMarkerPositions = CgHelper::getPotentialMarkerPositions(reachableConjunction);
 
-				if (!CgHelper::setIntersect(dependency.markerPositions, otherValidMarkerPositions).empty()) {
+				if (!CgHelper::setIntersect(validMarkerPositions, otherValidMarkerPositions).empty()) {
 
-					dependency.dependentConjunctions.insert(reachableConjunction);
-					dependency.markerPositions.insert(otherValidMarkerPositions.begin(), otherValidMarkerPositions.end());
+					dependentConjunctions.insert(reachableConjunction);
+					validMarkerPositions.insert(otherValidMarkerPositions.begin(), otherValidMarkerPositions.end());
 
+//					///XXX
+//					std::cout << "\treach: " << reachableConjunction->getFunctionName() << std::endl;
 				}
 			}
-
-
 		}
 
-		dependencies.dependencies.push_back(dependency);
+		dependencies.dependencies.push_back(ConjunctionDependency(dependentConjunctions, validMarkerPositions));
 
 		///XXX
-		std::cout << "-Conjunction"
-				<< " | dependentConj: " << dependency.dependentConjunctions.size()
-				<< " | validMarkerPos': " << dependency.markerPositions.size()
-				<< " | name: " << node->getFunctionName()
+		std::cout << " - dependentConj: " << dependentConjunctions.size()
+				<< " | validMarkerPos': " << validMarkerPositions.size()
 				<< std::endl;
 	}
 }
