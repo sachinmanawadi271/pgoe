@@ -20,8 +20,8 @@ void EstimatorPhase::generateReport() {
 			unsigned long long unwindSamples = node->getExpectedNumberOfSamples();
 			unsigned long long unwindSteps = node->getNumberOfUnwindSteps();
 
-			double unwindCosts = unwindSamples * CgConfig::nanosPerUnwindSample
-					+ unwindSteps * CgConfig::nanosPerUnwindStep;
+			double unwindCosts = unwindSamples *
+					(CgConfig::nanosPerUnwindSample + unwindSteps * CgConfig::nanosPerUnwindStep);
 
 			report.unwindSamples += unwindSamples;
 			report.unwindOverhead += unwindCosts;
@@ -101,8 +101,6 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			numRemovedNodes++;
 		}
 	}
-
-
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::printReport() {
@@ -115,10 +113,85 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 	std::cout << "\t" << "Removed " << numRemovedNodes << " unrelated node(s)."	<< std::endl;
 }
 
+//// GRAPH STATS ESTIMATOR PHASE
+
+GraphStatsEstimatorPhase::GraphStatsEstimatorPhase() :
+	EstimatorPhase("GraphStats"),
+	numberOfConjunctions(0) {
+}
+
+GraphStatsEstimatorPhase::~GraphStatsEstimatorPhase() {
+}
+
+void GraphStatsEstimatorPhase::printReport() {
+	// only print the additional report
+	printAdditionalReport();
+}
+
+void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+
+	ConjunctionDependencies dependencies;
+
+	for (auto node : (*graph)) {
+
+		if (!CgHelper::isConjunction(node)) {
+			continue;
+		}
+		numberOfConjunctions++;
+
+		if (dependencies.hasDependencyFor(node)) {
+			continue;
+		}
+
+		CgNodePtrSet validMarkerPositions = CgHelper::getPotentialMarkerPositions(node);
+		ConjunctionDependency dependency(node, validMarkerPositions);
+		int numberOfDependentConjunctions = 0;
+
+		while (numberOfDependentConjunctions != dependency.dependentConjunctions.size()) {
+
+			numberOfDependentConjunctions = dependency.dependentConjunctions.size();
+
+			CgNodePtrSet reachableConjunctions = CgHelper::getReachableConjunctions(dependency.markerPositions);
+//			reachableConjunctions.erase(dependency.dependentConjunctions.begin(), dependency.dependentConjunctions.end());
+
+			///XXX
+			std::cout << "numberOfDepConj: " << numberOfDependentConjunctions
+					<< " | reachable: " << reachableConjunctions.size() << std::endl;
+
+			for (auto reachableConjunction : reachableConjunctions) {
+				CgNodePtrSet otherValidMarkerPositions = CgHelper::getPotentialMarkerPositions(reachableConjunction);
+
+				if (!CgHelper::setIntersect(dependency.markerPositions, otherValidMarkerPositions).empty()) {
+
+					dependency.dependentConjunctions.insert(reachableConjunction);
+					dependency.markerPositions.insert(otherValidMarkerPositions.begin(), otherValidMarkerPositions.end());
+
+				}
+			}
+
+
+		}
+
+		dependencies.dependencies.push_back(dependency);
+
+		///XXX
+		std::cout << "-Conjunction"
+				<< " | dependentConj: " << dependency.dependentConjunctions.size()
+				<< " | validMarkerPos': " << dependency.markerPositions.size()
+				<< " | name: " << node->getFunctionName()
+				<< std::endl;
+	}
+}
+
+void GraphStatsEstimatorPhase::printAdditionalReport() {
+	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
+	std::cout << "\t" << "numberOfConjunctions: " << numberOfConjunctions << std::endl;
+}
+
 //// INSTRUMENT ESTIMATOR PHASE
 
 InstrumentEstimatorPhase::InstrumentEstimatorPhase() :
-		EstimatorPhase("Instrument") {
+	EstimatorPhase("Instrument") {
 }
 
 InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
@@ -273,7 +346,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			// TODO: use the actual benefit (with remaining instrumentation)
 			// TODO: consider inserting multiple parallel unwind nodes at the same time, accumulate overhead
 			unsigned long long expectedUnwindOverheadNanos =
-					node->getExpectedNumberOfSamples() * CgConfig::nanosPerUnwindSample;
+					node->getExpectedNumberOfSamples() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
 
 			unsigned long long expectedInstrumentationOverheadNanos =
 					CgHelper::getInstrumentationOverheadOfConjunction(node);

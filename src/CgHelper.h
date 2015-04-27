@@ -13,8 +13,8 @@
 namespace CgConfig {
 	const unsigned int nanosPerInstrumentedCall = 4;
 
-	const unsigned int nanosPerUnwindSample 	= 4000;
-	const unsigned int nanosPerUnwindStep 		= 200;
+	const unsigned int nanosPerUnwindSample 	= 100;
+	const unsigned int nanosPerUnwindStep 		= 1000;
 }
 
 namespace CgHelper {
@@ -33,6 +33,11 @@ namespace CgHelper {
 	unsigned long long getInstrumentationOverheadOfConjunction(CgNodePtr conjunctionNode);
 	unsigned long long getInstrumentationOverheadOfPath(CgNodePtr node);
 	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node);
+
+	// Graph Stats
+	CgNodePtrSet getPotentialMarkerPositions(CgNodePtr conjunction);
+	bool isValidMarkerPosition(CgNodePtr markerPosition, CgNodePtr conjunction);
+	CgNodePtrSet getReachableConjunctions(CgNodePtrSet markerPositions);
 
 	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode);
 
@@ -55,6 +60,19 @@ namespace CgHelper {
 				std::inserter(intersect, intersect.begin()));
 
 		return intersect;
+	}
+
+	inline
+	CgNodePtrSet setDifference(CgNodePtrSet a, CgNodePtrSet b) {
+
+		CgNodePtrSet difference;
+
+		std::set_difference(
+				a.begin(),a.end(),
+				b.begin(),b.end(),
+				std::inserter(difference, difference.begin()));
+
+		return difference;
 	}
 }
 

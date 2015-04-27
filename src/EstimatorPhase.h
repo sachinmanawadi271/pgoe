@@ -8,6 +8,8 @@
 #include <queue>
 #include <unordered_set>
 
+#include <cassert>
+
 #include "CgNode.h"
 #include "CgHelper.h"
 
@@ -65,6 +67,62 @@ protected:
 	void printAdditionalReport();
 private:
 	int numRemovedNodes;
+};
+
+/**
+ * Read out some statistics about the current call graph
+ */
+class GraphStatsEstimatorPhase : public EstimatorPhase {
+public:
+	GraphStatsEstimatorPhase();
+	~GraphStatsEstimatorPhase();
+
+	void modifyGraph(CgNodePtr mainMethod);
+	void printReport();
+private:
+	void printAdditionalReport();
+
+	int numberOfConjunctions;
+
+	struct ConjunctionDependency {
+		CgNodePtrSet dependentConjunctions;
+		CgNodePtrSet markerPositions;
+
+		ConjunctionDependency(CgNodePtr dependentConjunctions, CgNodePtrSet markerPositions) {
+			CgNodePtrSet nodeSet = {dependentConjunctions};
+			this->dependentConjunctions = nodeSet;
+			this->markerPositions = markerPositions;
+		}
+	};
+
+	struct ConjunctionDependencies {
+		std::vector<ConjunctionDependency> dependencies;
+
+//		void addDependency(CgNodePtr conjunction, CgNodePtrSet markers) {
+//			dependencies.push_back(ConjunctionDependency(conjunction, markers));
+//		}
+
+//		void addDependencyFor(CgNodePtr oldConjunction, CgNodePtr newConjunction, CgNodePtrSet newMarkers) {
+//			for (auto dependency : dependencies) {
+//				if (dependency.dependentConjunctions.find(oldConjunction) != dependency.dependentConjunctions.end()) {
+//					dependency.dependentConjunctions.insert(newConjunction);
+//					dependency.markerPositions.insert(newMarkers.begin(), newMarkers.end());
+//					return;
+//				}
+//			}
+//			assert(0 && "no dependency found");
+//		}
+
+		bool hasDependencyFor(CgNodePtr conjunction) {
+			for (auto dependency : dependencies) {
+				if (dependency.dependentConjunctions.find(conjunction) != dependency.dependentConjunctions.end()) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+	};
 };
 
 /**

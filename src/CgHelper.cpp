@@ -210,6 +210,75 @@ namespace CgHelper {
 		return removeInstrumentationOnPath(getUniqueParent(node));
 	}
 
+	// Graph Stats
+	CgNodePtrSet getPotentialMarkerPositions(CgNodePtr conjunction) {
+		CgNodePtrSet potentialMarkerPositions;
+
+		CgNodePtrSet visitedNodes;
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(conjunction);
+
+		while (!workQueue.empty()) {
+
+			auto node = workQueue.front();
+			workQueue.pop();
+
+			for (auto parentNode : node->getParentNodes()) {
+
+				if (visitedNodes.find(parentNode) != visitedNodes.end()) {
+					continue;
+				}
+
+				if (isValidMarkerPosition(parentNode, conjunction)) {
+					potentialMarkerPositions.insert(parentNode);
+					workQueue.push(parentNode);
+				}
+			}
+		}
+
+		return potentialMarkerPositions;
+	}
+
+	bool isValidMarkerPosition(CgNodePtr markerPosition, CgNodePtr conjunction) {
+		for (auto parentNode : conjunction->getParentNodes()) {
+			if (parentNode->isSameFunction(markerPosition)) {
+				return true;
+			}
+			if (!reachableFrom(markerPosition, parentNode)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	CgNodePtrSet getReachableConjunctions(CgNodePtrSet markerPositions) {
+		CgNodePtrSet reachableConjunctions;
+
+		CgNodePtrSet visitedNodes = markerPositions;
+		std::queue<CgNodePtr> workQueue;
+		for (auto markerPos : markerPositions) {
+			workQueue.push(markerPos);
+		}
+
+		while (!workQueue.empty()) {
+			auto node = workQueue.front();
+			workQueue.pop();
+
+			for (auto child : node->getChildNodes()) {
+				if (visitedNodes.find(child) != visitedNodes.end()) {
+					continue;
+				}
+
+				workQueue.push(child);
+
+				if (CgHelper::isConjunction(child)) {
+					reachableConjunctions.insert(child);
+				}
+			}
+		}
+		return reachableConjunctions;
+	}
+
 	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode) {
 
 		// XXX RN: once again code duplication
