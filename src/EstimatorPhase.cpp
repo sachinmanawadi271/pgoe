@@ -130,67 +130,50 @@ void GraphStatsEstimatorPhase::printReport() {
 
 void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	ConjunctionDependencies dependencies;
-
 	for (auto node : (*graph)) {
 
 		if (!CgHelper::isConjunction(node)) {
 			continue;
 		}
-		numberOfConjunctions++;
 
-		if (dependencies.hasDependencyFor(node)) {
+		numberOfConjunctions++;
+		if (hasDependencyFor(node)) {
 			continue;
 		}
 
 		CgNodePtrSet dependentConjunctions = {node};
 		CgNodePtrSet validMarkerPositions = CgHelper::getPotentialMarkerPositions(node);
 
-//		///XXX
-//		std::cout << "\tstart: " << node->getFunctionName() << std::endl;
-
-		int numberOfDependentConjunctions = 0;
-		while (numberOfDependentConjunctions !=dependentConjunctions.size()) {
+		unsigned int numberOfDependentConjunctions = 0;
+		while (numberOfDependentConjunctions != dependentConjunctions.size()) {
 			numberOfDependentConjunctions = dependentConjunctions.size();
 
 			CgNodePtrSet reachableConjunctions = CgHelper::getReachableConjunctions(validMarkerPositions);
-//			reachableConjunctions.erase(dependentConjunctions.begin(), dependentConjunctions.end());
-
 			for (auto depConj : dependentConjunctions) {
 				reachableConjunctions.erase(depConj);
 			}
-
-//			///XXX
-//			std::cout << "numberOfDepConj: " << numberOfDependentConjunctions
-//					<< " | reachable: " << reachableConjunctions.size()
-//					<< " | markers: " << validMarkerPositions.size() << std::endl;
 
 			for (auto reachableConjunction : reachableConjunctions) {
 				CgNodePtrSet otherValidMarkerPositions = CgHelper::getPotentialMarkerPositions(reachableConjunction);
 
 				if (!CgHelper::setIntersect(validMarkerPositions, otherValidMarkerPositions).empty()) {
-
 					dependentConjunctions.insert(reachableConjunction);
 					validMarkerPositions.insert(otherValidMarkerPositions.begin(), otherValidMarkerPositions.end());
-
-//					///XXX
-//					std::cout << "\treach: " << reachableConjunction->getFunctionName() << std::endl;
 				}
 			}
 		}
 
-		dependencies.dependencies.push_back(ConjunctionDependency(dependentConjunctions, validMarkerPositions));
-
-		///XXX
-		std::cout << " - dependentConj: " << dependentConjunctions.size()
-				<< " | validMarkerPos': " << validMarkerPositions.size()
-				<< std::endl;
+		dependencies.push_back(ConjunctionDependency(dependentConjunctions, validMarkerPositions));
 	}
 }
 
 void GraphStatsEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "numberOfConjunctions: " << numberOfConjunctions << std::endl;
+	for (auto dependency : dependencies) {
+		std::cout << "\t- dependentConjunctions: " << std::setw(3) << dependency.dependentConjunctions.size()
+				<< " | validMarkerPositions: " << std::setw(3) << dependency.markerPositions.size() << std::endl;
+	}
 }
 
 //// INSTRUMENT ESTIMATOR PHASE

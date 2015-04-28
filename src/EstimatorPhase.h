@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>	//  std::setw()
 
 #include <memory>
 #include <queue>
@@ -81,9 +82,16 @@ public:
 	void printReport();
 private:
 	void printAdditionalReport();
+	bool hasDependencyFor(CgNodePtr conjunction) {
+		for (auto dependency : dependencies) {
+			if (dependency.dependentConjunctions.find(conjunction) != dependency.dependentConjunctions.end()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-	int numberOfConjunctions;
-
+private:
 	struct ConjunctionDependency {
 		CgNodePtrSet dependentConjunctions;
 		CgNodePtrSet markerPositions;
@@ -94,34 +102,9 @@ private:
 		}
 	};
 
-	struct ConjunctionDependencies {
-		std::vector<ConjunctionDependency> dependencies;
-
-//		void addDependency(CgNodePtr conjunction, CgNodePtrSet markers) {
-//			dependencies.push_back(ConjunctionDependency(conjunction, markers));
-//		}
-
-//		void addDependencyFor(CgNodePtr oldConjunction, CgNodePtr newConjunction, CgNodePtrSet newMarkers) {
-//			for (auto dependency : dependencies) {
-//				if (dependency.dependentConjunctions.find(oldConjunction) != dependency.dependentConjunctions.end()) {
-//					dependency.dependentConjunctions.insert(newConjunction);
-//					dependency.markerPositions.insert(newMarkers.begin(), newMarkers.end());
-//					return;
-//				}
-//			}
-//			assert(0 && "no dependency found");
-//		}
-
-		bool hasDependencyFor(CgNodePtr conjunction) {
-			for (auto dependency : dependencies) {
-				if (dependency.dependentConjunctions.find(conjunction) != dependency.dependentConjunctions.end()) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-	};
+private:
+	int numberOfConjunctions;
+	std::vector<ConjunctionDependency> dependencies;
 };
 
 /**
