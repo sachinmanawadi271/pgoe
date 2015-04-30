@@ -64,7 +64,9 @@ void EstimatorPhase::printReport() {
 
 RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase() :
 		EstimatorPhase("RemoveUnrelated"),
-		numRemovedNodes(0) {
+		numUnconnectedRemoved(0),
+		numLeafsRemoved(0),
+		numChainsRemoved(0) {
 }
 
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
@@ -98,7 +100,29 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		// remove nodes that were not reachable from the main method
 		if (visitedNodes.find(node) == visitedNodes.end()) {
 			graph->erase(node);
-			numRemovedNodes++;
+			numUnconnectedRemoved++;
+			continue;
+		}
+
+		// leaf nodes that are never unwound or instrumented
+		if (node->isLeafNode()) {
+			checkNodeForDeletion(node);
+		}
+	}
+	// actually remove those nodes
+	for (auto node : nodesToRemove) {
+		numLeafsRemoved++;
+		graph->erase(node);
+	}
+}
+
+void RemoveUnrelatedNodesEstimatorPhase::checkNodeForDeletion(CgNodePtr node) {
+	if (node->isLeafNode() && node->hasUniqueCallPath()) {
+		nodesToRemove.insert(node);
+
+		for (auto parentNode : node->getParentNodes()) {
+			parentNode->removeChildNode(node);
+			checkNodeForDeletion(parentNode);
 		}
 	}
 }
@@ -110,7 +134,8 @@ void RemoveUnrelatedNodesEstimatorPhase::printReport() {
 
 void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << "\t" << "Removed " << numRemovedNodes << " unrelated node(s)."	<< std::endl;
+	std::cout << "\t" << "Removed " << numUnconnectedRemoved << " unconnected node(s)."	<< std::endl;
+	std::cout << "\t" << "Removed " << numLeafsRemoved << " leaf node(s)."	<< std::endl;
 }
 
 //// GRAPH STATS ESTIMATOR PHASE
@@ -164,12 +189,14 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 
 		dependencies.push_back(ConjunctionDependency(dependentConjunctions, validMarkerPositions));
+		allValidMarkerPositions.insert(validMarkerPositions.begin(), validMarkerPositions.end());
 	}
 }
 
 void GraphStatsEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << "\t" << "numberOfConjunctions: " << numberOfConjunctions << std::endl;
+	std::cout << "\t" << "numberOfConjunctions: " << numberOfConjunctions
+			<< " | allValidMarkerPositions: " << allValidMarkerPositions.size() << std::endl;
 	for (auto dependency : dependencies) {
 		std::cout << "\t- dependentConjunctions: " << std::setw(3) << dependency.dependentConjunctions.size()
 				<< " | validMarkerPositions: " << std::setw(3) << dependency.markerPositions.size() << std::endl;

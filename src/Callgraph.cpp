@@ -160,13 +160,15 @@ void Callgraph::printDOT(std::string prefix) {
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
-	for (auto mapPair : graphMapping) {
+	for (auto node : graph) {
 
-		auto node = mapPair.second;
-		std::string functionName = mapPair.first;
+		std::string functionName = node->getFunctionName();
 
 		if (node->hasUniqueCallPath()) {
 			outfile << "\"" << functionName << "\"[color=blue]" << std::endl;
+		}
+		if (CgHelper::isConjunction(node)) {
+			outfile << "\"" << functionName << "\"[color=green]" << std::endl;
 		}
 		if (node->isInstrumented()) {
 			outfile << "\"" << functionName << "\"[shape=doublecircle]"
@@ -184,8 +186,8 @@ void Callgraph::printDOT(std::string prefix) {
 				<< "\"]" << std::endl;
 	}
 
-	for (auto mapPair : graphMapping) {
-		mapPair.second->dumpToDot(outfile);
+	for (auto node : graph) {
+		node->dumpToDot(outfile);
 	}
 	outfile << "\n}" << std::endl;
 	outfile.close();

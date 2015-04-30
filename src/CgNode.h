@@ -31,6 +31,8 @@ public:
 	CgNode(std::string function);
 	void addChildNode(CgNodePtr childNode);
 	void addParentNode(CgNodePtr parentNode);
+	void removeChildNode(CgNodePtr childNode);
+	void removeParentNode(CgNodePtr parentNode);
 
 	bool isSameFunction(CgNodePtr otherNode);
 

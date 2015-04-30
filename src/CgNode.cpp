@@ -20,19 +20,21 @@ CgNode::CgNode(std::string function){
 }
 
 
-void CgNode::addChildNode(CgNodePtr childNode){
-
+void CgNode::addChildNode(CgNodePtr childNode) {
 	childNodes.insert(childNode);
 }
 
 
-void CgNode::addParentNode(CgNodePtr parentNode){
-	for(auto node : parentNodes){
-		if(node->isSameFunction(parentNode)) {
-			return;
-		}
-	}
+void CgNode::addParentNode(CgNodePtr parentNode) {
 	parentNodes.insert(parentNode);
+}
+
+void CgNode::removeChildNode(CgNodePtr childNode) {
+	childNodes.erase(childNode);
+}
+
+void CgNode::removeParentNode(CgNodePtr parentNode) {
+	parentNodes.erase(parentNode);
 }
 
 void CgNode::addSpantreeParent(CgNodePtr parentNode) {

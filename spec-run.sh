@@ -3,7 +3,7 @@
 
 CCG=./CubeCallgraphTool
 # output is dumped here
-SPEC_OUTPUT=spec-output
+SPEC_OUTPUT=spec-output-stats
 # cubex profiles of spec benchmarks
 SPEC_PATH=./spec-testcases
 

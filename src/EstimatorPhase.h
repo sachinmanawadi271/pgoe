@@ -64,10 +64,15 @@ public:
 	void modifyGraph(CgNodePtr mainMethod);
 
 	void printReport();
-protected:
-	void printAdditionalReport();
 private:
-	int numRemovedNodes;
+	void printAdditionalReport();
+	void checkNodeForDeletion(CgNodePtr node);
+
+	int numUnconnectedRemoved;
+	int numLeafsRemoved;
+	int numChainsRemoved;
+
+	CgNodePtrSet nodesToRemove;
 };
 
 /**
@@ -105,6 +110,7 @@ private:
 private:
 	int numberOfConjunctions;
 	std::vector<ConjunctionDependency> dependencies;
+	std::set<CgNodePtr> allValidMarkerPositions;
 };
 
 /**
