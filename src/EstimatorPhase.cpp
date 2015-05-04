@@ -35,7 +35,7 @@ void EstimatorPhase::generateReport() {
 	report.phaseName = name;
 }
 
-void EstimatorPhase::setGraph(CgNodePtrSet* graph) {
+void EstimatorPhase::setGraph(Callgraph* graph) {
 	this->graph = graph;
 }
 
@@ -114,6 +114,23 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		numLeafsRemoved++;
 		graph->erase(node);
 	}
+
+	for (auto node : (*graph)) {
+
+		if (node->getChildNodes().size()==1) {
+			auto uniqueChild = *(node->getChildNodes().begin());
+
+			if (CgHelper::hasUniqueParent(uniqueChild)) {
+				numChainsRemoved++;
+
+				if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
+					// TODO remove parent
+				} else {
+					// TODO remove child
+				}
+			}
+		}
+	}
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::checkNodeForDeletion(CgNodePtr node) {
@@ -136,6 +153,7 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "Removed " << numUnconnectedRemoved << " unconnected node(s)."	<< std::endl;
 	std::cout << "\t" << "Removed " << numLeafsRemoved << " leaf node(s)."	<< std::endl;
+	std::cout << "\t" << "Removed " << numChainsRemoved << " node(s) in linear call chains."	<< std::endl;
 }
 
 //// GRAPH STATS ESTIMATOR PHASE

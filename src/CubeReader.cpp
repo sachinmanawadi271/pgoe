@@ -1,9 +1,9 @@
 #include "CubeReader.h"
 
 
-Callgraph CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond) {
+CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond) {
 
-	Callgraph* cg = new Callgraph(samplesPerSecond);
+	CallgraphManager* cg = new CallgraphManager(samplesPerSecond);
 
 	try {
 		// Create cube instance

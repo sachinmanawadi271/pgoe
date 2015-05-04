@@ -14,6 +14,21 @@
 #include "CgNode.h"
 #include "CgHelper.h"
 
+class Callgraph {
+public:
+
+	void insert(CgNodePtr node);
+
+	void erase(CgNodePtr node, bool rewireAfterDeletion=false);
+
+	CgNodePtrSet::iterator begin();
+	CgNodePtrSet::iterator end();
+
+	size_t size();
+private:
+	// this set represents the call graph during the actual computation
+	CgNodePtrSet graph;
+};
 
 struct CgReport {
 	unsigned int instrumentedMethods;
@@ -38,13 +53,13 @@ public:
 
 	void generateReport();
 
-	void setGraph(CgNodePtrSet* graph);
+	void setGraph(Callgraph* graph);
 
 	struct CgReport getReport();
 	virtual void printReport();
 
 protected:
-	CgNodePtrSet* graph;
+	Callgraph* graph;
 
 	CgReport report;
 	std::string name;

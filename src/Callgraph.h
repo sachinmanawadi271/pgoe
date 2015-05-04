@@ -10,10 +10,10 @@
 #include "CgNode.h"
 #include "EstimatorPhase.h"
 
-class Callgraph {
+class CallgraphManager {
 
 public:
-	Callgraph(int samplesPerSecond=10000);
+	CallgraphManager(int samplesPerSecond=10000);
 
 	void putEdge(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
@@ -28,7 +28,7 @@ private:
 	// this is a legacy structure used to parse the call graph
 	std::unordered_map<std::string, CgNodePtr> graphMapping;
 	// this set represents the call graph during the actual computation
-	CgNodePtrSet graph;
+	Callgraph graph;
 	// the target frequency for sampling
 	int samplesPerSecond;	// XXX make this const?
 

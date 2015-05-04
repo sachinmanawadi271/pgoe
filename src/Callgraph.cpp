@@ -9,11 +9,51 @@
 #define PRINT_FINAL_DOT 1
 #define PRINT_DOT_AFTER_EVERY_PHASE 1
 
-Callgraph::Callgraph(int samplesPerSecond) :
+void Callgraph::insert(CgNodePtr node) {
+	graph.insert(node);
+}
+
+void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
+	if (CgHelper::isConjunction(node) && node->getChildNodes().size() > 1) {
+		std::cerr << "Error: Cannot remove node with multiple parents AND multiple children." << std::endl;
+		exit(1);
+	}
+
+	for (auto parent : node->getParentNodes()) {
+		parent->removeChildNode(node);
+	}
+	for (auto child : node->getChildNodes()) {
+		child->removeParentNode(node);
+	}
+
+	if (rewireAfterDeletion) {
+		for (auto parent : node->getParentNodes()) {
+			for (auto child : node->getChildNodes()) {
+				parent->addChildNode(child);
+				child->addParentNode(parent);
+			}
+		}
+	}
+}
+
+CgNodePtrSet::iterator Callgraph::begin() {
+	return graph.begin();
+}
+CgNodePtrSet::iterator Callgraph::end() {
+	return graph.end();
+}
+
+size_t Callgraph::size() {
+	return graph.size();
+}
+
+//// CALLGRAPH MANAGER
+
+CallgraphManager::CallgraphManager(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
 }
 
-CgNodePtr Callgraph::findOrCreateNode(std::string name, double timeInSeconds) {
+CgNodePtr CallgraphManager::findOrCreateNode(std::string name, double timeInSeconds) {
 	if (graphMapping.find(name) != graphMapping.end()) {
 		return graphMapping.find(name)->second;
 	} else {
@@ -26,7 +66,7 @@ CgNodePtr Callgraph::findOrCreateNode(std::string name, double timeInSeconds) {
 	}
 }
 
-void Callgraph::putEdge(std::string parentName, std::string childName) {
+void CallgraphManager::putEdge(std::string parentName, std::string childName) {
 
 	CgNodePtr parentNode = findOrCreateNode(parentName);
 	CgNodePtr childNode = findOrCreateNode(childName);
@@ -35,7 +75,7 @@ void Callgraph::putEdge(std::string parentName, std::string childName) {
 	childNode->addParentNode(parentNode);
 }
 
-void Callgraph::putEdge(std::string parentName, std::string parentFilename,
+void CallgraphManager::putEdge(std::string parentName, std::string parentFilename,
 		int parentLine, std::string childName, unsigned long long numberOfCalls,
 		double timeInSeconds) {
 
@@ -53,11 +93,11 @@ void Callgraph::putEdge(std::string parentName, std::string parentFilename,
 }
 
 
-CgNodePtr Callgraph::findMain() {
+CgNodePtr CallgraphManager::findMain() {
 	return findNode("main");
 }
 
-CgNodePtr Callgraph::findNode(std::string functionName) {
+CgNodePtr CallgraphManager::findNode(std::string functionName) {
 
 	for (auto node : graphMapping) {
 		auto fName = node.first;
@@ -68,12 +108,12 @@ CgNodePtr Callgraph::findNode(std::string functionName) {
 	return NULL;
 }
 
-void Callgraph::registerEstimatorPhase(EstimatorPhase* phase) {
+void CallgraphManager::registerEstimatorPhase(EstimatorPhase* phase) {
 	phases.push(phase);
 	phase->setGraph(&graph);
 }
 
-void Callgraph::optimizeGraph() {
+void CallgraphManager::optimizeGraph() {
 	// build the acceleration structure
 	for (auto pair : graphMapping) {
 		graph.insert(pair.second);
@@ -85,7 +125,7 @@ void Callgraph::optimizeGraph() {
 	}
 }
 
-void Callgraph::thatOneLargeMethod() {
+void CallgraphManager::thatOneLargeMethod() {
 
 	optimizeGraph();
 
@@ -118,7 +158,7 @@ void Callgraph::thatOneLargeMethod() {
 #endif
 }
 
-void Callgraph::printDOT(std::string prefix) {
+void CallgraphManager::printDOT(std::string prefix) {
 
 	std::string filename = prefix + "-" + "callgraph.dot";
 	std::ofstream outfile(filename, std::ofstream::out);

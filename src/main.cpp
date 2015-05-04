@@ -5,11 +5,13 @@
 #include "CubeReader.h"
 #include "DotReader.h"
 
+#include "Callgraph.h"
+
 #include "SanityCheckEstimatorPhase.h"
 #include "EdgeBasedOptimumEstimatorPhase.h"
 #include "NodeBasedOptimumEstimatorPhase.h"
 
-void registerEstimatorPhases(Callgraph& cg) {
+void registerEstimatorPhases(CallgraphManager& cg) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
 
 	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
@@ -36,7 +38,7 @@ bool stringEndsWith(const std::string& s, const std::string& suffix) {
 			&& s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
 	if (argc == 1) {
 		std::cerr << "ERROR >> Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
@@ -49,7 +51,7 @@ int main(int argc, char** argv){
 		samplesPerSecond = atoi(argv[2]);
 	}
 
-	Callgraph cg;
+	CallgraphManager cg;
 	std::string filePath(argv[1]);
 
 	if (stringEndsWith(filePath, ".cubex")) {
