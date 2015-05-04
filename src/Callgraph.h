@@ -14,9 +14,12 @@ class Callgraph {
 
 public:
 	Callgraph(int samplesPerSecond=10000);
-	int putFunction(std::string parentName, std::string childName);
-	int putFunction(std::string parentName, std::string parentFilename, int parentLine,
+
+	void putEdge(std::string parentName, std::string childName);
+	void putEdge(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
+
+	CgNodePtr findOrCreateNode(std::string name, double timeInSeconds = 0.0);
 
 	void registerEstimatorPhase(EstimatorPhase* phase);
 
@@ -28,7 +31,7 @@ private:
 	// this set represents the call graph during the actual computation
 	CgNodePtrSet graph;
 	// the target frequency for sampling
-	const int samplesPerSecond;
+	int samplesPerSecond;	// XXX make this const?
 
 	// estimator phases run in a defined order
 	std::queue<EstimatorPhase*> phases;

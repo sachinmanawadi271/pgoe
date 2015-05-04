@@ -6,7 +6,7 @@ Callgraph CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond
 	Callgraph* cg = new Callgraph(samplesPerSecond);
 
 	try {
-	// Create cube instance
+		// Create cube instance
 		cube::Cube cube;
 		// Read our cube file
 		cube.openCubeReport( filePath );
@@ -34,7 +34,7 @@ Callgraph CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond
 				unsigned long long numberOfCalls = (unsigned long long) cube.get_sev(visitsMetric, cnode, threads.at(i));
 				double timeInSeconds = cube.get_sev(timeMetric, cnode, threads.at(i));
 
-				cg->putFunction(parentNode->get_name(), parentNode->get_mod(), parentNode->get_begn_ln(),
+				cg->putEdge(parentNode->get_name(), parentNode->get_mod(), parentNode->get_begn_ln(),
 						childnode->get_name(), numberOfCalls, timeInSeconds);
 
 				overallNumberOfCalls += numberOfCalls;

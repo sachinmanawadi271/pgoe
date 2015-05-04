@@ -3,6 +3,7 @@
 
 
 #include "CubeReader.h"
+#include "DotReader.h"
 
 #include "SanityCheckEstimatorPhase.h"
 #include "EdgeBasedOptimumEstimatorPhase.h"
@@ -30,6 +31,11 @@ void registerEstimatorPhases(Callgraph& cg) {
 
 }
 
+bool stringEndsWith(const std::string& s, const std::string& suffix) {
+	return s.size() >= suffix.size()
+			&& s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
 int main(int argc, char** argv){
 
 	if (argc == 1) {
@@ -43,7 +49,17 @@ int main(int argc, char** argv){
 		samplesPerSecond = atoi(argv[2]);
 	}
 
-	Callgraph cg = CubeCallgraphBuilder::build(argv[1], samplesPerSecond);
+	Callgraph cg;
+	std::string filePath(argv[1]);
+
+	if (stringEndsWith(filePath, ".cubex")) {
+		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond);
+	} else if (stringEndsWith(filePath, ".dot")) {
+		cg = DOTCallgraphBuilder::build(filePath, samplesPerSecond);
+	} else {
+		std::cerr << "ERROR: Unknown file ending in " << filePath << std::endl;
+		exit(-1);
+	}
 
 	registerEstimatorPhases(cg);
 

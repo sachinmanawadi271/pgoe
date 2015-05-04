@@ -46,6 +46,7 @@ public:
 	unsigned long long getNumberOfCalls(CgNodePtr parentNode);
 
 	double getRuntimeInSeconds();
+	void setRuntimeInSeconds(double newRuntimeInSeconds);
 	unsigned long long getExpectedNumberOfSamples();
 
 

@@ -164,6 +164,10 @@ double CgNode::getRuntimeInSeconds() {
 	return runtimeInSeconds;
 }
 
+void CgNode::setRuntimeInSeconds(double newRuntimeInSeconds) {
+	runtimeInSeconds = newRuntimeInSeconds;
+}
+
 unsigned long long CgNode::getExpectedNumberOfSamples() {
 	return expectedNumberOfSamples;
 }

@@ -13,65 +13,33 @@ Callgraph::Callgraph(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
 }
 
-int Callgraph::putFunction(std::string parentName, std::string childName) {
-
-	CgNodePtr parentNode;
-	CgNodePtr childNode;
-
-	int returnCode = 0;
-
-#if DEBUG > 1
-	std::cout << "Putting pair (caller, callee) : (" << parentName << ", " << childName << ") into graph." << std::endl;
-#endif
-
-	if (graphMapping.find(parentName) != graphMapping.end()) {
-		// A node representing the caller already exists
-		parentNode = graphMapping.find(parentName)->second;
-#if DEBUG > 1
-		std::cout << "fullQualifiedNameCaller (" << parentName << ") already exists in call graph" << std::endl;
-#endif
+CgNodePtr Callgraph::findOrCreateNode(std::string name, double timeInSeconds) {
+	if (graphMapping.find(name) != graphMapping.end()) {
+		return graphMapping.find(name)->second;
 	} else {
-		// Create a new node representing the caller
-		parentNode = std::make_shared<CgNode>(parentName);
-		graphMapping.insert(
-				std::pair<std::string, CgNodePtr>(parentName,
-						parentNode));
-		returnCode++;
-#if DEBUG > 1
-		std::cout << "fullQualifiedNameCaller (" << parentName << ") newly added to call graph" << std::endl;
-#endif
-	}
+		CgNodePtr node = std::make_shared<CgNode>(name);
+		graphMapping.insert(std::pair<std::string, CgNodePtr>(name, node));
 
-	if (graphMapping.find(childName) != graphMapping.end()) {
-		// A node representing the callee already exists
-		childNode = graphMapping.find(childName)->second;
-#if DEBUG > 1
-		std::cout << "fullQualifiedNameCallee (" << childName << ") already exists in call graph" << std::endl;
-#endif
-	} else {
-		// Create a new node representing the callee
-		childNode = std::make_shared<CgNode>(childName);
-		graphMapping.insert(
-				std::pair<std::string, CgNodePtr>(childName,
-						childNode));
-		returnCode++;
-#if DEBUG > 1
-		std::cout << "fullQualifiedNameCallee (" << childName << ") newly added to call graph" << std::endl;
-#endif
+		node->setRuntimeInSeconds(timeInSeconds);
+
+		return node;
 	}
-#if VERBOSE > 2
-	std::cout << "Caller: " << parentName << parentNode.get() << "\nCalee: " << childName << childNode.get() << std::endl;
-#endif
-	parentNode->addChildNode(childNode);
-	childNode->addParentNode(parentNode);
-	return returnCode;
 }
 
-int Callgraph::putFunction(std::string parentName, std::string parentFilename,
+void Callgraph::putEdge(std::string parentName, std::string childName) {
+
+	CgNodePtr parentNode = findOrCreateNode(parentName);
+	CgNodePtr childNode = findOrCreateNode(childName);
+
+	parentNode->addChildNode(childNode);
+	childNode->addParentNode(parentNode);
+}
+
+void Callgraph::putEdge(std::string parentName, std::string parentFilename,
 		int parentLine, std::string childName, unsigned long long numberOfCalls,
 		double timeInSeconds) {
 
-	putFunction(parentName, childName);
+	putEdge(parentName, childName);
 
 	auto parentNode = findNode(parentName);
 	if (parentNode == NULL) {
@@ -82,8 +50,6 @@ int Callgraph::putFunction(std::string parentName, std::string parentFilename,
 
 	auto childNode = findNode(childName);
 	childNode->addCallData(parentNode, numberOfCalls, timeInSeconds);
-
-	return 0;
 }
 
 
@@ -163,24 +129,25 @@ void Callgraph::printDOT(std::string prefix) {
 	for (auto node : graph) {
 
 		std::string functionName = node->getFunctionName();
+		std::string attributes;
 
 		if (node->hasUniqueCallPath()) {
-			outfile << "\"" << functionName << "\"[color=blue]" << std::endl;
+			attributes += "color=blue, ";
 		}
 		if (CgHelper::isConjunction(node)) {
-			outfile << "\"" << functionName << "\"[color=green]" << std::endl;
+			attributes += "color=green, ";
 		}
 		if (node->isInstrumented()) {
-			outfile << "\"" << functionName << "\"[shape=doublecircle]"
-					<< std::endl;
+			attributes += "shape=doublecircle, ";
 		}
 		if (node->isUnwound()) {
-			outfile << "\"" << functionName << "\"[shape=doubleoctagon]" << std::endl;
+			attributes += "shape=doubleoctagon, ";
 		} else if (node->isLeafNode()) {
-			outfile << "\"" << functionName << "\"[shape=octagon]" << std::endl;
+			attributes += "shape=octagon, ";
 		}
 		// runtime & expectedSamples in node label
-		outfile << "\"" << functionName << "\"[label=\"" << functionName << "\\n"
+		outfile << "\"" << functionName << "\"[" << attributes
+				<< "label=\"" << functionName << "\\n"
 				<< node->getRuntimeInSeconds() << "s" << "\\n"
 				<< "#s: " << node->getExpectedNumberOfSamples()
 				<< "\"]" << std::endl;
