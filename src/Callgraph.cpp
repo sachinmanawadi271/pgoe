@@ -113,7 +113,6 @@ void Callgraph::thatOneLargeMethod() {
 		phases.pop();
 	}
 
-
 #if PRINT_FINAL_DOT
 	printDOT("final");
 #endif

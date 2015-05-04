@@ -15,7 +15,6 @@ class Callgraph {
 public:
 	Callgraph(int samplesPerSecond=10000);
 
-	void putEdge(std::string parentName, std::string childName);
 	void putEdge(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
@@ -35,6 +34,8 @@ private:
 
 	// estimator phases run in a defined order
 	std::queue<EstimatorPhase*> phases;
+
+	void putEdge(std::string parentName, std::string childName);
 
 	void optimizeGraph();
 	void printDOT(std::string prefix);

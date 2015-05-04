@@ -1,7 +1,7 @@
 
 #include "CgNode.h"
 
-CgNode::CgNode(std::string function){
+CgNode::CgNode(std::string function) {
 	this->functionName = function;
 	this->parentNodes = CgNodePtrSet();
 	this->childNodes = CgNodePtrSet();
@@ -94,8 +94,8 @@ std::string CgNode::getFunctionName() const {
 }
 
 
-void CgNode::dumpToDot(std::ofstream& outStream){
-	for(auto parentNode : parentNodes){
+void CgNode::dumpToDot(std::ofstream& outStream) {
+	for(auto parentNode : parentNodes) {
 
 		std::string edgeColor = "";
 		if(!isSpantreeParent(parentNode)) {
@@ -116,8 +116,7 @@ CgNodePtrSet CgNode::getParentNodes(){
 	return parentNodes;
 }
 
-void CgNode::addCallData(CgNodePtr parentNode,
-		unsigned long long calls, double timeInSeconds) {
+void CgNode::addCallData(CgNodePtr parentNode, unsigned long long calls, double timeInSeconds) {
 
 	this->numberOfCallsBy[parentNode] += calls;
 	this->runtimeInSeconds += timeInSeconds;

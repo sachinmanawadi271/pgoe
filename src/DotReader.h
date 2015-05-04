@@ -8,6 +8,7 @@
 #define DOTREADER_H_
 
 /**
+ * A not so robust reader for dot-files
  * \author roman
  */
 namespace DOTCallgraphBuilder {
@@ -41,10 +42,9 @@ namespace DOTCallgraphBuilder {
 				size_t numCallsStart = line.find("label=")+6;
 				unsigned long numCalls = stoul(line.substr(numCallsStart));
 
+				// filename & line unknown; time already added with node
 				cg->putEdge(parent, "", -1, child, numCalls, 0.0);
 
-				///XXX
-				std::cout << parent << " -> " << child << " : " << numCalls << std::endl;
 			} else {
 				// node
 				size_t start = 0;
@@ -52,14 +52,9 @@ namespace DOTCallgraphBuilder {
 				double time = stod(extractBetween(line, "\\n", start));
 
 				cg->findOrCreateNode(name, time);
-
-				///XXX
-				std::cout << "node " << name << " : " << time << std::endl;
 			}
 		}
-
 		file.close();
-
 		return *cg;
 	}
 };
