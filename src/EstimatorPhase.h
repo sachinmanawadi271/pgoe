@@ -73,7 +73,7 @@ protected:
  */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
-	RemoveUnrelatedNodesEstimatorPhase();
+	RemoveUnrelatedNodesEstimatorPhase(bool aggressiveReduction = false);
 	~RemoveUnrelatedNodesEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -86,6 +86,9 @@ private:
 	int numUnconnectedRemoved;
 	int numLeafsRemoved;
 	int numChainsRemoved;
+	int numAdvancedOptimizations;
+
+	bool aggressiveReduction;
 
 	CgNodePtrSet nodesToRemove;
 };
@@ -126,6 +129,19 @@ private:
 	int numberOfConjunctions;
 	std::vector<ConjunctionDependency> dependencies;
 	std::set<CgNodePtr> allValidMarkerPositions;
+};
+
+class DiamondPatternSolverEstimatorPhase : public EstimatorPhase {
+public:
+	DiamondPatternSolverEstimatorPhase();
+	~DiamondPatternSolverEstimatorPhase();
+
+	void modifyGraph(CgNodePtr mainMethod);
+	void printReport();
+private:
+	int numDiamonds;
+
+	void printAdditionalReport();
 };
 
 /**

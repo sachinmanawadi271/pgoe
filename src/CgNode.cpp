@@ -15,6 +15,7 @@ CgNode::CgNode(std::string function) {
 	this->runtimeInSeconds = 0.0;
 	this->expectedNumberOfSamples = 0L;
 
+	this->numberOfCalls = 0;
 	this->uniqueCallPath = false;
 	this->leafNode = false;
 }
@@ -56,6 +57,8 @@ void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
 	// is leaf node
 	this->leafNode = (getChildNodes().size() == 0);
+	// this number will not change
+	this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
 
 	// has unique call path
 	auto parents = getParentNodes();
@@ -76,9 +79,29 @@ bool CgNode::hasUniqueCallPath() {
 bool CgNode::isLeafNode() {
 	return leafNode;
 }
-
 bool CgNode::isRootNode() {
 	return getParentNodes().empty();
+}
+
+bool CgNode::hasUniqueParent() {
+	return getParentNodes().size() == 1;
+}
+bool CgNode::hasUniqueChild() {
+	return getChildNodes().size() == 1;
+}
+CgNodePtr CgNode::getUniqueParent() {
+	if (!hasUniqueParent()) {
+		std::cerr << "Error: no unique parent." << std::endl;
+		exit(1);
+	}
+	return *(getParentNodes().begin());
+}
+CgNodePtr CgNode::getUniqueChild() {
+	if (!hasUniqueChild()) {
+		std::cerr << "Error: no unique child." << std::endl;
+		exit(1);
+	}
+	return *(getChildNodes().begin());
 }
 
 bool CgNode::isSameFunction(CgNodePtr cgNodeToCompareTo){
@@ -145,7 +168,11 @@ int CgNode::getNumberOfUnwindSteps() {
 	return numberOfUnwindSteps;
 }
 
-unsigned long long CgNode::getNumberOfCalls(){
+unsigned long long CgNode::getNumberOfCalls() {
+	return numberOfCalls;
+}
+
+unsigned long long CgNode::getNumberOfCallsWithCurrentEdges() {
 
 	unsigned long long numberOfCalls = 0;
 	for(auto n : numberOfCallsBy) {

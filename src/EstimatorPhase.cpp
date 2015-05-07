@@ -62,11 +62,13 @@ void EstimatorPhase::printReport() {
 
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
 
-RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase() :
+RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(bool aggressiveReduction) :
 		EstimatorPhase("RemoveUnrelated"),
 		numUnconnectedRemoved(0),
 		numLeafsRemoved(0),
-		numChainsRemoved(0) {
+		numChainsRemoved(0),
+		numAdvancedOptimizations(0),
+		aggressiveReduction(aggressiveReduction) {
 }
 
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
@@ -111,34 +113,52 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 	// actually remove those nodes
 	for (auto node : nodesToRemove) {
-		numLeafsRemoved++;
 		graph->erase(node);
 	}
 
 	for (auto node : (*graph)) {
-
+		// reduce chain
 		if (node->getChildNodes().size()==1) {
+
+			if (!aggressiveReduction && CgHelper::isConjunction(node)) {
+				continue;
+			}
+
 			auto uniqueChild = *(node->getChildNodes().begin());
 
 			if (CgHelper::hasUniqueParent(uniqueChild)) {
 				numChainsRemoved++;
 
 				if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
-					// TODO remove parent
+					graph->erase(node, true);
 				} else {
-					// TODO remove child
+					graph->erase(uniqueChild, true);
 				}
 			}
 		}
 	}
+
+//	for (auto node : (*graph)) {
+//		// advanced optimization
+//		if (!CgHelper::isConjunction(node)
+//				&& (node->getChildNodes().size() == 1)
+//				&& (*(node->getParentNodes().begin()))->getNumberOfCalls() <= node->getNumberOfCalls() ) {
+//
+//			// TODO: also the two nodes have to serve the same conjunctions
+//
+//			numAdvancedOptimizations++;
+//			graph->erase(node, true);
+//		}
+//	}
+
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::checkNodeForDeletion(CgNodePtr node) {
 	if (node->isLeafNode() && node->hasUniqueCallPath()) {
 		nodesToRemove.insert(node);
+		numLeafsRemoved++;
 
 		for (auto parentNode : node->getParentNodes()) {
-			parentNode->removeChildNode(node);
 			checkNodeForDeletion(parentNode);
 		}
 	}
@@ -154,6 +174,7 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 	std::cout << "\t" << "Removed " << numUnconnectedRemoved << " unconnected node(s)."	<< std::endl;
 	std::cout << "\t" << "Removed " << numLeafsRemoved << " leaf node(s)."	<< std::endl;
 	std::cout << "\t" << "Removed " << numChainsRemoved << " node(s) in linear call chains."	<< std::endl;
+	std::cout << "\t" << "Removed " << numAdvancedOptimizations << " node(s) in advanced optimization."	<< std::endl;
 }
 
 //// GRAPH STATS ESTIMATOR PHASE
@@ -219,6 +240,53 @@ void GraphStatsEstimatorPhase::printAdditionalReport() {
 		std::cout << "\t- dependentConjunctions: " << std::setw(3) << dependency.dependentConjunctions.size()
 				<< " | validMarkerPositions: " << std::setw(3) << dependency.markerPositions.size() << std::endl;
 	}
+}
+
+//// DIAMOND PATTERN SOLVER ESTIMATOR PHASE
+
+DiamondPatternSolverEstimatorPhase::DiamondPatternSolverEstimatorPhase() :
+	EstimatorPhase("DiamondPattern"),
+	numDiamonds(0) {
+}
+
+DiamondPatternSolverEstimatorPhase::~DiamondPatternSolverEstimatorPhase() {
+}
+
+void DiamondPatternSolverEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	for (auto node : (*graph)) {
+		if (CgHelper::isConjunction(node)) {
+			for (auto parent1 : node->getParentNodes()) {
+
+				if (parent1->hasUniqueParent() && parent1->hasUniqueChild()) {
+					auto grandParent = parent1->getUniqueParent();
+
+					for (auto parent2 : node->getParentNodes()) {
+						if (parent1==parent2) {
+							continue;
+						}
+
+						if (parent2->hasUniqueParent()
+								&& parent2->getUniqueParent()==grandParent) {
+
+							numDiamonds++;
+							break;
+						}
+
+					}
+				}
+			}
+		}
+	}
+}
+
+void DiamondPatternSolverEstimatorPhase::printReport() {
+	// only print the additional report
+	printAdditionalReport();
+}
+
+void DiamondPatternSolverEstimatorPhase::printAdditionalReport() {
+	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
+	std::cout << "\t" << "numberOfDiamonds: " << numDiamonds << std::endl;
 }
 
 //// INSTRUMENT ESTIMATOR PHASE

@@ -43,6 +43,7 @@ public:
 
 	void addCallData(CgNodePtr parentNode, unsigned long long calls, double timeInSeconds);
 	unsigned long long getNumberOfCalls();
+	unsigned long long getNumberOfCallsWithCurrentEdges();
 	unsigned long long getNumberOfCalls(CgNodePtr parentNode);
 
 	double getRuntimeInSeconds();
@@ -66,6 +67,11 @@ public:
 	bool isLeafNode();
 	bool isRootNode();
 
+	bool hasUniqueParent();
+	bool hasUniqueChild();
+	CgNodePtr getUniqueParent();
+	CgNodePtr getUniqueChild();
+
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
 
@@ -81,6 +87,7 @@ private:
 	CgNodeState state;
 
 	int numberOfUnwindSteps;
+	unsigned long long numberOfCalls;
 
 	// note that these metrics are based on a profile and might be pessimistic
 	double runtimeInSeconds;
@@ -91,6 +98,11 @@ private:
 
 	// parentNode -> number of calls by that parent
 	std::map<CgNodePtr, unsigned long long> numberOfCallsBy;
+
+	// if the node is a conjunction, these are the potentially instrumented nodes
+	CgNodePtrSet potentialMarkerPositions;
+	// if the node is a potential marker position, these conjunctions depend on its instrumentation
+	CgNodePtrSet dependentConjunctions;
 
 	// this is possibly the dumbest way to implement a spanning tree
 	CgNodePtrSet spantreeParents;

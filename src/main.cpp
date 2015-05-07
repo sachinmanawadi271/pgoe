@@ -12,9 +12,10 @@
 #include "NodeBasedOptimumEstimatorPhase.h"
 
 void registerEstimatorPhases(CallgraphManager& cg) {
-	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase());
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 
 	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
+	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
 	// edge based
 //	cg.registerEstimatorPhase(new EdgeBasedOptimumEstimatorPhase());
 //

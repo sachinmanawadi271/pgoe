@@ -19,6 +19,10 @@ void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
 		exit(1);
 	}
 
+	if (CgHelper::isConjunction(node)) {
+		// XXX erasing a node with multiple parents invalidates edge weights (they are visible in the dot output)
+	}
+
 	for (auto parent : node->getParentNodes()) {
 		parent->removeChildNode(node);
 	}
@@ -34,6 +38,8 @@ void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
 			}
 		}
 	}
+
+	graph.erase(node);
 }
 
 CgNodePtrSet::iterator Callgraph::begin() {
