@@ -19,7 +19,6 @@ CgNode::CgNode(std::string function) {
 
 	this->numberOfCalls = 0;
 	this->uniqueCallPath = false;
-	this->leafNode = false;
 }
 
 
@@ -37,6 +36,7 @@ void CgNode::removeChildNode(CgNodePtr childNode) {
 }
 
 void CgNode::removeParentNode(CgNodePtr parentNode) {
+	numberOfCallsBy.erase(parentNode);
 	parentNodes.erase(parentNode);
 }
 
@@ -65,8 +65,6 @@ void CgNode::reset() {
 
 void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
-	// is leaf node
-	this->leafNode = (getChildNodes().size() == 0);
 	// this number will not change
 	this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
 
@@ -86,7 +84,7 @@ bool CgNode::hasUniqueCallPath() {
 }
 
 bool CgNode::isLeafNode() {
-	return leafNode;
+	return getChildNodes().empty();
 }
 bool CgNode::isRootNode() {
 	return getParentNodes().empty();

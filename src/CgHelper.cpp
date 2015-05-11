@@ -214,6 +214,10 @@ namespace CgHelper {
 	CgNodePtrSet getPotentialMarkerPositions(CgNodePtr conjunction) {
 		CgNodePtrSet potentialMarkerPositions;
 
+		if (!CgHelper::isConjunction(conjunction)) {
+			return potentialMarkerPositions;
+		}
+
 		CgNodePtrSet visitedNodes;
 		std::queue<CgNodePtr> workQueue;
 		workQueue.push(conjunction);

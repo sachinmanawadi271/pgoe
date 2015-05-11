@@ -113,7 +113,6 @@ private:
 
 	// node attributes
 	bool uniqueCallPath;
-	bool leafNode;
 
 	// for later use
 	std::string filename;

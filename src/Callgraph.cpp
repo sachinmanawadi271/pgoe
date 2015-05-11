@@ -144,9 +144,6 @@ void CallgraphManager::finalizeGraph() {
 	// also update all node attributes
 	for (auto node : graph) {
 
-		if (!CgHelper::isConjunction(node)) {
-			continue;
-		}
 		node->updateNodeAttributes(this->samplesPerSecond);
 
 		CgNodePtrSet markerPositions = CgHelper::getPotentialMarkerPositions(node);

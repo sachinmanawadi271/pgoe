@@ -81,7 +81,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		return;
 	}
 
-	CgNodePtrSet visitedNodes;
+	CgNodePtrSet nodesReachableFromMain;
 	std::queue<CgNodePtr> workQueue;
 
 	/** XXX RN: code duplication */
@@ -90,10 +90,10 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 		auto node = workQueue.front();
 		workQueue.pop();
-		visitedNodes.insert(node);
+		nodesReachableFromMain.insert(node);
 
 		for (auto childNode : node->getChildNodes()) {
-			if (visitedNodes.find(childNode) == visitedNodes.end()) {
+			if (nodesReachableFromMain.find(childNode) == nodesReachableFromMain.end()) {
 				workQueue.push(childNode);
 			}
 		}
@@ -101,7 +101,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	for (auto node : (*graph)) {
 		// remove nodes that were not reachable from the main method
-		if (visitedNodes.find(node) == visitedNodes.end()) {
+		if (nodesReachableFromMain.find(node) == nodesReachableFromMain.end()) {
 			graph->erase(node);
 			numUnconnectedRemoved++;
 			continue;
@@ -109,7 +109,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 		// leaf nodes that are never unwound or instrumented
 		if (node->isLeafNode()) {
-			checkNodeForDeletion(node);
+			checkLeafNodeForRemoval(node);
 		}
 	}
 	// actually remove those nodes
@@ -154,13 +154,21 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 }
 
-void RemoveUnrelatedNodesEstimatorPhase::checkNodeForDeletion(CgNodePtr node) {
-	if (node->isLeafNode() && node->hasUniqueCallPath()) {
+void RemoveUnrelatedNodesEstimatorPhase::checkLeafNodeForRemoval(CgNodePtr node) {
+
+	for (auto child : node->getChildNodes()) {
+		if (nodesToRemove.find(child) == nodesToRemove.end()) {
+			return;	// if a single child is not deleted yet, this node cannot be deleted anyways
+		}
+	}
+
+	if (node->hasUniqueCallPath()
+			|| (aggressiveReduction && node->hasUniqueParent()) ) {
 		nodesToRemove.insert(node);
 		numLeafsRemoved++;
 
 		for (auto parentNode : node->getParentNodes()) {
-			checkNodeForDeletion(parentNode);
+			checkLeafNodeForRemoval(parentNode);
 		}
 	}
 }

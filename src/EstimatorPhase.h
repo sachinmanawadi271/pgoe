@@ -81,7 +81,7 @@ public:
 	void printReport();
 private:
 	void printAdditionalReport();
-	void checkNodeForDeletion(CgNodePtr node);
+	void checkLeafNodeForRemoval(CgNodePtr node);
 
 	int numUnconnectedRemoved;
 	int numLeafsRemoved;
