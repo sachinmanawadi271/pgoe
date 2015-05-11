@@ -19,7 +19,7 @@ public:
 
 	void insert(CgNodePtr node);
 
-	void erase(CgNodePtr node, bool rewireAfterDeletion=false);
+	void erase(CgNodePtr node, bool rewireAfterDeletion=false, bool force=false);
 
 	CgNodePtrSet::iterator begin();
 	CgNodePtrSet::iterator end();
@@ -126,7 +126,7 @@ private:
 	};
 
 private:
-	int cycleDetected;
+	int numCyclesDetected;
 
 	int numberOfConjunctions;
 	std::vector<ConjunctionDependency> dependencies;

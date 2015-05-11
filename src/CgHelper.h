@@ -50,7 +50,7 @@ namespace CgHelper {
 	CgNodePtrSet getAncestors(CgNodePtr child);
 
 	inline
-	CgNodePtrSet setIntersect(CgNodePtrSet a, CgNodePtrSet b) {
+	CgNodePtrSet setIntersect(const CgNodePtrSet& a, const CgNodePtrSet& b) {
 
 		CgNodePtrSet intersect;
 
@@ -63,7 +63,7 @@ namespace CgHelper {
 	}
 
 	inline
-	CgNodePtrSet setDifference(CgNodePtrSet a, CgNodePtrSet b) {
+	CgNodePtrSet setDifference(const CgNodePtrSet& a, const CgNodePtrSet& b) {
 
 		CgNodePtrSet difference;
 

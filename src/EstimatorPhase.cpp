@@ -102,7 +102,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 		// remove nodes that were not reachable from the main method
 		if (nodesReachableFromMain.find(node) == nodesReachableFromMain.end()) {
-			graph->erase(node);
+			graph->erase(node, false, true);
 			numUnconnectedRemoved++;
 			continue;
 		}
@@ -139,18 +139,20 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	}
 
-//	for (auto node : (*graph)) {
-//		// advanced optimization
-//		if (!CgHelper::isConjunction(node)
-//				&& (node->getChildNodes().size() == 1)
-//				&& (*(node->getParentNodes().begin()))->getNumberOfCalls() <= node->getNumberOfCalls() ) {
-//
-//			// TODO: also the two nodes have to serve the same conjunctions
-//
-//			numAdvancedOptimizations++;
-//			graph->erase(node, true);
-//		}
-//	}
+	for (auto node : (*graph)) {
+		// advanced optimization
+		if (node->hasUniqueParent()	&& node->hasUniqueChild()
+				&& node->getUniqueParent()->getNumberOfCalls() <= node->getNumberOfCalls() ) {
+
+			CgNodePtrSet intersect = CgHelper::setIntersect(node->getUniqueParent()->getDependentConjunctions(), node->getDependentConjunctions());
+			if (intersect == node->getDependentConjunctions()) {
+				// TODO: also the two nodes have to serve the same conjunctions
+
+				numAdvancedOptimizations++;
+				graph->erase(node, true);
+			}
+		}
+	}
 
 }
 
@@ -190,7 +192,7 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 
 GraphStatsEstimatorPhase::GraphStatsEstimatorPhase() :
 	EstimatorPhase("GraphStats"),
-	cycleDetected(0),
+	numCyclesDetected(0),
 	numberOfConjunctions(0) {
 }
 
@@ -204,7 +206,7 @@ void GraphStatsEstimatorPhase::printReport() {
 
 void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	// detect cycle
+	// detect cycles
 	for (auto node : (*graph)) {
 		CgNodePtrSet visitedNodes;
 		std::queue<CgNodePtr> workQueue;
@@ -219,15 +221,15 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				for (auto child : currentNode->getChildNodes()) {
 
 					if (child == node) {
-						cycleDetected++;
+						numCyclesDetected++;
 					}
-
 					workQueue.push(child);
 				}
 			}
 		}
 	}
 
+	// dependent conjunctions
 	for (auto node : (*graph)) {
 
 		if (!CgHelper::isConjunction(node)) {
@@ -268,7 +270,7 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 void GraphStatsEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << "\t" << "cycle detected: " << cycleDetected << std::endl;
+	std::cout << "\t" << "nodes in cycles: " << numCyclesDetected << std::endl;
 	std::cout << "\t" << "numberOfConjunctions: " << numberOfConjunctions
 			<< " | allValidMarkerPositions: " << allValidMarkerPositions.size() << std::endl;
 	for (auto dependency : dependencies) {

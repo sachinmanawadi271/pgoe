@@ -13,14 +13,16 @@ void Callgraph::insert(CgNodePtr node) {
 	graph.insert(node);
 }
 
-void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
-	if (CgHelper::isConjunction(node) && node->getChildNodes().size() > 1) {
-		std::cerr << "Error: Cannot remove node with multiple parents AND multiple children." << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	if (CgHelper::isConjunction(node) && node->isLeafNode()) {
-		std::cerr << "Error: Cannot remove conjunction node that is a leaf." << std::endl;
-		exit(EXIT_FAILURE);
+void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion, bool force) {
+	if (!force) {
+		if (CgHelper::isConjunction(node) && node->getChildNodes().size() > 1) {
+			std::cerr << "Error: Cannot remove node with multiple parents AND multiple children." << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		if (CgHelper::isConjunction(node) && node->isLeafNode()) {
+			std::cerr << "Error: Cannot remove conjunction node that is a leaf." << std::endl;
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	for (auto parent : node->getParentNodes()) {
@@ -31,7 +33,7 @@ void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
 	}
 
 	// a conjunction can only be erased if it has exactly one child
-	if (CgHelper::isConjunction(node)) {
+	if (!force && CgHelper::isConjunction(node)) {
 		auto child = node->getUniqueChild();
 		child->getMarkerPositions() = node->getMarkerPositions();
 
@@ -54,10 +56,10 @@ void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
 		}
 	}
 
-	std::cout << "  Erasing node: " << *node << std::endl;
-
 	graph.erase(node);
-	std::cout << "  UseCount: " << node.use_count() << std::endl;
+
+//	std::cout << "  Erasing node: " << *node << std::endl;
+//	std::cout << "  UseCount: " << node.use_count() << std::endl;
 }
 
 CgNodePtrSet::iterator Callgraph::begin() {

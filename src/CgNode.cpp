@@ -151,11 +151,11 @@ void CgNode::dumpToDot(std::ofstream& outStream) {
 #endif
 }
 
-CgNodePtrSet CgNode::getChildNodes() {
+const CgNodePtrSet& CgNode::getChildNodes() const {
 	return childNodes;
 }
 
-CgNodePtrSet CgNode::getParentNodes() {
+const CgNodePtrSet& CgNode::getParentNodes() const{
 	return parentNodes;
 }
 

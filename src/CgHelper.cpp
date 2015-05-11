@@ -247,9 +247,6 @@ namespace CgHelper {
 
 	bool isValidMarkerPosition(CgNodePtr markerPosition, CgNodePtr conjunction) {
 		for (auto parentNode : conjunction->getParentNodes()) {
-			if (parentNode->isSameFunction(markerPosition)) {
-				return true;
-			}
 			if (!reachableFrom(markerPosition, parentNode)) {
 				return true;
 			}
@@ -287,6 +284,7 @@ namespace CgHelper {
 		return reachableConjunctions;
 	}
 
+	// note: a function is reachable from itself
 	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode) {
 
 		// XXX RN: once again code duplication

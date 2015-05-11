@@ -38,8 +38,8 @@ public:
 
 	std::string getFunctionName() const;
 
-	CgNodePtrSet getChildNodes();
-	CgNodePtrSet getParentNodes();
+	const CgNodePtrSet& getChildNodes() const;
+	const CgNodePtrSet& getParentNodes() const;
 
 	void addCallData(CgNodePtr parentNode, unsigned long long calls, double timeInSeconds);
 	unsigned long long getNumberOfCalls();
