@@ -126,6 +126,8 @@ private:
 	};
 
 private:
+	int cycleDetected;
+
 	int numberOfConjunctions;
 	std::vector<ConjunctionDependency> dependencies;
 	std::set<CgNodePtr> allValidMarkerPositions;

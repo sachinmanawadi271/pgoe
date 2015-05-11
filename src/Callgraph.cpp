@@ -16,11 +16,11 @@ void Callgraph::insert(CgNodePtr node) {
 void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
 	if (CgHelper::isConjunction(node) && node->getChildNodes().size() > 1) {
 		std::cerr << "Error: Cannot remove node with multiple parents AND multiple children." << std::endl;
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
-
-	if (CgHelper::isConjunction(node)) {
-		// XXX erasing a node with multiple parents invalidates edge weights (they are visible in the dot output)
+	if (CgHelper::isConjunction(node) && node->isLeafNode()) {
+		std::cerr << "Error: Cannot remove conjunction node that is a leaf." << std::endl;
+		exit(EXIT_FAILURE);
 	}
 
 	for (auto parent : node->getParentNodes()) {
@@ -28,6 +28,21 @@ void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
 	}
 	for (auto child : node->getChildNodes()) {
 		child->removeParentNode(node);
+	}
+
+	// a conjunction can only be erased if it has exactly one child
+	if (CgHelper::isConjunction(node)) {
+		auto child = node->getUniqueChild();
+		child->getMarkerPositions() = node->getMarkerPositions();
+
+		for (auto markerPosition : node->getMarkerPositions()) {
+			markerPosition->getDependentConjunctions().erase(node);
+			markerPosition->getDependentConjunctions().insert(child);
+		}
+		// XXX erasing a node with multiple parents invalidates edge weights (they are visible in the dot output)
+	}
+	for (auto dependentConjunction : node->getDependentConjunctions()) {
+		dependentConjunction->getMarkerPositions().erase(node);
 	}
 
 	if (rewireAfterDeletion) {
@@ -39,7 +54,10 @@ void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion) {
 		}
 	}
 
+	std::cout << "  Erasing node: " << *node << std::endl;
+
 	graph.erase(node);
+	std::cout << "  UseCount: " << node.use_count() << std::endl;
 }
 
 CgNodePtrSet::iterator Callgraph::begin() {
@@ -65,6 +83,7 @@ CgNodePtr CallgraphManager::findOrCreateNode(std::string name, double timeInSeco
 	} else {
 		CgNodePtr node = std::make_shared<CgNode>(name);
 		graphMapping.insert(std::pair<std::string, CgNodePtr>(name, node));
+		graph.insert(node);
 
 		node->setRuntimeInSeconds(timeInSeconds);
 
@@ -105,10 +124,10 @@ CgNodePtr CallgraphManager::findMain() {
 
 CgNodePtr CallgraphManager::findNode(std::string functionName) {
 
-	for (auto node : graphMapping) {
-		auto fName = node.first;
+	for (auto node : graph) {
+		auto fName = node->getFunctionName();
 		if (fName == functionName) {
-			return node.second;
+			return node;
 		}
 	}
 	return NULL;
@@ -119,21 +138,28 @@ void CallgraphManager::registerEstimatorPhase(EstimatorPhase* phase) {
 	phase->setGraph(&graph);
 }
 
-void CallgraphManager::optimizeGraph() {
-	// build the acceleration structure
-	for (auto pair : graphMapping) {
-		graph.insert(pair.second);
-	}
+void CallgraphManager::finalizeGraph() {
+	graphMapping.clear();
 
 	// also update all node attributes
 	for (auto node : graph) {
+
+		if (!CgHelper::isConjunction(node)) {
+			continue;
+		}
 		node->updateNodeAttributes(this->samplesPerSecond);
+
+		CgNodePtrSet markerPositions = CgHelper::getPotentialMarkerPositions(node);
+		node->getMarkerPositions().insert(markerPositions.begin(), markerPositions.end());
+
+		std::for_each(markerPositions.begin(), markerPositions.end(),
+				[&node](const CgNodePtr& markerPosition) { markerPosition->getDependentConjunctions().insert(node); });
 	}
 }
 
 void CallgraphManager::thatOneLargeMethod() {
 
-	optimizeGraph();
+	finalizeGraph();
 
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();

@@ -72,6 +72,7 @@ RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(bool aggr
 }
 
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
+	nodesToRemove.clear();
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
@@ -181,6 +182,7 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 
 GraphStatsEstimatorPhase::GraphStatsEstimatorPhase() :
 	EstimatorPhase("GraphStats"),
+	cycleDetected(0),
 	numberOfConjunctions(0) {
 }
 
@@ -193,6 +195,30 @@ void GraphStatsEstimatorPhase::printReport() {
 }
 
 void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+
+	// detect cycle
+	for (auto node : (*graph)) {
+		CgNodePtrSet visitedNodes;
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(node);
+		while (!workQueue.empty()) {
+			auto currentNode = workQueue.front();
+			workQueue.pop();
+
+			if (visitedNodes.count(currentNode) == 0) {
+				visitedNodes.insert(currentNode);
+
+				for (auto child : currentNode->getChildNodes()) {
+
+					if (child == node) {
+						cycleDetected++;
+					}
+
+					workQueue.push(child);
+				}
+			}
+		}
+	}
 
 	for (auto node : (*graph)) {
 
@@ -234,6 +260,7 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 void GraphStatsEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
+	std::cout << "\t" << "cycle detected: " << cycleDetected << std::endl;
 	std::cout << "\t" << "numberOfConjunctions: " << numberOfConjunctions
 			<< " | allValidMarkerPositions: " << allValidMarkerPositions.size() << std::endl;
 	for (auto dependency : dependencies) {

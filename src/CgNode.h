@@ -56,6 +56,10 @@ public:
 	bool isUnwound();
 	int getNumberOfUnwindSteps();
 
+	// marker pos & dependent conjunction stuff
+	CgNodePtrSet& getMarkerPositions();
+	CgNodePtrSet& getDependentConjunctions();
+
 	// spanning tree stuff
 	void addSpantreeParent(CgNodePtr parentNode);
 	bool isSpantreeParent(CgNodePtr);

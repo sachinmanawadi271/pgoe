@@ -37,7 +37,7 @@ private:
 
 	void putEdge(std::string parentName, std::string childName);
 
-	void optimizeGraph();
+	void finalizeGraph();
 	void printDOT(std::string prefix);
 
 	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName

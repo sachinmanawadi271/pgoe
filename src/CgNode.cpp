@@ -1,6 +1,8 @@
 
 #include "CgNode.h"
 
+#define RENDER_DEPS 1
+
 CgNode::CgNode(std::string function) {
 	this->functionName = function;
 	this->parentNodes = CgNodePtrSet();
@@ -38,6 +40,14 @@ void CgNode::removeParentNode(CgNodePtr parentNode) {
 	parentNodes.erase(parentNode);
 }
 
+
+CgNodePtrSet& CgNode::getMarkerPositions() {
+	return potentialMarkerPositions;
+}
+CgNodePtrSet& CgNode::getDependentConjunctions() {
+	return dependentConjunctions;
+}
+
 void CgNode::addSpantreeParent(CgNodePtr parentNode) {
 	this->spantreeParents.insert(parentNode);
 }
@@ -69,7 +79,6 @@ void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
 	// expected samples in this function
 	this->expectedNumberOfSamples = samplesPerSecond * runtimeInSeconds;
-
 }
 
 bool CgNode::hasUniqueCallPath() {
@@ -118,7 +127,7 @@ std::string CgNode::getFunctionName() const {
 
 
 void CgNode::dumpToDot(std::ofstream& outStream) {
-	for(auto parentNode : parentNodes) {
+	for (auto parentNode : parentNodes) {
 
 		std::string edgeColor = "";
 		if(!isSpantreeParent(parentNode)) {
@@ -129,13 +138,26 @@ void CgNode::dumpToDot(std::ofstream& outStream) {
 				<< "\" [label=" << this->getNumberOfCalls(parentNode) << edgeColor << "];"
 				<< std::endl;
 	}
+
+#if RENDER_DEPS
+	for (auto markerPosition : potentialMarkerPositions) {
+		outStream << *markerPosition << " -> \"" << this->functionName
+				<< "\" [style=dotted, color=grey];"
+				<< std::endl;
+	}
+	for (auto dependentConjunction : dependentConjunctions) {
+		outStream << "\"" << this->functionName << "\" -> " << *dependentConjunction
+						<< " [style=dotted, color=green];"
+						<< std::endl;
+	}
+#endif
 }
 
-CgNodePtrSet CgNode::getChildNodes(){
+CgNodePtrSet CgNode::getChildNodes() {
 	return childNodes;
 }
 
-CgNodePtrSet CgNode::getParentNodes(){
+CgNodePtrSet CgNode::getParentNodes() {
 	return parentNodes;
 }
 
