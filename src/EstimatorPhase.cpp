@@ -119,15 +119,16 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	for (auto node : (*graph)) {
 		// reduce chain
-		if (node->getChildNodes().size()==1) {
+		if (node->hasUniqueChild()) {
 
 			if (!aggressiveReduction && CgHelper::isConjunction(node)) {
 				continue;
 			}
 
-			auto uniqueChild = *(node->getChildNodes().begin());
+			auto uniqueChild = node->getUniqueChild();
 
-			if (CgHelper::hasUniqueParent(uniqueChild)) {
+			if (CgHelper::hasUniqueParent(uniqueChild)
+					&& (node->getDependentConjunctions() == uniqueChild->getDependentConjunctions())) {
 				numChainsRemoved++;
 
 				if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
@@ -208,24 +209,8 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	// detect cycles
 	for (auto node : (*graph)) {
-		CgNodePtrSet visitedNodes;
-		std::queue<CgNodePtr> workQueue;
-		workQueue.push(node);
-		while (!workQueue.empty()) {
-			auto currentNode = workQueue.front();
-			workQueue.pop();
-
-			if (visitedNodes.count(currentNode) == 0) {
-				visitedNodes.insert(currentNode);
-
-				for (auto child : currentNode->getChildNodes()) {
-
-					if (child == node) {
-						numCyclesDetected++;
-					}
-					workQueue.push(child);
-				}
-			}
+		if (CgHelper::isOnCycle(node)) {
+			numCyclesDetected++;
 		}
 	}
 
@@ -242,7 +227,7 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 
 		CgNodePtrSet dependentConjunctions = {node};
-		CgNodePtrSet validMarkerPositions = CgHelper::getPotentialMarkerPositions(node);
+		CgNodePtrSet validMarkerPositions = node->getMarkerPositions();
 
 		unsigned int numberOfDependentConjunctions = 0;
 		while (numberOfDependentConjunctions != dependentConjunctions.size()) {
@@ -262,6 +247,16 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				}
 			}
 		}
+
+		///XXX
+//		if (dependentConjunctions.size() > 100) {
+//			for (auto& dep : dependentConjunctions) {
+//				graph->erase(dep, false, true);
+//			}
+//			for (auto& marker: allValidMarkerPositions) {
+//				graph->erase(marker, false, true);
+//			}
+//		}
 
 		dependencies.push_back(ConjunctionDependency(dependentConjunctions, validMarkerPositions));
 		allValidMarkerPositions.insert(validMarkerPositions.begin(), validMarkerPositions.end());
@@ -283,7 +278,9 @@ void GraphStatsEstimatorPhase::printAdditionalReport() {
 
 DiamondPatternSolverEstimatorPhase::DiamondPatternSolverEstimatorPhase() :
 	EstimatorPhase("DiamondPattern"),
-	numDiamonds(0) {
+	numDiamonds(0),
+	numUniqueConjunction(0),
+	numOperableConjunctions(0) {
 }
 
 DiamondPatternSolverEstimatorPhase::~DiamondPatternSolverEstimatorPhase() {
@@ -314,6 +311,30 @@ void DiamondPatternSolverEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			}
 		}
 	}
+
+	// conjunctions with a unique solution
+	for (auto& node : (*graph)) {
+		if (CgHelper::isConjunction(node)) {
+			int numParents = node->getParentNodes().size();
+			int numPossibleMarkerPositions = node->getMarkerPositions().size();
+
+			assert(numPossibleMarkerPositions >= (numParents -1));
+
+			if (numPossibleMarkerPositions == (numParents-1)) {
+
+				///XXX instrument parents
+				for (auto& marker : node->getMarkerPositions()) {
+					marker->setState(CgNodeState::INSTRUMENT);
+				}
+
+				numUniqueConjunction++;
+			}
+
+			if (numPossibleMarkerPositions == numParents) {
+				numOperableConjunctions++;
+			}
+		}
+	}
 }
 
 void DiamondPatternSolverEstimatorPhase::printReport() {
@@ -324,6 +345,8 @@ void DiamondPatternSolverEstimatorPhase::printReport() {
 void DiamondPatternSolverEstimatorPhase::printAdditionalReport() {
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "numberOfDiamonds: " << numDiamonds << std::endl;
+	std::cout << "\t" << "numUniqueConjunction: " << numUniqueConjunction << std::endl;
+	std::cout << "\t" << "numOperableConjunctions: " << numOperableConjunctions << std::endl;
 }
 
 //// INSTRUMENT ESTIMATOR PHASE

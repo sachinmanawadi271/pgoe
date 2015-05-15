@@ -7,6 +7,8 @@
 #include <numeric>	// for std::accumulate
 #include <algorithm> 	// std::set_intersection
 
+#include <cassert>
+
 #include "CgNode.h"
 
 // TODO this numbers should be in a config file
@@ -37,6 +39,7 @@ namespace CgHelper {
 	// Graph Stats
 	CgNodePtrSet getPotentialMarkerPositions(CgNodePtr conjunction);
 	bool isValidMarkerPosition(CgNodePtr markerPosition, CgNodePtr conjunction);
+	bool isOnCycle(CgNodePtr node);
 	CgNodePtrSet getReachableConjunctions(CgNodePtrSet markerPositions);
 
 	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode);

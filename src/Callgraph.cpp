@@ -13,6 +13,12 @@ void Callgraph::insert(CgNodePtr node) {
 	graph.insert(node);
 }
 
+void Callgraph::eraseInstrumentedNode(CgNodePtr node) {
+	// TODO implement
+	// since the node is instrumented, all paths till the next conjunction are also instrumented
+	// but only if there is exactly one unique path from the instrumented note to the conjunction
+}
+
 void Callgraph::erase(CgNodePtr node, bool rewireAfterDeletion, bool force) {
 	if (!force) {
 		if (CgHelper::isConjunction(node) && node->getChildNodes().size() > 1) {

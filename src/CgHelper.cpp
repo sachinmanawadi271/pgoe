@@ -227,7 +227,7 @@ namespace CgHelper {
 			auto node = workQueue.front();
 			workQueue.pop();
 
-			for (auto parentNode : node->getParentNodes()) {
+			for (auto& parentNode : node->getParentNodes()) {
 
 				if (visitedNodes.find(parentNode) != visitedNodes.end()) {
 					continue;
@@ -242,13 +242,45 @@ namespace CgHelper {
 			}
 		}
 
+		///XXX
+		assert(potentialMarkerPositions.size() >= (conjunction->getParentNodes().size()-1));
+
 		return potentialMarkerPositions;
 	}
 
 	bool isValidMarkerPosition(CgNodePtr markerPosition, CgNodePtr conjunction) {
+
+		if (isOnCycle(markerPosition)) {
+			return true;	// nodes on cycles are always valid marker positions
+		}
+
+		// if one parent of the conjunction parents is unreachable -> valid marker
 		for (auto parentNode : conjunction->getParentNodes()) {
 			if (!reachableFrom(markerPosition, parentNode)) {
 				return true;
+			}
+		}
+		return false;
+	}
+
+	bool isOnCycle(CgNodePtr node) {
+		CgNodePtrSet visitedNodes;
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(node);
+		while (!workQueue.empty()) {
+			auto currentNode = workQueue.front();
+			workQueue.pop();
+
+			if (visitedNodes.count(currentNode) == 0) {
+				visitedNodes.insert(currentNode);
+
+				for (auto child : currentNode->getChildNodes()) {
+
+					if (child == node) {
+						return true;
+					}
+					workQueue.push(child);
+				}
 			}
 		}
 		return false;
@@ -287,6 +319,10 @@ namespace CgHelper {
 	// note: a function is reachable from itself
 	bool reachableFrom(CgNodePtr parentNode, CgNodePtr childNode) {
 
+		if (parentNode == childNode) {
+			return true;
+		}
+
 		// XXX RN: once again code duplication
 		CgNodePtrSet visitedNodes;
 		std::queue<CgNodePtr> workQueue;
@@ -297,7 +333,7 @@ namespace CgHelper {
 			auto node = workQueue.front();
 			workQueue.pop();
 
-			if (node->isSameFunction(childNode)) {
+			if (node == childNode) {
 				return true;
 			}
 

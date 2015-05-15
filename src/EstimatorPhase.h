@@ -19,6 +19,8 @@ public:
 
 	void insert(CgNodePtr node);
 
+	void eraseInstrumentedNode(CgNodePtr node);
+
 	void erase(CgNodePtr node, bool rewireAfterDeletion=false, bool force=false);
 
 	CgNodePtrSet::iterator begin();
@@ -142,6 +144,8 @@ public:
 	void printReport();
 private:
 	int numDiamonds;
+	int numUniqueConjunction;	// all potential marker positions are necessary
+	int numOperableConjunctions;	// there is one marker position per path
 
 	void printAdditionalReport();
 };

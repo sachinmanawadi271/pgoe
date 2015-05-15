@@ -12,7 +12,7 @@
 #include "NodeBasedOptimumEstimatorPhase.h"
 
 void registerEstimatorPhases(CallgraphManager& cg) {
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 

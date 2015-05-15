@@ -1,7 +1,7 @@
 
 #include "CgNode.h"
 
-#define RENDER_DEPS 1
+#define RENDER_DEPS 0
 
 CgNode::CgNode(std::string function) {
 	this->functionName = function;
@@ -155,7 +155,7 @@ const CgNodePtrSet& CgNode::getChildNodes() const {
 	return childNodes;
 }
 
-const CgNodePtrSet& CgNode::getParentNodes() const{
+const CgNodePtrSet& CgNode::getParentNodes() const {
 	return parentNodes;
 }
 
