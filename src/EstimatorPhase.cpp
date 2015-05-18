@@ -128,7 +128,9 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			auto uniqueChild = node->getUniqueChild();
 
 			if (CgHelper::hasUniqueParent(uniqueChild)
-					&& (node->getDependentConjunctions() == uniqueChild->getDependentConjunctions())) {
+					&& (node->getDependentConjunctions() == uniqueChild->getDependentConjunctions())
+					&& !CgHelper::isOnCycle(node)) {
+
 				numChainsRemoved++;
 
 				if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
