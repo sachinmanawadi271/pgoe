@@ -29,11 +29,18 @@ namespace DOTCallgraphBuilder {
 		std::string line;
 
 		while (std::getline(file, line)) {
-			if (!line.find('"') == 0) {	// starts with "
+			if (line.find('"') != 0) {	// does not start with "
 				continue;
 			}
 
+			std::cout << line << std::endl;
+
 			if (line.find("->") != std::string::npos) {
+
+				if (line.find("dotted") != std::string::npos) {
+					continue;
+				}
+
 				// edge
 				size_t start = 0;
 				std::string parent = extractBetween(line, "\"", start);

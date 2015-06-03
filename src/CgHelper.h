@@ -77,6 +77,11 @@ namespace CgHelper {
 
 		return difference;
 	}
+
+	inline
+	bool isSubsetOf(const CgNodePtrSet& smallSet, const CgNodePtrSet& largeSet) {
+		return setDifference(smallSet, largeSet) == smallSet;
+	}
 }
 
 #endif
