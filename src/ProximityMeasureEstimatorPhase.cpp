@@ -19,40 +19,35 @@ ProximityMeasureEstimatorPhase::modifyGraph(CgNodePtr mainMethod){
 	std::cout << "Children preserved in profile: " << childrenPreservedMetric(mainMethod) << std::endl;
 }
 
+void ProximityMeasureEstimatorPhase::prepareList(CgNodePtr mainM){
+	worklist.insert(mainM);
+	for(const auto n : mainM->getChildNodes()){
+		if(worklist.find(n) == worklist.end())
+			prepareList(n);
+	}
+}
+
 double
 ProximityMeasureEstimatorPhase::childrenPreservedMetric(CgNodePtr origFunc){
-	
-	if(origFunc.get() == nullptr){
-		std::cerr << "ERROR NULLPTR DETECTED" <<std::endl;
-	}
-	
-	if(origFunc->getChildNodes().size() == 0){
-		return 100.0;
-	}
 
-	double val = 100.0;
+	prepareList(mainMethod);
+	std::cout << "Profile has " << worklist.size() << " nodes" << std::endl;
+
+	double val = 0.0;
 	// for all functions in original CG, find corresponding node in filtered CG
 	// if node is found calculate childrenPreserved(orig, filtered)
-	for(auto origNode : origFunc->getChildNodes()){
+	for(auto &origNode : worklist){
 		for(auto fNode = compareAgainst.begin(); fNode != compareAgainst.end(); ++fNode){
-			auto funcNode = *fNode;
-			if((funcNode == nullptr) || (origNode == nullptr)){
-				std::cerr << "ERROR NULLPTR DETECTED" << std::endl;
-				continue;
-			}
+			
+			CgNodePtr funcNode = *fNode;
+			
 			if(origNode->isSameFunction(funcNode)){
 				double cs = childrenPreserved(origNode, funcNode);
-//				std::cout << "preserved children in " << origNode->getFunctionName() << ":\n\t" << cs << "\n";
-				val *= cs;
+				val += cs;
 			}
 		}
-		if(origNode == nullptr){
-			std::cerr << "ERROR NULLPTR DETECTED" <<std::endl;
-			continue;
-		}
-		val *= childrenPreservedMetric(origNode);
 	}
-	return val;
+	return val / worklist.size();
 }
 
 double
@@ -61,8 +56,8 @@ ProximityMeasureEstimatorPhase::childrenPreserved(CgNodePtr orig, CgNodePtr filt
 		if(filtered->getChildNodes().size() > 0){
 			std::cerr << "Warning: No child nodes in original profile but filtered profile." << std::endl;
 		}
-		return 1;
+		return 1.0;
 	}
-	return filtered->getChildNodes().size() / orig->getChildNodes().size();
+	return double(filtered->getChildNodes().size()) / orig->getChildNodes().size();
 }
 

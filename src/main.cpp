@@ -35,7 +35,7 @@ void registerEstimatorPhases(CallgraphManager& cg) {
 //	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(std::string("/home/j_lehr/all_repos/aachen/ci841521_Instrumentor/common/codes/DROPS/scorep-20150605_1449_6396736960480334/profile.cubex")));
+		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(std::string("/home/j_lehr/all_repos/bitbucket-cubecallgraphtool/testcases/scorep-drops/filtered-profile.cubex")));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
