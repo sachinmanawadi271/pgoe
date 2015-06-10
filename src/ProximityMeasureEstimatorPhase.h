@@ -27,13 +27,17 @@ public:
 private:
   double childrenPreserved(CgNodePtr orig, CgNodePtr filtered);
   void prepareList(CgNodePtr mainM);
-  std::pair<double, double> getExclusiveAndChildrenRuntime(CgNodePtr node);
+	/**
+	 * Returns a pair (inclusive runtime for node, accumulated runtime for children(node)
+	 */
+	std::pair<double, double> getInclusiveAndChildrenRuntime(CgNodePtr node);
 	CgNodePtr getCorrespondingComparisonNode(const CgNodePtr node);
 
 
   std::string filename;
   CallgraphManager compareAgainst;
   std::set<CgNodePtr> worklist;
+	std::set<CgNodePtr> workQ;
 };
 
 #endif

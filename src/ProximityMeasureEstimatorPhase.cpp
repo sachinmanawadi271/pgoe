@@ -17,11 +17,32 @@ void ProximityMeasureEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
   // we get the node ptr from the complete profile
   std::cout << "Children preserved in profile: "
             << childrenPreservedMetric(mainMethod) << std::endl;
-  std::cout << "Runtime of main compared to its children: "
-            << portionOfRuntime(mainMethod) << std::endl;
+//  std::cout << "Runtime of main compared to its children: "
+//            << portionOfRuntime(mainMethod) << std::endl;
   std::cout << "Runtime of functions\n";
-  for (const auto &n : mainMethod->getChildNodes()) {
-    portionOfRuntime(n);
+  
+	workQ.clear();
+  for (auto iter = compareAgainst.begin(); iter != compareAgainst.end();
+       ++iter) {
+		if(workQ.find(*iter) == workQ.end())
+    workQ.insert(*iter);
+  }
+
+  for (const auto &n : workQ) {
+    
+		CgNodePtrSet::iterator start =
+        std::find_if(graph->begin(), graph->end(), [n](const CgNodePtr &ptr) {
+          if (ptr->isSameFunction(n))
+            return true;
+
+          return false;
+        });
+
+		if(start == graph->end()){
+			continue;
+		}
+
+    portionOfRuntime(*start);
   }
 }
 
@@ -66,7 +87,7 @@ CgNodePtr ProximityMeasureEstimatorPhase::getCorrespondingComparisonNode(
 
 double ProximityMeasureEstimatorPhase::portionOfRuntime(CgNodePtr node) {
 
-  std::pair<double, double> runtime = getExclusiveAndChildrenRuntime(node);
+  std::pair<double, double> runtime = getInclusiveAndChildrenRuntime(node);
 
   CgNodePtr compNode = getCorrespondingComparisonNode(node);
   if (compNode == nullptr) {
@@ -74,7 +95,7 @@ double ProximityMeasureEstimatorPhase::portionOfRuntime(CgNodePtr node) {
   }
 
   std::pair<double, double> runtimeInCompareProfile =
-      getExclusiveAndChildrenRuntime(compNode);
+      getInclusiveAndChildrenRuntime(compNode);
 
   std::cout.precision(12);
   std::cout << "====\nRuntime: " << runtime.first
@@ -87,11 +108,11 @@ double ProximityMeasureEstimatorPhase::portionOfRuntime(CgNodePtr node) {
             << runtimeInCompareProfile.second / runtimeInCompareProfile.first
             << "\n" << std::endl;
 
-  return runtime.first / runtime.second;
+  return runtime.second / runtime.first;
 }
 
 std::pair<double, double>
-ProximityMeasureEstimatorPhase::getExclusiveAndChildrenRuntime(CgNodePtr node) {
+ProximityMeasureEstimatorPhase::getInclusiveAndChildrenRuntime(CgNodePtr node) {
   worklist.clear();
   prepareList(node);
 
@@ -104,7 +125,7 @@ ProximityMeasureEstimatorPhase::getExclusiveAndChildrenRuntime(CgNodePtr node) {
                         return a + b->getRuntimeInSeconds();
                       });
 
-	runtimeInSeconds += runtimeSumOfChildrenInSeconds;
+  runtimeInSeconds += runtimeSumOfChildrenInSeconds;
   return std::make_pair(runtimeInSeconds, runtimeSumOfChildrenInSeconds);
 }
 
