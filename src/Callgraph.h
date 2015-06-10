@@ -24,6 +24,14 @@ public:
 
 	void thatOneLargeMethod();	// TODO RN: rename
 
+	// Delegates to the underlying graph
+	CgNodePtrSet::iterator begin(){return graph.begin();};
+	CgNodePtrSet::iterator end(){return graph.end();};
+	size_t size(){return graph.size();};
+
+	// Finds the main function in the CallGraph
+	CgNodePtr findMain();
+
 private:
 	// this is a legacy structure used to parse the call graph
 	std::unordered_map<std::string, CgNodePtr> graphMapping;
@@ -41,7 +49,6 @@ private:
 	void printDOT(std::string prefix);
 
 	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName
-	CgNodePtr findMain();
 };
 
 

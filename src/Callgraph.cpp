@@ -164,7 +164,7 @@ void CallgraphManager::finalizeGraph() {
 
 void CallgraphManager::thatOneLargeMethod() {
 
-	finalizeGraph();
+//	finalizeGraph();
 
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();

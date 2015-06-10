@@ -10,14 +10,15 @@
 #include "SanityCheckEstimatorPhase.h"
 #include "EdgeBasedOptimumEstimatorPhase.h"
 #include "NodeBasedOptimumEstimatorPhase.h"
+#include "ProximityMeasureEstimatorPhase.h"
 
 void registerEstimatorPhases(CallgraphManager& cg) {
 //	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
+//	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 
-	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
-	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
+//	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
+//	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
 	// edge based
 //	cg.registerEstimatorPhase(new EdgeBasedOptimumEstimatorPhase());
 //
@@ -34,6 +35,7 @@ void registerEstimatorPhases(CallgraphManager& cg) {
 //	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
+		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(std::string("/home/j_lehr/all_repos/aachen/ci841521_Instrumentor/common/codes/DROPS/scorep-20150605_1449_6396736960480334/profile.cubex")));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
@@ -70,6 +72,7 @@ int main(int argc, char** argv) {
 
 	cg.thatOneLargeMethod();
 
+	std::cerr << "Before return" << std::endl;
 
 	return EXIT_SUCCESS;
 }
