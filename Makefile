@@ -9,9 +9,11 @@ CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
 
 DEBUG=-g
 
-SOURCES=src/main.cpp src/CgNode.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \
+SOURCES=src/main.cpp src/CgNode.cpp src/CallgraphManager.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \
 src/SanityCheckEstimatorPhase.cpp src/EdgeBasedOptimumEstimatorPhase.cpp src/CgHelper.cpp \
 src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp \
+
+OBJ=$(SOURCES:.cpp=.o)
 
 
 # MICE
@@ -19,8 +21,11 @@ src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp \
 INCLUDEFLAGS=-I. -I$(CUBE_INCLUDE_PATH)
 LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 
-CubeCallGraphTool:
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(SOURCES) $(LDFLAGS) $(DEBUG)
+%.o : %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -c $< -o $@
+
+CubeCallGraphTool: $(OBJ)
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(OBJ) $(LDFLAGS) $(DEBUG)
 
 clean:
-	rm -rf *.o CubeCallgraphTool
+	rm -rf $(OBJ) *.o CubeCallgraphTool

@@ -1,5 +1,5 @@
 
-#include "Callgraph.h"
+#include "CallgraphManager.h"
 
 #include <cube/Cube.h>
 #include <cube/CubeMetric.h>
