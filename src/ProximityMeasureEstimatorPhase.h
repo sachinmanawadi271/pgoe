@@ -22,22 +22,23 @@ public:
   double childrenPreservedMetric(CgNodePtr origFunc);
   double portionOfRuntime(CgNodePtr node);
 
-	void printReport() override;
+  void printReport() override;
 
 private:
   double childrenPreserved(CgNodePtr orig, CgNodePtr filtered);
-  void prepareList(CgNodePtr mainM);
-	/**
-	 * Returns a pair (inclusive runtime for node, accumulated runtime for children(node)
-	 */
-	std::pair<double, double> getInclusiveAndChildrenRuntime(CgNodePtr node);
-	CgNodePtr getCorrespondingComparisonNode(const CgNodePtr node);
-
+  void prepareList(std::set<CgNodePtr> &worklist, CgNodePtr mainM);
+	void prepareListOneLevel(std::set<CgNodePtr> &worklist, CgNodePtr root);
+  /**
+   * Returns a pair (inclusive runtime for node, accumulated runtime for
+   * children(node)
+   */
+  std::pair<double, double> getInclusiveAndChildrenRuntime(CgNodePtr node);
+  CgNodePtr getCorrespondingComparisonNode(const CgNodePtr node);
+  std::map<CgNodePtr, double> buildDominanceMap(CgNodePtr node);
 
   std::string filename;
   CallgraphManager compareAgainst;
-  std::set<CgNodePtr> worklist;
-	std::set<CgNodePtr> workQ;
+  std::set<CgNodePtr> workQ;
 };
 
 #endif
