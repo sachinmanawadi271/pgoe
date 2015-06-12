@@ -49,7 +49,18 @@ void ProximityMeasureEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
   for (auto &elem : domMap) {
     std::cout << elem.first->getFunctionName() << ": " << elem.second << "\n";
   }
+	std::map<CgNodePtr, double> sevMap = buildSeverityMap(mainMethod);
+	std::cout << "==== Severity Map ====\n" << mainMethod->getFunctionName() << "\n";
+	for(auto &elem : sevMap){
+		std::cout << elem.first->getFunctionName() << ": " << elem.second << "\n";
+	}
   std::cout << std::endl;
+
+	std::cout << "\n==== Combined Metrics ====\nFunction: " << mainMethod->getFunctionName() << "\n";
+	for(const auto &elem : domMap){
+		std::cout << elem.first->getFunctionName() << ": " << elem.second * sevMap[elem.first] << "\n";
+	}
+	std::cout << std::endl;
 }
 
 void ProximityMeasureEstimatorPhase::printReport() {
@@ -124,26 +135,43 @@ ProximityMeasureEstimatorPhase::buildDominanceMap(CgNodePtr node) {
   std::map<CgNodePtr, double> dominance;
 
   std::set<CgNodePtr> worklist;
-  //  prepareList(worklist, node);
+
   prepareListOneLevel(worklist, node);
   auto rt = getInclusiveAndChildrenRuntime(node);
-  for_each(worklist.begin(), worklist.end(),
-           [&dominance, node, rt](const CgNodePtr &c) {
-             unsigned long long numCalls = c->getNumberOfCalls(node);
-             if (numCalls == 0) {
-               dominance[c] = .0;
-               return;
-             }
-
-             double rtis = c->getRuntimeInSeconds() + 1e-16;
-             double v = (rt.first / (1 / numCalls) * rtis);
-             if (v == std::numeric_limits<double>::infinity())
-               dominance[c] = .0;
-             else
-               dominance[c] = v;
-           });
-
+  for (const auto &c : worklist) {
+    unsigned long long numCalls = c->getNumberOfCalls(node);
+    if (numCalls == 0) {
+      dominance[c] = .0;
+      continue;
+    }
+    // add a little eps to the runtime in case it is 0.0
+    double rtis = c->getRuntimeInSeconds() + 1e-16;
+    double v = (rt.first / (1 / numCalls) * rtis);
+    if (v == std::numeric_limits<double>::infinity())
+      dominance[c] = .0;
+    else
+      dominance[c] = v;
+  }
   return dominance;
+}
+
+std::map<CgNodePtr, double>
+ProximityMeasureEstimatorPhase::buildSeverityMap(CgNodePtr node) {
+  std::set<CgNodePtr> worklist;
+  prepareListOneLevel(worklist, node);
+  std::map<CgNodePtr, double> severityMap;
+  for (const auto &n : worklist) {
+		auto rt = getInclusiveAndChildrenRuntime(n);
+    unsigned long long nocs = n->getNumberOfCalls(node);
+    if (nocs == 0) {
+      severityMap[n] = .0;
+      continue;
+    }
+    double v = rt.first * nocs;
+
+    severityMap[n] = v;
+  }
+	return severityMap;
 }
 
 std::pair<double, double>

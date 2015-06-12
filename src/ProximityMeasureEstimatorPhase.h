@@ -22,19 +22,31 @@ public:
   double childrenPreservedMetric(CgNodePtr origFunc);
   double portionOfRuntime(CgNodePtr node);
 
+  /**
+   * For node it calculates the dominance of the children(node) wrt node.
+   * The dominance is defined as
+   *
+   * dom_{node}(child(node)) = T_i(node) / * (1/calls_{node}(child(node)) * T_i(child(node))
+   *
+   * Thus the dominance determines to which degree a child function is
+   * responsible for the runtime of a parent functions
+   */
+  std::map<CgNodePtr, double> buildDominanceMap(CgNodePtr node);
+
+	std::map<CgNodePtr, double> buildSeverityMap(CgNodePtr node);
+
   void printReport() override;
 
 private:
   double childrenPreserved(CgNodePtr orig, CgNodePtr filtered);
   void prepareList(std::set<CgNodePtr> &worklist, CgNodePtr mainM);
-	void prepareListOneLevel(std::set<CgNodePtr> &worklist, CgNodePtr root);
+  void prepareListOneLevel(std::set<CgNodePtr> &worklist, CgNodePtr root);
   /**
    * Returns a pair (inclusive runtime for node, accumulated runtime for
    * children(node)
    */
   std::pair<double, double> getInclusiveAndChildrenRuntime(CgNodePtr node);
   CgNodePtr getCorrespondingComparisonNode(const CgNodePtr node);
-  std::map<CgNodePtr, double> buildDominanceMap(CgNodePtr node);
 
   std::string filename;
   CallgraphManager compareAgainst;
