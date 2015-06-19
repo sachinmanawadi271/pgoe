@@ -58,6 +58,7 @@ CgNodePtr CallgraphManager::findNode(std::string functionName) {
 			return node;
 		}
 	}
+	std::cerr << "RETURNING NULL" << std::endl;
 	return NULL;
 }
 

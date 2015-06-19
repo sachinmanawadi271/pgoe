@@ -3,10 +3,16 @@
 ProximityMeasureEstimatorPhase::ProximityMeasureEstimatorPhase(
     std::string filename)
     : EstimatorPhase("proximity-estimator"), filename(filename),
-      compareAgainst(CubeCallgraphBuilder::build(filename, 1)) {}
-
+      compareAgainst(CubeCallgraphBuilder::build(filename, 1)) {
+  std::cout << "Everything constructed" << std::endl;
+}
 
 void ProximityMeasureEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+
+  if (mainMethod == nullptr) {
+    std::cerr << "Main method is NULL" << std::endl;
+    return;
+  }
 
   // Prepare the Callgraph for the processing
   std::for_each(graph->begin(), graph->end(), [this](const CgNodePtr n) {
@@ -19,7 +25,7 @@ void ProximityMeasureEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
   workQ.clear();
 
-	// Fill the set of nodes to iterate over for comparison
+  // Fill the set of nodes to iterate over for comparison
   bool collectInfoForComparingProfileOnly(false);
   if (collectInfoForComparingProfileOnly) {
     for (auto iter = compareAgainst.begin(); iter != compareAgainst.end();
@@ -31,7 +37,7 @@ void ProximityMeasureEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
     prepareList(workQ, mainMethod);
   }
 
-	// compute dominance and severity
+  // compute dominance and severity
   for (const auto &n : workQ) {
     std::map<CgNodePtr, double> innerDomMap = buildDominanceMap(n);
     std::map<CgNodePtr, double> innerSevMap = buildSeverityMap(n);
@@ -39,7 +45,6 @@ void ProximityMeasureEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
     sevMap.insert(innerSevMap.begin(), innerSevMap.end());
   }
 }
-
 
 void ProximityMeasureEstimatorPhase::printReport() {
   std::cout << "==== ProximityMeasure Reporter ====\n";
@@ -49,7 +54,7 @@ void ProximityMeasureEstimatorPhase::printReport() {
   std::cout << numFuncsFull / numFuncsOther
             << "\% of the originally recorded functions preserved" << std::endl;
 
-	// calculate penalty for not existing nodes
+  // calculate penalty for not existing nodes
   double penalty = 0.0;
 
   // According to our definition nodes do only add penalty if paths to those
@@ -95,9 +100,17 @@ void ProximityMeasureEstimatorPhase::printReport() {
                                [](const sevListValT &a, const sevListValT &b) {
                                  return a.second < b.second;
                                });
-
-  double maxVal = (*iter).second; // This gave weird results in the first place
-//  maxVal = 1000; // FIXME what would be the value we normlize our data to?
+  if (iter == severityList.end()) {
+    std::cerr << "NULLPTR encountered not providing estimation" << std::endl;
+    return;
+  }
+  auto t = *iter;
+  if (t.first == nullptr) {
+    std::cerr << "NULLPTR encountered not providing estimation" << std::endl;
+    return;
+  }
+  double maxVal = t.second; // This gave weird results in the first place
+  //  maxVal = 1000; // FIXME what would be the value we normlize our data to?
 
   std::for_each(severityList.begin(), severityList.end(),
                 [maxVal](sevListValT &elem) {
@@ -105,40 +118,30 @@ void ProximityMeasureEstimatorPhase::printReport() {
                   elem.second = std::log(10 * curNormalized) +
                                 std::log(10 * curNormalized) - curNormalized;
                 });
-#if 0
-	std::cout << "Severity Map (not normalized): \n";
-	for(const auto &p : sevMap){
-		std::cout << p.first->getFunctionName().substr(0, 50) << "...: " << p.second << "\n";
-	}
-	std::cout << std::endl; 
 
-	std::cout << "Severity List (normalized): \n";
-	for(const auto &p : severityList){
-		std::cout << p.first->getFunctionName().substr(0, 50) << "...: " << p.second << "\n";
-	}
-	std::cout << std::endl;
-#endif
-  std::sort(severityList.begin(), severityList.end(),
+	std::sort(severityList.begin(), severityList.end(),
             [](const sevListValT &a, const sevListValT &b) {
               return a.second > b.second;
             });
-  std::cout << "Severity List (sorted): \n";
-	int numEntriesShown = 0;
+
+	std::cout << "Severity List (sorted): \n";
+  int numEntriesShown = 0;
   for (const auto &p : severityList) {
-    if (p.second > -1){
+    if (p.second > -1) {
       std::cout << p.first->getFunctionName().substr(0, 50)
                 << "...: " << p.second;
-			if(getCorrespondingComparisonNode(p.first) != nullptr){
-				std::cout << "  \t[Preserved: yes]\n";
-			} else {
-				std::cout << "  \t[Preserved: no]\n";
-			}
-			numEntriesShown++;
-		} 
+      if (getCorrespondingComparisonNode(p.first) != nullptr) {
+        std::cout << "  \t[Preserved: yes]\n";
+      } else {
+        std::cout << "  \t[Preserved: no]\n";
+      }
+      numEntriesShown++;
+    }
   }
-  std::cout << "Showing " << numEntriesShown << " with value > -1 from total of " << severityList.size() << std::endl;
+  std::cout << "Showing " << numEntriesShown
+            << " with value > -1 from total of " << severityList.size()
+            << std::endl;
 }
-
 
 double
 ProximityMeasureEstimatorPhase::childrenPreservedMetric(CgNodePtr origFunc) {
@@ -161,7 +164,6 @@ ProximityMeasureEstimatorPhase::childrenPreservedMetric(CgNodePtr origFunc) {
   return val / worklist.size();
 }
 
-
 // returns the CgNode with the same function as node
 CgNodePtr ProximityMeasureEstimatorPhase::getCorrespondingComparisonNode(
     const CgNodePtr node) {
@@ -177,11 +179,10 @@ CgNodePtr ProximityMeasureEstimatorPhase::getCorrespondingComparisonNode(
   return nullptr;
 }
 
-
 double ProximityMeasureEstimatorPhase::portionOfRuntime(CgNodePtr node) {
 
   std::pair<double, double> runtime = getInclusiveAndChildrenRuntime(node);
-  //std::pair<double, double> runtime(1.0, 1.0);
+  // std::pair<double, double> runtime(1.0, 1.0);
 
   CgNodePtr compNode = getCorrespondingComparisonNode(node);
   if (compNode == nullptr) {
@@ -205,7 +206,6 @@ double ProximityMeasureEstimatorPhase::portionOfRuntime(CgNodePtr node) {
   return runtime.second / runtime.first;
 }
 
-
 std::map<CgNodePtr, double>
 ProximityMeasureEstimatorPhase::buildDominanceMap(CgNodePtr node) {
   // we build a map from CgNodePtr to double vals
@@ -220,7 +220,8 @@ ProximityMeasureEstimatorPhase::buildDominanceMap(CgNodePtr node) {
       continue;
     }
     unsigned long long numCalls = c->getNumberOfCalls(node);
-    unsigned long long totalNumberOfCalls = c->getNumberOfCallsWithCurrentEdges();
+    unsigned long long totalNumberOfCalls =
+        c->getNumberOfCallsWithCurrentEdges();
     if (numCalls == 0 || totalNumberOfCalls == 0) {
       node->setDominance(c, .0);
       continue;
@@ -244,13 +245,13 @@ ProximityMeasureEstimatorPhase::buildDominanceMap(CgNodePtr node) {
   return dominance;
 }
 
-
 std::map<CgNodePtr, double>
 ProximityMeasureEstimatorPhase::buildSeverityMap(CgNodePtr node) {
   std::map<CgNodePtr, double> severityMap;
 
   auto rt = node->getRuntimeInSeconds();
-  unsigned long long totalNumberOfCalls = node->getNumberOfCallsWithCurrentEdges();
+  unsigned long long totalNumberOfCalls =
+      node->getNumberOfCallsWithCurrentEdges();
   if (totalNumberOfCalls == 0) {
     severityMap[node] = .0;
     return severityMap;
@@ -264,7 +265,6 @@ ProximityMeasureEstimatorPhase::buildSeverityMap(CgNodePtr node) {
   severityMap[node] = v;
   return severityMap;
 }
-
 
 std::pair<double, double>
 ProximityMeasureEstimatorPhase::getInclusiveAndChildrenRuntime(CgNodePtr node) {
@@ -285,7 +285,6 @@ ProximityMeasureEstimatorPhase::getInclusiveAndChildrenRuntime(CgNodePtr node) {
   return std::make_pair(runtimeInSeconds, runtimeSumOfChildrenInSeconds);
 }
 
-
 double ProximityMeasureEstimatorPhase::childrenPreserved(CgNodePtr orig,
                                                          CgNodePtr filtered) {
   if (orig->getChildNodes().size() == 0) {
@@ -299,16 +298,21 @@ double ProximityMeasureEstimatorPhase::childrenPreserved(CgNodePtr orig,
          orig->getChildNodes().size();
 }
 
-
 void ProximityMeasureEstimatorPhase::prepareList(std::set<CgNodePtr> &worklist,
                                                  CgNodePtr mainM) {
+  if (mainM == nullptr) {
+    std::cerr << "NULLPTR DETECTED" << std::endl;
+  }
   worklist.insert(mainM);
   for (const auto n : mainM->getChildNodes()) {
-    if (worklist.find(n) == worklist.end())
+    if (worklist.find(n) == worklist.end()) {
+      //		std::cout << "\n" << n->getFunctionName() << " in " <<
+      //mainM->getFunctionName() << " " << mainM->getChildNodes().size() <<
+      //std::endl;
       prepareList(worklist, n);
+    }
   }
 }
-
 
 void ProximityMeasureEstimatorPhase::prepareListOneLevel(
     std::set<CgNodePtr> &worklist, CgNodePtr root) {
