@@ -33,9 +33,15 @@ public:
    */
   std::map<CgNodePtr, double> buildDominanceMap(CgNodePtr node);
 
+	/**
+	 * The severity is defined as
+	 * 
+	 * sev_{node}(child(node)) = T_i(child(node)) * calls_{node}(child(node))
+	 *
+	 */
 	std::map<CgNodePtr, double> buildSeverityMap(CgNodePtr node);
 
-  void printReport() override;
+	void printReport() override;
 
 private:
   double childrenPreserved(CgNodePtr orig, CgNodePtr filtered);
@@ -47,6 +53,10 @@ private:
    */
   std::pair<double, double> getInclusiveAndChildrenRuntime(CgNodePtr node);
   CgNodePtr getCorrespondingComparisonNode(const CgNodePtr node);
+
+  std::map<CgNodePtr, double> domMap;
+  std::map<CgNodePtr, double> sevMap;
+
 
   std::string filename;
   CallgraphManager compareAgainst;

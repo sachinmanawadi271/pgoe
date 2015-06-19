@@ -12,7 +12,7 @@
 #include "NodeBasedOptimumEstimatorPhase.h"
 #include "ProximityMeasureEstimatorPhase.h"
 
-void registerEstimatorPhases(CallgraphManager& cg) {
+void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv) {
 //	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
@@ -35,7 +35,7 @@ void registerEstimatorPhases(CallgraphManager& cg) {
 //	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(std::string("/home/j_lehr/all_repos/bitbucket-cubecallgraphtool/testcases/scorep-drops/filtered-profile.cubex")));
+		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(argv[2]));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
@@ -47,17 +47,22 @@ int main(int argc, char** argv) {
 
 	if (argc == 1) {
 		std::cerr << "ERROR >> Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
-				<< " [TARGET_SAMPLES_PER_SECOND]" << std::endl;
+				<< " PATH/TO/PROFILE/TO/COMPARE/TO" << std::endl;
 		exit(-1);
 	}
 
 	int samplesPerSecond = 1000;
-	if (argc > 2) {
-		samplesPerSecond = atoi(argv[2]);
+//	if (argc > 2) {
+//		samplesPerSecond = atoi(argv[2]);
+//	}
+
+	std::vector<std::string> vecArgv(argc);
+	for(int i = 0; i < argc; ++i){
+		vecArgv[i] = std::string(argv[i]);
 	}
 
 	CallgraphManager cg;
-	std::string filePath(argv[1]);
+	std::string filePath(vecArgv[1]);
 
 	if (stringEndsWith(filePath, ".cubex")) {
 		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond);
@@ -68,7 +73,7 @@ int main(int argc, char** argv) {
 		exit(-1);
 	}
 
-	registerEstimatorPhases(cg);
+	registerEstimatorPhases(cg, vecArgv);
 
 	cg.thatOneLargeMethod();
 

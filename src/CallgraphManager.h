@@ -11,6 +11,8 @@
 #include "Callgraph.h"
 #include "EstimatorPhase.h"
 
+#define PRINT_DOT_AFTER_EVERY_PHASE true 
+
 class CallgraphManager {
 
 public:
