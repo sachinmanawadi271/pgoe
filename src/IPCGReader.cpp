@@ -9,24 +9,32 @@ CallgraphManager IPCGAnal::build(std::string filename) {
   std::ifstream in;
   in.open(filename.c_str());
 
-	CallgraphManager cg;
+	CallgraphManager *cg = new CallgraphManager();
 
   std::string line;
   std::string parentFunction;
-  while (in.good()) {
+	std::pair<std::string, int> funcNameAndLineCount;
+	while (in.good()) {
     std::getline(in, line);
+		if(line.empty()){
+			continue;
+		}
+		std::cout << "Read line: " << line << std::endl;
     if (parentFunction.empty()){
-      parentFunction = line;
+      parentFunction = line.substr(line.find(' '));
+			int lineCount = std::stoi(line.substr(line.rfind(' ')));
+			funcNameAndLineCount = {parentFunction, lineCount};
 		}
 
     if (line.front() == '-') {
 			auto childFun(line.substr(2));
-      cg.putEdge(parentFunction, childFun);
-			CgNodePtr node = cg.findOrCreateNode(childFun);
-			node->setLinesOfCode(loc);
+      cg->putEdge(parentFunction, childFun, 0, "", 0, .0);
     } else {
-      parentFunction = line;
-
+      parentFunction = line.substr(line.find(' '));
+			int lineCount = std::stoi(line.substr(line.rfind(' ')));
+			funcNameAndLineCount = {parentFunction, lineCount};
     }
+		std::cout << "Read: " << funcNameAndLineCount.first << " " << funcNameAndLineCount.second << std::endl;
   }
+	return *cg;
 }

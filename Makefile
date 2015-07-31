@@ -9,9 +9,10 @@ CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
 
 DEBUG=-g -Og
 
-SOURCES=src/main.cpp src/CgNode.cpp src/CallgraphManager.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \
+SOURCES= \
+src/main.cpp src/CgNode.cpp src/CallgraphManager.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \
 src/SanityCheckEstimatorPhase.cpp src/EdgeBasedOptimumEstimatorPhase.cpp src/CgHelper.cpp \
-src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp \
+src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp src/IPCGReader.cpp \
 
 OBJ=$(SOURCES:.cpp=.o)
 

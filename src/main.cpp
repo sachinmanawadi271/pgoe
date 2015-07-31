@@ -4,6 +4,7 @@
 
 #include "CubeReader.h"
 #include "DotReader.h"
+#include "IPCGReader.h"
 
 #include "Callgraph.h"
 
@@ -68,7 +69,9 @@ int main(int argc, char** argv) {
 		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond);
 	} else if (stringEndsWith(filePath, ".dot")) {
 		cg = DOTCallgraphBuilder::build(filePath, samplesPerSecond);
-	} else {
+	} else if (stringEndsWith(filePath, "_ipcg")){
+		cg = IPCGAnal::build(filePath);
+	}	else {
 		std::cerr << "ERROR: Unknown file ending in " << filePath << std::endl;
 		exit(-1);
 	}
