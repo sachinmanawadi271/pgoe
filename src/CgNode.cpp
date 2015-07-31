@@ -194,6 +194,13 @@ unsigned long long CgNode::getExpectedNumberOfSamples() {
   return expectedNumberOfSamples;
 }
 
+void CgNode::setLinesOfCode(int loc){
+	linesOfCode = loc;
+}
+
+int CgNode::getLinesOfCode(){
+	return linesOfCode;
+}
 void CgNode::printMinimal() { std::cout << this->functionName; }
 
 void CgNode::print() {

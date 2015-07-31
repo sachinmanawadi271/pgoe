@@ -47,6 +47,9 @@ public:
 	unsigned long long getNumberOfCallsWithCurrentEdges();
 	unsigned long long getNumberOfCalls(CgNodePtr parentNode);
 
+	void setLinesOfCode(int loc);
+	int getLinesOfCode();
+
 	double getRuntimeInSeconds();
 	double getInclusiveRuntimeInSeconds();
 	void setInclusiveRuntimeInSeconds(double newInclusiveRuntimeInSeconds);
@@ -98,6 +101,7 @@ private:
 
 	int numberOfUnwindSteps;
 	unsigned long long numberOfCalls;
+	int linesOfCode;
 
 	// note that these metrics are based on a profile and might be pessimistic
 	double runtimeInSeconds;
