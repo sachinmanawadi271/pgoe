@@ -9,7 +9,6 @@ CallgraphManager IPCGAnal::build(std::string filename) {
 	std::string line;
 
 	std::string child;
-	int childLoc = 0;
 
 	while (std::getline(file, line)) {
 
@@ -24,14 +23,14 @@ CallgraphManager IPCGAnal::build(std::string filename) {
 		} else {
 			// child
 			if (line.find("DUMMY")==0) {
-				continue;
+				continue;	// for some reason the graph has these dummy edges
 			}
 
-			auto endPos = line.rfind(" ");
+			auto endPos = line.rfind(" ");	// space between name and numStmts
 			child = line.substr(0,endPos);
-			childLoc = std::stoi(line.substr(endPos));
+			int childNumStmts = std::stoi(line.substr(endPos));
 
-			cg->putLinesOfCode(child, childLoc);
+			cg->putNumberOfStatements(child, childNumStmts);
 		}
 	}
 	return *cg;

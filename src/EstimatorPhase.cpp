@@ -3,7 +3,7 @@
 
 EstimatorPhase::EstimatorPhase(std::string name) :
 
-		graph(NULL),	// just so eclipse does not nag
+		graph(nullptr),	// just so eclipse does not nag
 		report(),	// initializes all members of report
 		name(name) {
 }
@@ -80,8 +80,8 @@ RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-	if (mainMethod == NULL) {
-		std::cerr << "Received NULL as main method." << std::endl;
+	if (mainMethod == nullptr) {
+		std::cerr << "Received nullptr as main method." << std::endl;
 		return;
 	}
 
@@ -365,8 +365,8 @@ InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
 }
 
 void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-	if (mainMethod == NULL) {
-		std::cerr << "Received NULL as main method." << std::endl;
+	if (mainMethod == nullptr) {
+		std::cerr << "Received nullptr as main method." << std::endl;
 		return;
 	}
 

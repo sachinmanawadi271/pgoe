@@ -19,9 +19,9 @@ CgNodePtr CallgraphManager::findOrCreateNode(std::string name, double timeInSeco
 	}
 }
 
-void CallgraphManager::putLinesOfCode(std::string name, int linesOfCode) {
+void CallgraphManager::putNumberOfStatements(std::string name, int numberOfStatements) {
 	CgNodePtr node = findOrCreateNode(name);
-	node->setLinesOfCode(linesOfCode);
+	node->setNumberOfStatements(numberOfStatements);
 }
 
 void CallgraphManager::putEdge(std::string parentName, std::string childName) {
@@ -40,7 +40,7 @@ void CallgraphManager::putEdge(std::string parentName, std::string parentFilenam
 	putEdge(parentName, childName);
 
 	auto parentNode = findNode(parentName);
-	if (parentNode == NULL) {
+	if (parentNode == nullptr) {
 		std::cerr << "ERROR in looking up node." << std::endl;
 	}
 	parentNode->setFilename(parentFilename);
@@ -55,7 +55,14 @@ CgNodePtr CallgraphManager::findMain() {
 	if( findNode("main") ) {
 		return findNode("main");
 	} else {
-		return findNode("_Z4main");
+		// simply search a method containing "main" somewhere
+		for (auto node : graph) {
+			auto fName = node->getFunctionName();
+			if (fName.find("main") != fName.npos) {
+				return node;
+			}
+		}
+		return nullptr;
 	}
 }
 
@@ -67,8 +74,7 @@ CgNodePtr CallgraphManager::findNode(std::string functionName) {
 			return node;
 		}
 	}
-	std::cerr << "RETURNING NULL" << std::endl;
-	return NULL;
+	return nullptr;
 }
 
 void CallgraphManager::registerEstimatorPhase(EstimatorPhase* phase) {

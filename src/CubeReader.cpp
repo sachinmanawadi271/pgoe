@@ -22,7 +22,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 
 		for(auto cnode : cnodes){
 			// I don't know when this happens, but it does.
-			if(cnode->get_parent() == NULL) {
+			if(cnode->get_parent() == nullptr) {
 				continue;
 			}
 

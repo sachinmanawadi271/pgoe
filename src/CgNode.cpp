@@ -21,7 +21,7 @@ CgNode::CgNode(std::string function) {
   this->numberOfCalls = 0;
   this->uniqueCallPath = false;
 
-  this->linesOfCode = 0;
+  this->numberOfStatements = 0;
 }
 
 void CgNode::addChildNode(CgNodePtr childNode) { childNodes.insert(childNode); }
@@ -196,12 +196,12 @@ unsigned long long CgNode::getExpectedNumberOfSamples() {
   return expectedNumberOfSamples;
 }
 
-void CgNode::setLinesOfCode(int loc){
-	linesOfCode = loc;
+void CgNode::setNumberOfStatements(int numStmts){
+	numberOfStatements = numStmts;
 }
 
-int CgNode::getLinesOfCode(){
-	return linesOfCode;
+int CgNode::getNumberOfStatements(){
+	return numberOfStatements;
 }
 void CgNode::printMinimal() { std::cout << this->functionName; }
 

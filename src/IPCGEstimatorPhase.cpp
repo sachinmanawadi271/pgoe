@@ -65,7 +65,7 @@ void InclStatementCountEstimatorPhase::estimateInclStatementCount(CgNodePtr star
 
 		visitedNodes.insert(node);
 
-		inclStmtCount += node->getLinesOfCode();
+		inclStmtCount += node->getNumberOfStatements();
 
 		for (auto childNode : node->getChildNodes()) {
 			if (visitedNodes.find(childNode) == visitedNodes.end()) {
