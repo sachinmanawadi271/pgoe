@@ -4,7 +4,7 @@
 EstimatorPhase::EstimatorPhase(std::string name) :
 
 		graph(NULL),	// just so eclipse does not nag
-		report({0}),	// this hopefully initializes all members to 0
+		report(),	// initializes all members of report
 		name(name) {
 }
 
@@ -15,6 +15,8 @@ void EstimatorPhase::generateReport() {
 		if(node->isInstrumented()) {
 			report.instrumentedMethods += 1;
 			report.instrumentedCalls += node->getNumberOfCalls();
+
+			report.instrumentedNames.insert(node->getFunctionName());
 		}
 		if(node->isUnwound()) {
 			unsigned long long unwindSamples = node->getExpectedNumberOfSamples();
@@ -33,6 +35,8 @@ void EstimatorPhase::generateReport() {
 	report.instrumentationOverhead = report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall;
 
 	report.phaseName = name;
+
+	assert(report.instrumentedMethods == report.instrumentedNames.size());
 }
 
 void EstimatorPhase::setGraph(Callgraph* graph) {

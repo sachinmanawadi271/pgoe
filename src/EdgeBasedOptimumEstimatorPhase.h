@@ -1,6 +1,5 @@
-
 #ifndef EDGEBASEDOPTIMUMESTIMATORPHASE_H_
-#define IPCGESTIMATORPHASE_H_
+#define EDGEBASEDOPTIMUMESTIMATORPHASE_H_
 
 #include "EstimatorPhase.h"
 #include "CgHelper.h"

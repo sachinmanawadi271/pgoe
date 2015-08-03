@@ -20,6 +20,8 @@ CgNode::CgNode(std::string function) {
 
   this->numberOfCalls = 0;
   this->uniqueCallPath = false;
+
+  this->linesOfCode = 0;
 }
 
 void CgNode::addChildNode(CgNodePtr childNode) { childNodes.insert(childNode); }

@@ -100,7 +100,10 @@ void CallgraphManager::thatOneLargeMethod() {
 #if PRINT_DOT_AFTER_EVERY_PHASE
 		CgReport report = phase->getReport();
 		printDOT(report.phaseName);
-#endif
+#if DUMP_INSTRUMENTED_NAMES
+		dumpInstrumentedNames(report);
+#endif	// DUMP_INSTRUMENTED_NAMES
+#endif	// PRINT_DOT_AFTER_EVERY_PHASE
 
 #if BENCHMARK_PHASES
 		auto endTime = std::chrono::system_clock::now();
@@ -160,4 +163,13 @@ void CallgraphManager::printDOT(std::string prefix) {
 
 	std::cout << "DOT file dumped (" << filename << ")." << std::endl;
 
+}
+
+void CallgraphManager::dumpInstrumentedNames(CgReport report) {
+	std::string filename = report.phaseName + "-" + "instrumented.txt";
+	std::ofstream outfile(filename, std::ofstream::out);
+
+	for (auto name : report.instrumentedNames) {
+		outfile << name << std::endl;
+	}
 }

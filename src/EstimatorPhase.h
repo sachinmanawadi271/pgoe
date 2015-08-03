@@ -7,7 +7,7 @@
 
 #include <memory>
 #include <queue>
-#include <unordered_set>
+#include <set>
 
 #include <cassert>
 
@@ -16,6 +16,18 @@
 #include "Callgraph.h"
 
 struct CgReport {
+
+	CgReport() :
+		instrumentedMethods(0),
+		overallMethods(0),
+		instrumentedCalls(0),
+		unwindSamples(0),
+		instrumentationOverhead(.0),
+		unwindOverhead(.0),
+		phaseName(std::string()),
+		instrumentedNames(std::set<std::string>())
+	{}
+
 	unsigned int instrumentedMethods;
 	unsigned int overallMethods;
 
@@ -26,6 +38,8 @@ struct CgReport {
 	double unwindOverhead;	// nanos
 
 	std::string phaseName;
+
+	std::set<std::string> instrumentedNames;
 
 };
 

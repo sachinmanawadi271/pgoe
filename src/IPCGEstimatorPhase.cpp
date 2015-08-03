@@ -35,3 +35,51 @@ void FirstNLevelsEstimatorPhase::printAdditionalReport() {
 //	// only print the additional report
 //	printAdditionalReport();
 //}
+
+
+//// INCL STATEMENT COUNT ESTIMATOR PHASE
+
+InclStatementCountEstimatorPhase::InclStatementCountEstimatorPhase(int numberOfStatementsThreshold) :
+		EstimatorPhase("InclStatementCount"),
+		numberOfStatementsThreshold(numberOfStatementsThreshold) {
+}
+
+InclStatementCountEstimatorPhase::~InclStatementCountEstimatorPhase() {}
+
+void InclStatementCountEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	for (auto node : *graph) {
+		estimateInclStatementCount(node);
+	}
+}
+
+void InclStatementCountEstimatorPhase::estimateInclStatementCount(CgNodePtr startNode) {
+	std::queue<CgNodePtr> workQueue;
+	workQueue.push(startNode);
+	std::set<CgNodePtr> visitedNodes;
+
+	int inclStmtCount = 0;
+
+	while (!workQueue.empty()) {
+		auto node = workQueue.front();
+		workQueue.pop();
+
+		visitedNodes.insert(node);
+
+		inclStmtCount += node->getLinesOfCode();
+
+		for (auto childNode : node->getChildNodes()) {
+			if (visitedNodes.find(childNode) == visitedNodes.end()) {
+				workQueue.push(childNode);
+			}
+		}
+	}
+
+	if (inclStmtCount > numberOfStatementsThreshold) {
+		startNode->setState(CgNodeState::INSTRUMENT);
+	}
+
+	inclStmtCounts[startNode] = inclStmtCount;
+}
+
+void InclStatementCountEstimatorPhase::printAdditionalReport() {
+}

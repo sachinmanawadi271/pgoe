@@ -11,7 +11,8 @@
 #include "Callgraph.h"
 #include "EstimatorPhase.h"
 
-#define PRINT_DOT_AFTER_EVERY_PHASE true 
+#define PRINT_DOT_AFTER_EVERY_PHASE true
+#define DUMP_INSTRUMENTED_NAMES true
 
 class CallgraphManager {
 
@@ -52,6 +53,7 @@ private:
 	void finalizeGraph();
 	void printDOT(std::string prefix);
 
+	void dumpInstrumentedNames(CgReport report);
 };
 
 
