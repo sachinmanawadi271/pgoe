@@ -2,3 +2,7 @@
 .cproject
 
 *.dot
+*.txt
+*.swp
+
+src/*.o
