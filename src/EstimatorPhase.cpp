@@ -502,39 +502,56 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 
 		// first select all leafs that are conjunctions
-		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
+//		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
+		if (CgHelper::isConjunction(node)) {
 
 			unwindCandidates++;
 
 			// TODO: use the actual benefit (with remaining instrumentation)
 			// TODO: consider inserting multiple parallel unwind nodes at the same time, accumulate overhead
-			unsigned long long expectedUnwindOverheadNanos =
+			unsigned long long expectedUnwindSampleOverheadNanos =
 					node->getExpectedNumberOfSamples() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
+
+			unsigned long long expectedUnwindInstrumentOverheadNanos =
+					node->getNumberOfCalls() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
 
 			unsigned long long expectedInstrumentationOverheadNanos =
 					CgHelper::getInstrumentationOverheadOfConjunction(node);
 
-			if (expectedUnwindOverheadNanos < expectedInstrumentationOverheadNanos) {
+			unsigned long long expectedActualInstrumentationSavedNanos =
+					CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
 
-				node->setState(CgNodeState::UNWIND, 1);
+			unsigned long long unwindOverhead = expectedUnwindInstrumentOverheadNanos;
+			unsigned long long instrumentationOverhead = expectedActualInstrumentationSavedNanos;
+
+			if (unwindOverhead < instrumentationOverhead) {
+
+				///XXX
+				double expectedOverheadSavedSeconds
+						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
+//				double maxOverheadSavedSeconds
+//						= ((long long) expectedInstrumentationOverheadNanos - (long long)unwindOverhead) / 1000000000.0;
+				std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
+
+//				node->setState(CgNodeState::UNWIND, 1);
 				unwoundNodes++;
 
-				// remove redundant instrumentation in direct parents
-				for (auto parentNode : node->getParentNodes()) {
-
-					bool redundantInstrumentation = true;
-					for (auto childOfParentNode : parentNode->getChildNodes()) {
-
-						if (!childOfParentNode->isUnwound()
-								&& CgHelper::isConjunction(childOfParentNode)) {
-							redundantInstrumentation = false;
-						}
-					}
-
-					if (redundantInstrumentation) {
-						CgHelper::removeInstrumentationOnPath(parentNode);
-					}
-				}
+//			// remove redundant instrumentation in direct parents
+//				for (auto parentNode : node->getParentNodes()) {
+//
+//					bool redundantInstrumentation = true;
+//					for (auto childOfParentNode : parentNode->getChildNodes()) {
+//
+//						if (!childOfParentNode->isUnwound()
+//								&& CgHelper::isConjunction(childOfParentNode)) {
+//							redundantInstrumentation = false;
+//						}
+//					}
+//
+//					if (redundantInstrumentation) {
+//						CgHelper::removeInstrumentationOnPath(parentNode);
+//					}
+//				}
 			}
 		}
 	}

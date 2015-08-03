@@ -188,6 +188,31 @@ namespace CgHelper {
 		);
 	}
 
+	unsigned long long getInstrumentationOverheadServingOnlyThisConjunction(
+			CgNodePtr conjunctionNode) {
+
+		auto parents = conjunctionNode->getParentNodes();
+
+		CgNodePtrSet potentiallyInstrumented;
+		for (auto parentNode : parents) {
+			auto tmpSet = getInstrumentationPath(parentNode);
+			potentiallyInstrumented.insert(tmpSet.begin(), tmpSet.end());
+		}
+
+		// add costs if node is instrumented
+		return std::accumulate(
+				potentiallyInstrumented.begin(), potentiallyInstrumented.end(), 0ULL,
+				[] (unsigned long long acc, CgNodePtr node) {
+					bool onlyOneDependendConjunction = node->getDependentConjunctions().size() == 1;
+					if (node->isInstrumented() && onlyOneDependendConjunction) {
+						return acc + (node->getNumberOfCalls()*CgConfig::nanosPerInstrumentedCall);
+					}
+					return acc;
+				}
+		);
+	}
+
+
 	/** removes the instrumentation of a call path.
 	 * 	returns false if no instrumentation found */
 	// TODO: check because of new nodeBased Conventions

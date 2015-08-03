@@ -13,22 +13,24 @@
 
 void registerEstimatorPhases(CallgraphManager& cg) {
 //	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false));
 
-	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
-	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
+//	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
+//	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
+
 	// edge based
 //	cg.registerEstimatorPhase(new EdgeBasedOptimumEstimatorPhase());
-//
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	// heuristic
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+
+	// heuristic
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 //	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
 //	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 //	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	// node based
 //	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());

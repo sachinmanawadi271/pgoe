@@ -13,7 +13,7 @@
 
 // TODO this numbers should be in a config file
 namespace CgConfig {
-	const unsigned int nanosPerInstrumentedCall = 4;
+	const unsigned int nanosPerInstrumentedCall = 40;	// TODO modified
 
 	const unsigned int nanosPerUnwindSample 	= 100;
 	const unsigned int nanosPerUnwindStep 		= 1000;
@@ -33,6 +33,7 @@ namespace CgHelper {
 	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode);
 
 	unsigned long long getInstrumentationOverheadOfConjunction(CgNodePtr conjunctionNode);
+	unsigned long long getInstrumentationOverheadServingOnlyThisConjunction(CgNodePtr conjunctionNode);
 	unsigned long long getInstrumentationOverheadOfPath(CgNodePtr node);
 	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node);
 

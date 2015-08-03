@@ -11,6 +11,9 @@ rm -rf $SPEC_OUTPUT
 mkdir $SPEC_OUTPUT
 
 BENCHMARKS=`find $SPEC_PATH -name *.cubex`
+BENCHMARKS=`find spec-testcases/ -name "*.cubex"`
+
+echo $BENCHMARKS
 
 for bm in $BENCHMARKS ;do
 	FILE=$(basename $bm)
@@ -18,6 +21,8 @@ for bm in $BENCHMARKS ;do
 	echo "running $SPEC_OUTPUT/$FILE.log"
 
 	$CCG $SPEC_PATH/$FILE $1 &> $SPEC_OUTPUT/$FILE.log
+
+	mv Instrument-callgraph.dot $SPEC_OUTPUT/$FILE.dot
 
 	# generate the dot
 #	dottopng.sh Instrument-callgraph.dot spec-png/$FILE.png
