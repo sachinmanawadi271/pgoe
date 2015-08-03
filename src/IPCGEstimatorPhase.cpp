@@ -40,7 +40,7 @@ void FirstNLevelsEstimatorPhase::printAdditionalReport() {
 //// INCL STATEMENT COUNT ESTIMATOR PHASE
 
 InclStatementCountEstimatorPhase::InclStatementCountEstimatorPhase(int numberOfStatementsThreshold) :
-		EstimatorPhase("InclStatementCount"),
+		EstimatorPhase(std::string("InclStatementCount")+std::to_string(numberOfStatementsThreshold)),
 		numberOfStatementsThreshold(numberOfStatementsThreshold) {
 }
 

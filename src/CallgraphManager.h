@@ -22,6 +22,7 @@ public:
 	void putEdge(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
+	void putLinesOfCode(std::string name, int linesOfCode);
 	CgNodePtr findOrCreateNode(std::string name, double timeInSeconds = 0.0);
 
 	void registerEstimatorPhase(EstimatorPhase* phase);

@@ -19,6 +19,11 @@ CgNodePtr CallgraphManager::findOrCreateNode(std::string name, double timeInSeco
 	}
 }
 
+void CallgraphManager::putLinesOfCode(std::string name, int linesOfCode) {
+	CgNodePtr node = findOrCreateNode(name);
+	node->setLinesOfCode(linesOfCode);
+}
+
 void CallgraphManager::putEdge(std::string parentName, std::string childName) {
 
 	CgNodePtr parentNode = findOrCreateNode(parentName);
@@ -47,7 +52,11 @@ void CallgraphManager::putEdge(std::string parentName, std::string parentFilenam
 
 
 CgNodePtr CallgraphManager::findMain() {
-	return findNode("main");
+	if( findNode("main") ) {
+		return findNode("main");
+	} else {
+		return findNode("_Z4main");
+	}
 }
 
 CgNodePtr CallgraphManager::findNode(std::string functionName) {
@@ -121,7 +130,7 @@ void CallgraphManager::thatOneLargeMethod() {
 
 void CallgraphManager::printDOT(std::string prefix) {
 
-	std::string filename = prefix + "-" + "callgraph.dot";
+	std::string filename = "callgraph-" + prefix + ".dot";
 	std::ofstream outfile(filename, std::ofstream::out);
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
@@ -166,7 +175,7 @@ void CallgraphManager::printDOT(std::string prefix) {
 }
 
 void CallgraphManager::dumpInstrumentedNames(CgReport report) {
-	std::string filename = report.phaseName + "-" + "instrumented.txt";
+	std::string filename = "instrumented-" + report.phaseName + ".txt";
 	std::ofstream outfile(filename, std::ofstream::out);
 
 	for (auto name : report.instrumentedNames) {

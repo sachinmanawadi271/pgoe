@@ -1,40 +1,38 @@
 #include "IPCGReader.h"
 
+/** RN: note that the format is child -> parent for whatever reason.. */
 CallgraphManager IPCGAnal::build(std::string filename) {
-  if(filename.empty()) {
-    std::cerr << "Filename was empty" << std::endl;
-    return false;
-  }
-
-  std::ifstream in;
-  in.open(filename.c_str());
 
 	CallgraphManager *cg = new CallgraphManager();
 
-  std::string line;
-  std::string parentFunction;
-	std::pair<std::string, int> funcNameAndLineCount;
-	while (in.good()) {
-    std::getline(in, line);
-		if(line.empty()){
-			continue;
-		}
-		std::cout << "Read line: " << line << std::endl;
-    if (parentFunction.empty()){
-      parentFunction = line.substr(line.find(' '));
-			int lineCount = std::stoi(line.substr(line.rfind(' ')));
-			funcNameAndLineCount = {parentFunction, lineCount};
-		}
+	std::ifstream file(filename);
+	std::string line;
 
-    if (line.front() == '-') {
-			auto childFun(line.substr(2));
-      cg->putEdge(parentFunction, childFun, 0, "", 0, .0);
-    } else {
-      parentFunction = line.substr(line.find(' '));
-			int lineCount = std::stoi(line.substr(line.rfind(' ')));
-			funcNameAndLineCount = {parentFunction, lineCount};
-    }
-		std::cout << "Read: " << funcNameAndLineCount.first << " " << funcNameAndLineCount.second << std::endl;
-  }
+	std::string child;
+	int childLoc = 0;
+
+	while (std::getline(file, line)) {
+
+		if (line.front() == '-') {
+			// parent
+			if (child.empty()) {
+				continue;
+			}
+			std::string parent = line.substr(2);
+
+			cg->putEdge(parent, std::string(), 0, child, 0, 0.0);
+		} else {
+			// child
+			if (line.find("DUMMY")==0) {
+				continue;
+			}
+
+			auto endPos = line.rfind(" ");
+			child = line.substr(0,endPos);
+			childLoc = std::stoi(line.substr(endPos));
+
+			cg->putLinesOfCode(child, childLoc);
+		}
+	}
 	return *cg;
 }
