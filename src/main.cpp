@@ -12,9 +12,17 @@
 #include "EdgeBasedOptimumEstimatorPhase.h"
 #include "NodeBasedOptimumEstimatorPhase.h"
 #include "ProximityMeasureEstimatorPhase.h"
+#include "IPCGEstimatorPhase.h"
 
 void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv) {
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+
+	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(2));
+	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(3));
+	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(4));
+	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(5));
+	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(6));
+	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(7));
+
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 
@@ -36,7 +44,7 @@ void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv
 //	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(argv[2]));
+//		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(argv[2]));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
@@ -79,8 +87,6 @@ int main(int argc, char** argv) {
 	registerEstimatorPhases(cg, vecArgv);
 
 	cg.thatOneLargeMethod();
-
-	std::cerr << "Before return" << std::endl;
 
 	return EXIT_SUCCESS;
 }

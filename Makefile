@@ -12,7 +12,8 @@ DEBUG=-g -Og
 SOURCES= \
 src/main.cpp src/CgNode.cpp src/CallgraphManager.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \
 src/SanityCheckEstimatorPhase.cpp src/EdgeBasedOptimumEstimatorPhase.cpp src/CgHelper.cpp \
-src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp src/IPCGReader.cpp \
+src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp \
+src/IPCGReader.cpp src/IPCGEstimatorPhase.cpp \
 
 OBJ=$(SOURCES:.cpp=.o)
 

@@ -85,7 +85,7 @@ void CallgraphManager::finalizeGraph() {
 
 void CallgraphManager::thatOneLargeMethod() {
 
-//	finalizeGraph();
+	finalizeGraph();
 
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();
@@ -139,6 +139,8 @@ void CallgraphManager::printDOT(std::string prefix) {
 		}
 		if (node->isUnwound()) {
 			attributes += "shape=doubleoctagon, ";
+		} else if (node->isInstrumented()) {
+			attributes += "shape=doublecircle, ";
 		} else if (node->isLeafNode()) {
 			attributes += "shape=octagon, ";
 		}
