@@ -66,13 +66,14 @@ void EstimatorPhase::printReport() {
 
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
 
-RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(bool aggressiveReduction) :
+RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(bool onlyRemoveUnrelatedNodes, bool aggressiveReduction) :
 		EstimatorPhase("RemoveUnrelated"),
 		numUnconnectedRemoved(0),
 		numLeafsRemoved(0),
 		numChainsRemoved(0),
 		numAdvancedOptimizations(0),
-		aggressiveReduction(aggressiveReduction) {
+		aggressiveReduction(aggressiveReduction),
+		onlyRemoveUnrelatedNodes(onlyRemoveUnrelatedNodes) {
 }
 
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
@@ -110,7 +111,13 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			numUnconnectedRemoved++;
 			continue;
 		}
+	}
 
+	if (onlyRemoveUnrelatedNodes) {
+		return;
+	}
+
+	for (auto node : (*graph)) {
 		// leaf nodes that are never unwound or instrumented
 		if (node->isLeafNode()) {
 			checkLeafNodeForRemoval(node);

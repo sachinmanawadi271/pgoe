@@ -66,8 +66,14 @@ void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
   // has unique call path
   auto parents = getParentNodes();
+  CgNodePtrSet visitedNodes;
   while (parents.size() == 1) {
-    parents = (*parents.begin())->getParentNodes();
+  	if (visitedNodes.find(getUniqueParent()) != visitedNodes.end()) {
+  		break;	// this can happen in unconnected subgraphs
+  	} else {
+  		visitedNodes.insert(getUniqueParent());
+  	}
+    parents = getUniqueParent()->getParentNodes();
   }
   this->uniqueCallPath = (parents.size() == 0);
 

@@ -15,6 +15,7 @@
 #include "IPCGEstimatorPhase.h"
 
 void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv) {
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false));
 
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(2));
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(3));
@@ -25,7 +26,7 @@ void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
-	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(5));
+	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(50));
 
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
 
@@ -68,9 +69,9 @@ int main(int argc, char** argv) {
 //		samplesPerSecond = atoi(argv[2]);
 //	}
 
-	std::vector<std::string> vecArgv(argc);
+	std::vector<std::string> vecArgv;
 	for(int i = 0; i < argc; ++i){
-		vecArgv[i] = std::string(argv[i]);
+		vecArgv.push_back(std::string(argv[i]));
 	}
 
 	CallgraphManager cg;

@@ -127,7 +127,6 @@ private:
 
 	// node attributes
 	bool uniqueCallPath;
-	bool inclusiveRuntimeIsReady;
 
 	// for later use
 	std::string filename;

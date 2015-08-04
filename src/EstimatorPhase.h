@@ -72,7 +72,7 @@ protected:
  */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
-	RemoveUnrelatedNodesEstimatorPhase(bool aggressiveReduction = false);
+	RemoveUnrelatedNodesEstimatorPhase(bool onlyRemoveUnrelatedNodes = true, bool aggressiveReduction = false);
 	~RemoveUnrelatedNodesEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -88,6 +88,7 @@ private:
 	int numAdvancedOptimizations;
 
 	bool aggressiveReduction;
+	bool onlyRemoveUnrelatedNodes;
 
 	CgNodePtrSet nodesToRemove;
 };

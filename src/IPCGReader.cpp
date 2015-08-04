@@ -12,13 +12,16 @@ CallgraphManager IPCGAnal::build(std::string filename) {
 
 	while (std::getline(file, line)) {
 
+		if (line.empty()) {
+			continue;
+		}
+
 		if (line.front() == '-') {
 			// parent
 			if (child.empty()) {
 				continue;
 			}
 			std::string parent = line.substr(2);
-
 			cg->putEdge(parent, std::string(), 0, child, 0, 0.0);
 		} else {
 			// child
@@ -33,5 +36,8 @@ CallgraphManager IPCGAnal::build(std::string filename) {
 			cg->putNumberOfStatements(child, childNumStmts);
 		}
 	}
+
+	cg->printDOT("reader");
+
 	return *cg;
 }
