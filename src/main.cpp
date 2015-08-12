@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond);
 	} else if (stringEndsWith(filePath, ".dot")) {
 		cg = DOTCallgraphBuilder::build(filePath, samplesPerSecond);
-	} else if (stringEndsWith(filePath, "_ipcg")){
+	} else if (stringEndsWith(filePath, ".ipcg")){
 		cg = IPCGAnal::build(filePath);
 	}	else {
 		std::cerr << "ERROR: Unknown file ending in " << filePath << std::endl;
