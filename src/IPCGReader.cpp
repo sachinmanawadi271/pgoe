@@ -31,9 +31,17 @@ CallgraphManager IPCGAnal::build(std::string filename) {
 
 			auto endPos = line.rfind(" ");	// space between name and numStmts
 			child = line.substr(0,endPos);
-			int childNumStmts = std::stoi(line.substr(endPos));
+			int childNumStmts=0;
+			if (line.substr(line.rfind(' ')+1) == std::string("ND")){
+				//CI: there was no defintion for the function or methods.
+				//    ND = Not Definied
+			}
+			else {
+				childNumStmts = std::stoi(line.substr(endPos));
+				cg->putNumberOfStatements(child, childNumStmts);
+			}
+				
 
-			cg->putNumberOfStatements(child, childNumStmts);
 		}
 	}
 
