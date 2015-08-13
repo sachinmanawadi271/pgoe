@@ -39,42 +39,15 @@ void CallgraphManager::putEdge(std::string parentName, std::string parentFilenam
 
 	putEdge(parentName, childName);
 
-	auto parentNode = findNode(parentName);
+	auto parentNode = graph.findNode(parentName);
 	if (parentNode == nullptr) {
 		std::cerr << "ERROR in looking up node." << std::endl;
 	}
 	parentNode->setFilename(parentFilename);
 	parentNode->setLineNumber(parentLine);
 
-	auto childNode = findNode(childName);
+	auto childNode = graph.findNode(childName);
 	childNode->addCallData(parentNode, numberOfCalls, timeInSeconds);
-}
-
-
-CgNodePtr CallgraphManager::findMain() {
-	if( findNode("main") ) {
-		return findNode("main");
-	} else {
-		// simply search a method containing "main" somewhere
-		for (auto node : graph) {
-			auto fName = node->getFunctionName();
-			if (fName.find("main") != fName.npos) {
-				return node;
-			}
-		}
-		return nullptr;
-	}
-}
-
-CgNodePtr CallgraphManager::findNode(std::string functionName) {
-
-	for (auto node : graph) {
-		auto fName = node->getFunctionName();
-		if (fName == functionName) {
-			return node;
-		}
-	}
-	return nullptr;
 }
 
 void CallgraphManager::registerEstimatorPhase(EstimatorPhase* phase) {
@@ -108,7 +81,7 @@ void CallgraphManager::thatOneLargeMethod() {
 #if BENCHMARK_PHASES
 		auto startTime = std::chrono::system_clock::now();
 #endif
-		phase->modifyGraph(findMain());
+		phase->modifyGraph(graph.findMain());
 		phase->generateReport();
 
 		phase->printReport();

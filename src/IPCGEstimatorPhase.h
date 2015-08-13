@@ -16,10 +16,6 @@ public:
 
 	void modifyGraph(CgNodePtr mainMethod);
 
-//	void printReport();
-protected:
-	void printAdditionalReport();
-
 private:
 	void instrumentLevel(CgNodePtr parentNode, int levelsLeft);
 
@@ -40,11 +36,26 @@ public:
 	void modifyGraph(CgNodePtr mainMethod);
 	void estimateInclStatementCount(CgNodePtr startNode);
 
-protected:
-	void printAdditionalReport();
 private:
 	int numberOfStatementsThreshold;
 	std::map<CgNodePtr, int> inclStmtCounts;
+};
+
+/**
+ * RN: Gets a file with a whitelist of interesting nodes.
+ * Instruments all paths to these nodes with naive callpathDifferentiation.
+ */
+class WLCallpathDifferentiationEstimatorPhase : public EstimatorPhase {
+public:
+	WLCallpathDifferentiationEstimatorPhase(std::string whiteListName="whitelist.txt");
+	~WLCallpathDifferentiationEstimatorPhase();
+
+	void modifyGraph(CgNodePtr mainMethod);
+private:
+	CgNodePtrSet whitelist;	// all whitelisted nodes INCL. their paths to main
+	std::string whitelistName;
+
+	void addNodeAndParentsToWhitelist(CgNodePtr node);
 };
 
 #endif

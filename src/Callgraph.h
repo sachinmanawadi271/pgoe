@@ -6,6 +6,9 @@
 
 class Callgraph {
 public:
+	// Finds the main function in the CallGraph
+	CgNodePtr findMain();
+	CgNodePtr findNode(std::string functionName);
 
 	void insert(CgNodePtr node);
 

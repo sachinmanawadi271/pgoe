@@ -26,17 +26,6 @@ void FirstNLevelsEstimatorPhase::instrumentLevel(CgNodePtr parentNode, int level
 	}
 }
 
-
-void FirstNLevelsEstimatorPhase::printAdditionalReport() {
-}
-
-
-//void FirstNLevelsEstimatorPhase::printReport() {
-//	// only print the additional report
-//	printAdditionalReport();
-//}
-
-
 //// INCL STATEMENT COUNT ESTIMATOR PHASE
 
 InclStatementCountEstimatorPhase::InclStatementCountEstimatorPhase(int numberOfStatementsThreshold) :
@@ -81,5 +70,54 @@ void InclStatementCountEstimatorPhase::estimateInclStatementCount(CgNodePtr star
 	inclStmtCounts[startNode] = inclStmtCount;
 }
 
-void InclStatementCountEstimatorPhase::printAdditionalReport() {
+// WL CALLPATH DIFFERENTIATION ESTIMATOR PHASE
+
+WLCallpathDifferentiationEstimatorPhase::WLCallpathDifferentiationEstimatorPhase(std::string whiteListName) :
+	EstimatorPhase("WLCallpathDifferentiation"),
+	whitelistName(whiteListName) {
+
 }
+
+WLCallpathDifferentiationEstimatorPhase::~WLCallpathDifferentiationEstimatorPhase() {}
+
+void WLCallpathDifferentiationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+
+	// TODO: move this parsing somewhere else
+	std::ifstream file(whitelistName);
+	if (!file) {
+		std::cerr << "Error in WLCallpathDifferentiation: Could not open " << whitelistName << std::endl;
+		exit(1);
+	}
+	std::string line;
+	while (std::getline(file, line)) {
+		if (line.empty()) {
+			continue;
+		}
+		CgNodePtr node = graph->findNode(line);
+		if (node == nullptr) {
+			continue;
+		}
+		addNodeAndParentsToWhitelist(node);
+	}
+	file.close();
+
+
+	for (auto node : *graph) {
+		if (CgHelper::isConjunction(node) && (whitelist.find(node) != whitelist.end()) ) {
+			for (auto parentNode : node->getParentNodes()) {
+				parentNode->setState(CgNodeState::INSTRUMENT);
+			}
+		}
+	}
+}
+
+void WLCallpathDifferentiationEstimatorPhase::addNodeAndParentsToWhitelist(CgNodePtr node) {
+	if (whitelist.find(node) == whitelist.end()) {
+		whitelist.insert(node);
+
+		for (auto parentNode : node->getParentNodes()) {
+			addNodeAndParentsToWhitelist(parentNode);
+		}
+	}
+}
+

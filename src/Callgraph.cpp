@@ -9,6 +9,32 @@
 #define PRINT_FINAL_DOT 1
 #define PRINT_DOT_AFTER_EVERY_PHASE 1
 
+CgNodePtr Callgraph::findMain() {
+	if( findNode("main") ) {
+		return findNode("main");
+	} else {
+		// simply search a method containing "main" somewhere
+		for (auto node : *this) {
+			auto fName = node->getFunctionName();
+			if (fName.find("main") != fName.npos) {
+				return node;
+			}
+		}
+		return nullptr;
+	}
+}
+
+CgNodePtr Callgraph::findNode(std::string functionName) {
+	for (auto node : *this ) {
+
+		auto fName = node->getFunctionName();
+		if (fName == functionName) {
+			return node;
+		}
+	}
+	return nullptr;
+}
+
 void Callgraph::insert(CgNodePtr node) {
 	graph.insert(node);
 }

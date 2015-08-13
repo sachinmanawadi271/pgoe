@@ -17,13 +17,15 @@
 void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false));
 
+	cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(2));
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(3));
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(4));
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(5));
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(6));
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(7));
-
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(50));

@@ -34,10 +34,6 @@ public:
 	CgNodePtrSet::iterator end(){return graph.end();};
 	size_t size(){return graph.size();};
 
-	// Finds the main function in the CallGraph
-	CgNodePtr findMain();
-	CgNodePtr findNode(std::string functionName); // Finds FIRST node including functionName
-
 	void printDOT(std::string prefix);
 private:
 	// this is a legacy structure used to parse the call graph
