@@ -14,7 +14,7 @@
 #include "ProximityMeasureEstimatorPhase.h"
 #include "IPCGEstimatorPhase.h"
 
-void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv) {
+void registerEstimatorPhases(CallgraphManager& cg, std::string otherPath) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false));
 
 //	cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
@@ -30,7 +30,6 @@ void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv
 //
 //	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(50));
 
-//	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
 //	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
 	// edge based
 //	cg.registerEstimatorPhase(new EdgeBasedOptimumEstimatorPhase());
@@ -48,7 +47,7 @@ void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv
 //	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-//		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(argv[2]));
+//		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(otherPath));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
@@ -58,27 +57,42 @@ bool stringEndsWith(const std::string& s, const std::string& suffix) {
 
 int main(int argc, char** argv) {
 
+	std::cout << "Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
+			<< " [-other /PATH/TO/PROFILE/TO/COMPARE/TO]"
+			<< " [-samples NUMBER_OF_SAMPLES_PER_SECOND]"
+			<< " [-ref UNINSTRUMENTED_RUNTIME_SECONDS]" << std::endl << std::endl;
+
 	if (argc == 1) {
-		std::cerr << "ERROR >> Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
-				<< " PATH/TO/PROFILE/TO/COMPARE/TO" << std::endl;
+		std::cerr << "ERROR: too few arguments." << std::endl;
 		exit(-1);
 	}
 
+	double uninstrumentedReferenceRuntime = .0;
 	int samplesPerSecond = 1000;
-//	if (argc > 2) {
-//		samplesPerSecond = atoi(argv[2]);
-//	}
+	std::string otherPath;
 
-	std::vector<std::string> vecArgv;
-	for(int i = 0; i < argc; ++i){
-		vecArgv.push_back(std::string(argv[i]));
+	for(int i = 1; i < argc; ++i) {
+		auto arg = std::string(argv[i]);
+
+		if (arg=="-other") {
+			otherPath = std::string(argv[++i]);
+			continue;
+		}
+		if (arg=="-samples") {
+			samplesPerSecond = atoi(argv[++i]);
+			continue;
+		}
+		if (arg=="-ref") {
+			uninstrumentedReferenceRuntime = atof(argv[++i]);
+			continue;
+		}
 	}
 
 	CallgraphManager cg;
 	std::string filePath(argv[1]);
 
 	if (stringEndsWith(filePath, ".cubex")) {
-		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond);
+		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond, uninstrumentedReferenceRuntime);
 	} else if (stringEndsWith(filePath, ".dot")) {
 		cg = DOTCallgraphBuilder::build(filePath, samplesPerSecond);
 	} else if (stringEndsWith(filePath, ".ipcg")){
@@ -88,7 +102,7 @@ int main(int argc, char** argv) {
 		exit(-1);
 	}
 
-	registerEstimatorPhases(cg, vecArgv);
+	registerEstimatorPhases(cg, otherPath);
 
 	cg.thatOneLargeMethod();
 

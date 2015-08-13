@@ -1,6 +1,5 @@
 #include "CallgraphManager.h"
 
-
 CallgraphManager::CallgraphManager(int samplesPerSecond) :
 		samplesPerSecond(samplesPerSecond) {
 }

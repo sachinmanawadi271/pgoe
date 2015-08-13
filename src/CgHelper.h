@@ -18,8 +18,8 @@ namespace CgConfig {
 	const unsigned int nanosPerUnwindSample 	= 100;
 	const unsigned int nanosPerUnwindStep 		= 1000;
 
-	const unsigned int nanosPerNormalProbe		= 100;
-	const unsigned int nanosPerMPIProbe 			= 300;
+	const unsigned int nanosPerNormalProbe		= 50;
+	const unsigned int nanosPerMPIProbe 			= 200;
 }
 
 namespace CgHelper {

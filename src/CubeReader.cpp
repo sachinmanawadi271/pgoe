@@ -1,7 +1,7 @@
 #include "CubeReader.h"
 
 
-CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond) {
+CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond, double uninstrumentedTime) {
 
 	CallgraphManager* cg = new CallgraphManager(samplesPerSecond);
 
@@ -57,13 +57,21 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 		double probePercent = probeSeconds / overallRuntime * 100;
 
 		std::cout << "Finished construction .." << std::endl
-				<< "\t" << "numberOfCalls: " << overallNumberOfCalls << " | MPI: " << numberOfMPICalls
+				<< "    " << "numberOfCalls: " << overallNumberOfCalls << " | MPI: " << numberOfMPICalls
 				<< " | normal: " << numberOfNormalCalls << std::endl
-				<< "\t" << "runtime: "  << overallRuntime << " seconds"
-				<< " | estimatedOverhead: " << probeSeconds << " seconds"
-				<< " or " << std::setprecision(3) << probePercent << " %" << std::endl
-				<< "\t" << "target samplesPerSecond : " << samplesPerSecond
-				<< std::setprecision(6) << std::endl;
+				<< "    " << "runtime: "  << overallRuntime << " seconds" << std::endl
+				<< "      " << "estimatedOverhead: " << probeSeconds << " seconds"
+				<< " or " << std::setprecision(4) << probePercent << " % (vs cube time)"<< std::endl;
+
+		if (uninstrumentedTime > .0) {
+			double deltaSeconds = overallRuntime - probeSeconds - uninstrumentedTime;
+			double deltaPercent = deltaSeconds / uninstrumentedTime * 100;
+			std::cout << "      " << "delta: " << std::setprecision(6) << deltaSeconds << " seconds"
+					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
+		}
+
+		std::cout << "    " << "target samplesPerSecond : " << samplesPerSecond
+				<< std::setprecision(6) << std::endl << std::endl;
 
 		return *cg;
 
