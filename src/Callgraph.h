@@ -18,6 +18,8 @@ public:
 
 	CgNodePtrSet::iterator begin();
 	CgNodePtrSet::iterator end();
+	CgNodePtrSet::const_iterator begin() const;
+	CgNodePtrSet::const_iterator end() const;
 
 	size_t size();
 private:

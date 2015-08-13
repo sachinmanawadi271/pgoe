@@ -101,6 +101,13 @@ CgNodePtrSet::iterator Callgraph::end() {
 	return graph.end();
 }
 
+CgNodePtrSet::const_iterator Callgraph::begin() const {
+	return graph.cbegin();
+}
+CgNodePtrSet::const_iterator Callgraph::end() const {
+	return graph.cend();
+}
+
 size_t Callgraph::size() {
 	return graph.size();
 }

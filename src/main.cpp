@@ -17,20 +17,18 @@
 void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv) {
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false));
 
-	cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(2));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(3));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(4));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(5));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(6));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(7));
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-
-	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(50));
-
-//	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true));
+//	cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(2));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(3));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(4));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(5));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(6));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(7));
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(50));
 
 //	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
 //	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
@@ -39,7 +37,7 @@ void registerEstimatorPhases(CallgraphManager& cg, std::vector<std::string> argv
 //
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //	// heuristic
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 //	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
 //	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 //	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
@@ -77,7 +75,7 @@ int main(int argc, char** argv) {
 	}
 
 	CallgraphManager cg;
-	std::string filePath(vecArgv[1]);
+	std::string filePath(argv[1]);
 
 	if (stringEndsWith(filePath, ".cubex")) {
 		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond);
