@@ -73,6 +73,7 @@ void CallgraphManager::finalizeGraph() {
 void CallgraphManager::thatOneLargeMethod() {
 
 	finalizeGraph();
+	auto mainFunction = graph.findMain();
 
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();
@@ -80,7 +81,7 @@ void CallgraphManager::thatOneLargeMethod() {
 #if BENCHMARK_PHASES
 		auto startTime = std::chrono::system_clock::now();
 #endif
-		phase->modifyGraph(graph.findMain());
+		phase->modifyGraph(mainFunction);
 		phase->generateReport();
 
 		phase->printReport();
