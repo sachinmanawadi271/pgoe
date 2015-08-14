@@ -10,7 +10,7 @@ CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
 DEBUG=-g -Og
 
 SOURCES= \
-src/main.cpp src/CgNode.cpp src/CallgraphManager.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \
+src/CgNode.cpp src/CallgraphManager.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \
 src/SanityCheckEstimatorPhase.cpp src/EdgeBasedOptimumEstimatorPhase.cpp src/CgHelper.cpp \
 src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp \
 src/IPCGReader.cpp src/IPCGEstimatorPhase.cpp \
@@ -26,8 +26,13 @@ LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -c $< -o $@ $(DEBUG)
 
-CubeCallGraphTool: $(OBJ)
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(OBJ) $(LDFLAGS) $(DEBUG)
+all: CubeCallGraphTool SimpleOverheadEliminator
+
+CubeCallGraphTool: $(OBJ) src/main.o
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(OBJ) src/main.o $(LDFLAGS) $(DEBUG)
+
+SimpleOverheadEliminator: $(OBJ) src/main_SimpleOverheadElimination.o
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o $@ $(OBJ) src/main_SimpleOverheadElimination.o $(LDFLAGS) $(DEBUG)
 
 clean:
 	rm -rf $(OBJ) *.o CubeCallgraphTool
