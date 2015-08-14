@@ -12,6 +12,8 @@
 CgNodePtr Callgraph::findMain() {
 	if( findNode("main") ) {
 		return findNode("main");
+	} else if( findNode("_Z4main")) {
+		return findNode("_Z4main");
 	} else {
 		// simply search a method containing "main" somewhere
 		for (auto node : *this) {
