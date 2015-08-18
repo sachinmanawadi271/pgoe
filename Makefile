@@ -16,6 +16,7 @@ src/NodeBasedOptimumEstimatorPhase.cpp src/ProximityMeasureEstimatorPhase.cpp \
 src/IPCGReader.cpp src/IPCGEstimatorPhase.cpp \
 
 OBJ=$(SOURCES:.cpp=.o)
+DEP=$(OBJ:.o=.d)
 
 
 # MICE
@@ -23,8 +24,9 @@ OBJ=$(SOURCES:.cpp=.o)
 INCLUDEFLAGS=-I. -I$(CUBE_INCLUDE_PATH)
 LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
 
+# those strange flags build dependency files, so headers are dependencies too
 %.o : %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -c $< -o $@ $(DEBUG)
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -c -o $@ $(DEBUG)  -MD -MP -MF ${@:.o=.d}  $<
 
 all: CubeCallGraphTool SimpleOverheadEliminator
 
@@ -36,3 +38,6 @@ SimpleOverheadEliminator: $(OBJ) src/main_SimpleOverheadElimination.o
 
 clean:
 	rm -rf $(OBJ) *.o CubeCallgraphTool
+	
+# first run has no dep files
+-include $(DEP)

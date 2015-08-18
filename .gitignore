@@ -6,3 +6,4 @@
 *.swp
 
 src/*.o
+src/*.d
