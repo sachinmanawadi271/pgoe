@@ -37,7 +37,7 @@ SimpleOverheadEliminator: $(OBJ) src/main_SimpleOverheadElimination.o
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o $@ $(OBJ) src/main_SimpleOverheadElimination.o $(LDFLAGS) $(DEBUG)
 
 clean:
-	rm -rf $(OBJ) *.o CubeCallgraphTool
+	rm -rf $(OBJ) $(DEP) src/*.o src/*.d CubeCallgraphTool
 	
 # first run has no dep files
 -include $(DEP)

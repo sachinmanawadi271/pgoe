@@ -29,34 +29,16 @@ void registerEstimatorPhases(CallgraphManager& cg, std::string otherPath) {
 	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(7));
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //
-	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(10));
+	cg.registerEstimatorPhase(new StatementCountEstimatorPhase(10));
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(50));
+	cg.registerEstimatorPhase(new StatementCountEstimatorPhase(50));
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(100));
+	cg.registerEstimatorPhase(new StatementCountEstimatorPhase(100));
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(150));
+	cg.registerEstimatorPhase(new StatementCountEstimatorPhase(150));
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InclStatementCountEstimatorPhase(200));
+	cg.registerEstimatorPhase(new StatementCountEstimatorPhase(200));
 
-//	cg.registerEstimatorPhase(new DiamondPatternSolverEstimatorPhase());
-	// edge based
-//	cg.registerEstimatorPhase(new EdgeBasedOptimumEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	// heuristic
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-//	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
-//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	// node based
-//	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-//		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(otherPath));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {

@@ -26,48 +26,59 @@ void FirstNLevelsEstimatorPhase::instrumentLevel(CgNodePtr parentNode, int level
 	}
 }
 
-//// INCL STATEMENT COUNT ESTIMATOR PHASE
+//// STATEMENT COUNT ESTIMATOR PHASE
 
-InclStatementCountEstimatorPhase::InclStatementCountEstimatorPhase(int numberOfStatementsThreshold) :
-		EstimatorPhase(std::string("InclStatementCount")+std::to_string(numberOfStatementsThreshold)),
-		numberOfStatementsThreshold(numberOfStatementsThreshold) {
+StatementCountEstimatorPhase::StatementCountEstimatorPhase(int numberOfStatementsThreshold, bool inclusiveMetric) :
+		EstimatorPhase((inclusiveMetric ? std::string("Incl") : std::string("Excl"))
+				+ std::string("StatementCount")
+				+ std::to_string(numberOfStatementsThreshold)),
+		numberOfStatementsThreshold(numberOfStatementsThreshold),
+		inclusiveMetric(inclusiveMetric) {
 }
 
-InclStatementCountEstimatorPhase::~InclStatementCountEstimatorPhase() {}
+StatementCountEstimatorPhase::~StatementCountEstimatorPhase() {}
 
-void InclStatementCountEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+void StatementCountEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : *graph) {
-		estimateInclStatementCount(node);
+		estimateStatementCount(node);
 	}
 }
 
-void InclStatementCountEstimatorPhase::estimateInclStatementCount(CgNodePtr startNode) {
-	std::queue<CgNodePtr> workQueue;
-	workQueue.push(startNode);
-	std::set<CgNodePtr> visitedNodes;
+void StatementCountEstimatorPhase::estimateStatementCount(CgNodePtr startNode) {
 
 	int inclStmtCount = 0;
+	if (inclusiveMetric) {
 
-	while (!workQueue.empty()) {
-		auto node = workQueue.front();
-		workQueue.pop();
+		// INCLUSIVE
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(startNode);
+		std::set<CgNodePtr> visitedNodes;
 
-		visitedNodes.insert(node);
+		while (!workQueue.empty()) {
+			auto node = workQueue.front();
+			workQueue.pop();
 
-		inclStmtCount += node->getNumberOfStatements();
+			visitedNodes.insert(node);
 
-		for (auto childNode : node->getChildNodes()) {
-			if (visitedNodes.find(childNode) == visitedNodes.end()) {
-				workQueue.push(childNode);
+			inclStmtCount += node->getNumberOfStatements();
+
+			for (auto childNode : node->getChildNodes()) {
+				if (visitedNodes.find(childNode) == visitedNodes.end()) {
+					workQueue.push(childNode);
+				}
 			}
 		}
+		inclStmtCounts[startNode] = inclStmtCount;
+
+	} else {
+		// EXCLUSIVE
+		inclStmtCount = startNode->getNumberOfStatements();
 	}
 
 	if (inclStmtCount > numberOfStatementsThreshold) {
 		startNode->setState(CgNodeState::INSTRUMENT);
 	}
 
-	inclStmtCounts[startNode] = inclStmtCount;
 }
 
 // WL CALLPATH DIFFERENTIATION ESTIMATOR PHASE

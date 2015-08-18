@@ -28,16 +28,17 @@ private:
  * Cycles are counted only once.
  * Edge counts are NOT taken into account.
  */
-class InclStatementCountEstimatorPhase : public EstimatorPhase {
+class StatementCountEstimatorPhase : public EstimatorPhase {
 public:
-	InclStatementCountEstimatorPhase(int numberOfStatementsThreshold);
-	~InclStatementCountEstimatorPhase();
+	StatementCountEstimatorPhase(int numberOfStatementsThreshold, bool inclusiveMetric = true);
+	~StatementCountEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
-	void estimateInclStatementCount(CgNodePtr startNode);
+	void estimateStatementCount(CgNodePtr startNode);
 
 private:
 	int numberOfStatementsThreshold;
+	bool inclusiveMetric;
 	std::map<CgNodePtr, int> inclStmtCounts;
 };
 
