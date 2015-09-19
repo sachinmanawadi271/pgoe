@@ -1,11 +1,13 @@
 
 # check if variables are defined, as of: http://stackoverflow.com/a/22540516
-check-var-defined = $(if $(strip $($1)),,$(error "$1" is not defined))
-$(call check-var-defined,CUBE_INCLUDE_PATH)
-$(call check-var-defined,CUBE_LIBRARY_PATH)
+#check-var-defined = $(if $(strip $($1)),,$(error "$1" is not defined))
+#$(call check-var-defined,CUBE_INCLUDE_PATH)
+#$(call check-var-defined,CUBE_LIBRARY_PATH)
 
 #CXXFLAGS=-std=c++11
 CXXFLAGS=-std=gnu++0x -Wall	# mice only has gcc-4.6.1 installed
+
+INCLUDEFLAGS=`cube-config --cube-cxxflags`
 
 DEBUG=-g -Og
 
@@ -21,8 +23,7 @@ DEP=$(OBJ:.o=.d)
 
 # MICE
 # source a script (e.g. /opt/scorep/load_cube-4.2.2-gcc4.6.sh) to load cube before compilation
-INCLUDEFLAGS=-I. -I$(CUBE_INCLUDE_PATH)
-LDFLAGS+=-L$(CUBE_LIBRARY_PATH) -lcube4 -lz
+LDFLAGS=`cube-config --cube-ldflags`
 
 # those strange flags build dependency files, so headers are dependencies too
 %.o : %.cpp

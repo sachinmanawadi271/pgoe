@@ -49,3 +49,7 @@ CallgraphManager IPCGAnal::build(std::string filename) {
 
 	return *cg;
 }
+
+int IPCGAnal::addRuntimeDispatchCallsFromCubexProfile(CallgraphManager &ipcg, CallgraphManager &cubecg){
+
+}

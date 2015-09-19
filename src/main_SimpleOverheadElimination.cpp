@@ -20,14 +20,14 @@ void registerEstimatorPhases(CallgraphManager& cg, std::string otherPath) {
 //	cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(1));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(2));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(3));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(4));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(5));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(6));
-	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(7));
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(1));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(2));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(3));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(4));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(5));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(6));
+//	cg.registerEstimatorPhase(new FirstNLevelsEstimatorPhase(7));
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //
 	cg.registerEstimatorPhase(new StatementCountEstimatorPhase(10));
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
