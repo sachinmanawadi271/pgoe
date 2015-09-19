@@ -88,6 +88,11 @@ int main(int argc, char** argv) {
 		cg = DOTCallgraphBuilder::build(filePath, samplesPerSecond);
 	} else if (stringEndsWith(filePath, ".ipcg")){
 		cg = IPCGAnal::build(filePath);
+		if(argc == 3){
+			// We read the static graph from IPCG and fixup dynamiccly disptched functions using a full profile.
+			auto tcg = CubeCallgraphBuilder::build(std::string(argv[2]), 0, 0);
+			IPCGAnal::addRuntimeDispatchCallsFromCubexProfile(cg, tcg);
+		}
 	}	else {
 		std::cerr << "ERROR: Unknown file ending in " << filePath << std::endl;
 		exit(-1);

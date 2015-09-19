@@ -1,8 +1,8 @@
 
 #include "CallgraphManager.h"
 
-#include <cube/Cube.h>
-#include <cube/CubeMetric.h>
+#include <Cube.h>
+#include <CubeMetric.h>
 
 #include <string>
 

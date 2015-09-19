@@ -51,5 +51,23 @@ CallgraphManager IPCGAnal::build(std::string filename) {
 }
 
 int IPCGAnal::addRuntimeDispatchCallsFromCubexProfile(CallgraphManager &ipcg, CallgraphManager &cubecg){
-
+	// we iterate over all nodes of profile and check whether the IPCG based graph has the edge attached.
+	// If not, we insert it.
+	// This is pessimistic (safe for us) in the sense that, as a worst we instrument more than needed.
+	int numNewlyInsertedEdges = 0;
+	for(const auto cubeNode : cubecg){
+		CgNodePtr ipcgEquivNode = ipcg.findOrCreateNode(cubeNode->getFunctionName());
+		// Technically it can be, but we really want to know if so!
+		assert(ipcgEquivNode != nullptr && "In the profile cannot be statically unknown nodes!");
+		// now we want to compare the child nodes
+		for(const auto callee : cubeNode->getChildNodes()){
+			auto res = ipcgEquivNode->getChildNodes().find(callee); // XXX How is this comparison actually done?
+			if(res == ipcgEquivNode->getChildNodes().end()){
+				// we do not have the call stored!
+				ipcg.putEdge(cubeNode->getFunctionName(), "ndef", 0, callee->getFunctionName(), callee->getNumberOfCalls(), .0);
+				numNewlyInsertedEdges++;
+			}
+		}
+	}
+	return numNewlyInsertedEdges;
 }
