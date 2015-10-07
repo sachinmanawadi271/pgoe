@@ -2,3 +2,7 @@
 .cproject
 
 *.dot
+instrumented-*.txt
+
+src/*.o
+src/*.d
