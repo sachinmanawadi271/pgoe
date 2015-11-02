@@ -1,8 +1,8 @@
 
-#include "Callgraph.h"
+#include "CallgraphManager.h"
 
-#include <cube/Cube.h>
-#include <cube/CubeMetric.h>
+#include <Cube.h>
+#include <CubeMetric.h>
 
 #include <string>
 
@@ -15,7 +15,7 @@
  */
 namespace CubeCallgraphBuilder {
 
-	CallgraphManager build(std::string filePath, int samplesPerSecond);
+	CallgraphManager build(std::string filePath, int samplesPerSecond, double uninstrumentedTime = .0);
 
 };
 

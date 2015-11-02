@@ -4,243 +4,232 @@
 #define RENDER_DEPS 0
 
 CgNode::CgNode(std::string function) {
-	this->functionName = function;
-	this->parentNodes = CgNodePtrSet();
-	this->childNodes = CgNodePtrSet();
+  this->functionName = function;
+  this->parentNodes = CgNodePtrSet();
+  this->childNodes = CgNodePtrSet();
 
-	this->spantreeParents = CgNodePtrSet();
+  this->spantreeParents = CgNodePtrSet();
 
-	this->line = -1;
-	this->state = CgNodeState::NONE;
-	this->numberOfUnwindSteps = 0;
+  this->line = -1;
+  this->state = CgNodeState::NONE;
+  this->numberOfUnwindSteps = 0;
 
-	this->runtimeInSeconds = 0.0;
-	this->expectedNumberOfSamples = 0L;
+  this->runtimeInSeconds = 0.0;
+  this->inclusiveRuntimeInSeconds = .0;
+  this->expectedNumberOfSamples = 0L;
 
-	this->numberOfCalls = 0;
-	this->uniqueCallPath = false;
+  this->numberOfCalls = 0;
+  this->uniqueCallPath = false;
+
+  this->numberOfStatements = 0;
 }
 
-
-void CgNode::addChildNode(CgNodePtr childNode) {
-	childNodes.insert(childNode);
-}
-
+void CgNode::addChildNode(CgNodePtr childNode) { childNodes.insert(childNode); }
 
 void CgNode::addParentNode(CgNodePtr parentNode) {
-	parentNodes.insert(parentNode);
+  parentNodes.insert(parentNode);
 }
 
 void CgNode::removeChildNode(CgNodePtr childNode) {
-	childNodes.erase(childNode);
+  childNodes.erase(childNode);
 }
 
 void CgNode::removeParentNode(CgNodePtr parentNode) {
-	numberOfCallsBy.erase(parentNode);
-	parentNodes.erase(parentNode);
+  numberOfCallsBy.erase(parentNode);
+  parentNodes.erase(parentNode);
 }
 
-
-CgNodePtrSet& CgNode::getMarkerPositions() {
-	return potentialMarkerPositions;
-}
-CgNodePtrSet& CgNode::getDependentConjunctions() {
-	return dependentConjunctions;
+CgNodePtrSet &CgNode::getMarkerPositions() { return potentialMarkerPositions; }
+CgNodePtrSet &CgNode::getDependentConjunctions() {
+  return dependentConjunctions;
 }
 
 void CgNode::addSpantreeParent(CgNodePtr parentNode) {
-	this->spantreeParents.insert(parentNode);
+  this->spantreeParents.insert(parentNode);
 }
 
 bool CgNode::isSpantreeParent(CgNodePtr parentNode) {
-	return this->spantreeParents.find(parentNode) != spantreeParents.end();
+  return this->spantreeParents.find(parentNode) != spantreeParents.end();
 }
 
 void CgNode::reset() {
-	this->state = CgNodeState::NONE;
-	this->numberOfUnwindSteps = 0;
+  this->state = CgNodeState::NONE;
+  this->numberOfUnwindSteps = 0;
 
-	this->spantreeParents.clear();
+  this->spantreeParents.clear();
 }
 
 void CgNode::updateNodeAttributes(int samplesPerSecond) {
 
-	// this number will not change
-	this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
+  // this number will not change
+  this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
 
-	// has unique call path
-	auto parents = getParentNodes();
-	while(parents.size()==1) {
-		parents = (*parents.begin())->getParentNodes();
-	}
-	this->uniqueCallPath = (parents.size() == 0);
+  // has unique call path
+  auto parents = getParentNodes();
+  CgNodePtrSet visitedNodes;
+  while (parents.size() == 1) {
+  	if (visitedNodes.find(getUniqueParent()) != visitedNodes.end()) {
+  		break;	// this can happen in unconnected subgraphs
+  	} else {
+  		visitedNodes.insert(getUniqueParent());
+  	}
+    parents = getUniqueParent()->getParentNodes();
+  }
+  this->uniqueCallPath = (parents.size() == 0);
 
-	// expected samples in this function
-	this->expectedNumberOfSamples = samplesPerSecond * runtimeInSeconds;
-}
-
-bool CgNode::hasUniqueCallPath() {
-	return uniqueCallPath;
-}
-
-bool CgNode::isLeafNode() {
-	return getChildNodes().empty();
-}
-bool CgNode::isRootNode() {
-	return getParentNodes().empty();
+  // expected samples in this function
+  this->expectedNumberOfSamples = samplesPerSecond * runtimeInSeconds;
 }
 
-bool CgNode::hasUniqueParent() {
-	return getParentNodes().size() == 1;
-}
-bool CgNode::hasUniqueChild() {
-	return getChildNodes().size() == 1;
-}
+bool CgNode::hasUniqueCallPath() { return uniqueCallPath; }
+
+bool CgNode::isLeafNode() { return getChildNodes().empty(); }
+bool CgNode::isRootNode() { return getParentNodes().empty(); }
+
+bool CgNode::hasUniqueParent() { return getParentNodes().size() == 1; }
+bool CgNode::hasUniqueChild() { return getChildNodes().size() == 1; }
 CgNodePtr CgNode::getUniqueParent() {
-	if (!hasUniqueParent()) {
-		std::cerr << "Error: no unique parent." << std::endl;
-		exit(1);
-	}
-	return *(getParentNodes().begin());
+  if (!hasUniqueParent()) {
+    std::cerr << "Error: no unique parent." << std::endl;
+    exit(1);
+  }
+  return *(getParentNodes().begin());
 }
 CgNodePtr CgNode::getUniqueChild() {
-	if (!hasUniqueChild()) {
-		std::cerr << "Error: no unique child." << std::endl;
-		exit(1);
-	}
-	return *(getChildNodes().begin());
+  if (!hasUniqueChild()) {
+    std::cerr << "Error: no unique child." << std::endl;
+    exit(1);
+  }
+  return *(getChildNodes().begin());
 }
 
-bool CgNode::isSameFunction(CgNodePtr cgNodeToCompareTo){
-	if(this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0) {
-		return true;
-	}
-	return false;
+bool CgNode::isSameFunction(CgNodePtr cgNodeToCompareTo) {
+  if (this->functionName.compare(cgNodeToCompareTo->getFunctionName()) == 0) {
+    return true;
+  }
+  return false;
 }
 
+std::string CgNode::getFunctionName() const { return this->functionName; }
 
-std::string CgNode::getFunctionName() const {
-	return this->functionName;
-}
+void CgNode::dumpToDot(std::ofstream &outStream) {
+  for (auto parentNode : parentNodes) {
 
+    std::string edgeColor = "";
+    if (!isSpantreeParent(parentNode)) {
+      edgeColor = ", color=red, fontcolor=red";
+    }
 
-void CgNode::dumpToDot(std::ofstream& outStream) {
-	for (auto parentNode : parentNodes) {
-
-		std::string edgeColor = "";
-		if(!isSpantreeParent(parentNode)) {
-			edgeColor = ", color=red, fontcolor=red";
-		}
-
-		outStream << *parentNode << " -> \"" << this->functionName
-				<< "\" [label=" << this->getNumberOfCalls(parentNode) << edgeColor << "];"
-				<< std::endl;
-	}
+    outStream << *parentNode << " -> \"" << this->functionName
+              << "\" [label=" << this->getNumberOfCalls(parentNode) << edgeColor
+              << "];" << std::endl;
+  }
 
 #if RENDER_DEPS
-	for (auto markerPosition : potentialMarkerPositions) {
-		outStream << *markerPosition << " -> \"" << this->functionName
-				<< "\" [style=dotted, color=grey];"
-				<< std::endl;
-	}
-	for (auto dependentConjunction : dependentConjunctions) {
-		outStream << "\"" << this->functionName << "\" -> " << *dependentConjunction
-						<< " [style=dotted, color=green];"
-						<< std::endl;
-	}
+  for (auto markerPosition : potentialMarkerPositions) {
+    outStream << *markerPosition << " -> \"" << this->functionName
+              << "\" [style=dotted, color=grey];" << std::endl;
+  }
+  for (auto dependentConjunction : dependentConjunctions) {
+    outStream << "\"" << this->functionName << "\" -> " << *dependentConjunction
+              << " [style=dotted, color=green];" << std::endl;
+  }
 #endif
 }
 
-const CgNodePtrSet& CgNode::getChildNodes() const {
-	return childNodes;
+const CgNodePtrSet &CgNode::getChildNodes() const { return childNodes; }
+
+const CgNodePtrSet &CgNode::getParentNodes() const { return parentNodes; }
+
+void CgNode::addCallData(CgNodePtr parentNode, unsigned long long calls,
+                         double timeInSeconds) {
+
+  this->numberOfCallsBy[parentNode] += calls;
+  this->runtimeInSeconds += timeInSeconds;
 }
 
-const CgNodePtrSet& CgNode::getParentNodes() const {
-	return parentNodes;
+void CgNode::setState(CgNodeState state, int numberOfUnwindSteps) {
+
+  this->state = state;
+
+  if (state == CgNodeState::UNWIND) {
+    this->numberOfUnwindSteps = numberOfUnwindSteps;
+  } else {
+    this->numberOfUnwindSteps = 0;
+  }
 }
 
-void CgNode::addCallData(CgNodePtr parentNode, unsigned long long calls, double timeInSeconds) {
-
-	this->numberOfCallsBy[parentNode] += calls;
-	this->runtimeInSeconds += timeInSeconds;
+void CgNode::setInclusiveRuntimeInSeconds(double newInclusiveRuntimeInSeconds){
+	inclusiveRuntimeInSeconds = newInclusiveRuntimeInSeconds;
 }
 
-void CgNode::setState(CgNodeState state, int numberOfUnwindSteps){
-
-	this->state = state;
-
-	if (state==CgNodeState::UNWIND) {
-		this->numberOfUnwindSteps = numberOfUnwindSteps;
-	} else {
-		this->numberOfUnwindSteps = 0;
-	}
+double CgNode::getInclusiveRuntimeInSeconds() {
+  if (childNodes.size() == 0) {
+    inclusiveRuntimeInSeconds = runtimeInSeconds;
+  }
+	return inclusiveRuntimeInSeconds;
 }
 
-bool CgNode::isInstrumented(){
-	return state == CgNodeState::INSTRUMENT;
-}
+bool CgNode::isInstrumented() { return state == CgNodeState::INSTRUMENT; }
 
-bool CgNode::isUnwound() {
-	return state == CgNodeState::UNWIND;
-}
+bool CgNode::isUnwound() { return state == CgNodeState::UNWIND; }
 
-int CgNode::getNumberOfUnwindSteps() {
-	return numberOfUnwindSteps;
-}
+int CgNode::getNumberOfUnwindSteps() { return numberOfUnwindSteps; }
 
-unsigned long long CgNode::getNumberOfCalls() {
-	return numberOfCalls;
-}
+unsigned long long CgNode::getNumberOfCalls() { return numberOfCalls; }
 
 unsigned long long CgNode::getNumberOfCallsWithCurrentEdges() {
 
-	unsigned long long numberOfCalls = 0;
-	for(auto n : numberOfCallsBy) {
-		numberOfCalls += n.second;
-	}
+  unsigned long long numberOfCalls = 0;
+  for (auto n : numberOfCallsBy) {
+    numberOfCalls += n.second;
+  }
 
-	return numberOfCalls;
+  return numberOfCalls;
 }
 
 unsigned long long CgNode::getNumberOfCalls(CgNodePtr parentNode) {
-	return numberOfCallsBy[parentNode];
+  return numberOfCallsBy[parentNode];
 }
 
-double CgNode::getRuntimeInSeconds() {
-	return runtimeInSeconds;
-}
+double CgNode::getRuntimeInSeconds() { return runtimeInSeconds; }
 
 void CgNode::setRuntimeInSeconds(double newRuntimeInSeconds) {
-	runtimeInSeconds = newRuntimeInSeconds;
+  runtimeInSeconds = newRuntimeInSeconds;
 }
 
 unsigned long long CgNode::getExpectedNumberOfSamples() {
-	return expectedNumberOfSamples;
+  return expectedNumberOfSamples;
 }
 
-void CgNode::printMinimal(){
-	std::cout << this->functionName;
+void CgNode::setNumberOfStatements(int numStmts){
+	numberOfStatements = numStmts;
 }
 
-void CgNode::print(){
-	std::cout << this->functionName << std::endl;
-	for(auto n : childNodes){
-		std::cout << "--" << *n << std::endl;
-	}
+int CgNode::getNumberOfStatements(){
+	return numberOfStatements;
+}
+void CgNode::printMinimal() { std::cout << this->functionName; }
+
+void CgNode::print() {
+  std::cout << this->functionName << std::endl;
+  for (auto n : childNodes) {
+    std::cout << "--" << *n << std::endl;
+  }
 }
 
-
-void CgNode::setFilename(std::string filename){
-	this->filename = filename;
+void CgNode::setDominance(CgNodePtr child, double dominance) {
+  dominanceMap[child] = dominance;
 }
 
+double CgNode::getDominance(CgNodePtr child) { return dominanceMap[child]; }
 
-void CgNode::setLineNumber(int line){
-	this->line = line;
-}
+void CgNode::setFilename(std::string filename) { this->filename = filename; }
 
-std::ostream& operator<<(std::ostream& stream, const CgNode& n) {
-	stream << "\"" << n.getFunctionName() << "\"";
+void CgNode::setLineNumber(int line) { this->line = line; }
 
-	return stream;
+std::ostream &operator<<(std::ostream &stream, const CgNode &n) {
+  stream << "\"" << n.getFunctionName() << "\"";
+
+  return stream;
 }

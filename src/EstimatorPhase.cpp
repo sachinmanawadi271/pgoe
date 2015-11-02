@@ -3,8 +3,8 @@
 
 EstimatorPhase::EstimatorPhase(std::string name) :
 
-		graph(NULL),	// just so eclipse does not nag
-		report({0}),	// this hopefully initializes all members to 0
+		graph(nullptr),	// just so eclipse does not nag
+		report(),	// initializes all members of report
 		name(name) {
 }
 
@@ -15,6 +15,8 @@ void EstimatorPhase::generateReport() {
 		if(node->isInstrumented()) {
 			report.instrumentedMethods += 1;
 			report.instrumentedCalls += node->getNumberOfCalls();
+
+			report.instrumentedNames.insert(node->getFunctionName());
 		}
 		if(node->isUnwound()) {
 			unsigned long long unwindSamples = node->getExpectedNumberOfSamples();
@@ -33,6 +35,8 @@ void EstimatorPhase::generateReport() {
 	report.instrumentationOverhead = report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall;
 
 	report.phaseName = name;
+
+	assert(report.instrumentedMethods == report.instrumentedNames.size());
 }
 
 void EstimatorPhase::setGraph(Callgraph* graph) {
@@ -62,13 +66,14 @@ void EstimatorPhase::printReport() {
 
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
 
-RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(bool aggressiveReduction) :
+RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(bool onlyRemoveUnrelatedNodes, bool aggressiveReduction) :
 		EstimatorPhase("RemoveUnrelated"),
 		numUnconnectedRemoved(0),
 		numLeafsRemoved(0),
 		numChainsRemoved(0),
 		numAdvancedOptimizations(0),
-		aggressiveReduction(aggressiveReduction) {
+		aggressiveReduction(aggressiveReduction),
+		onlyRemoveUnrelatedNodes(onlyRemoveUnrelatedNodes) {
 }
 
 RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
@@ -76,8 +81,8 @@ RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-	if (mainMethod == NULL) {
-		std::cerr << "Received NULL as main method." << std::endl;
+	if (mainMethod == nullptr) {
+		std::cerr << "Received nullptr as main method." << std::endl;
 		return;
 	}
 
@@ -106,7 +111,13 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			numUnconnectedRemoved++;
 			continue;
 		}
+	}
 
+	if (onlyRemoveUnrelatedNodes) {
+		return;
+	}
+
+	for (auto node : (*graph)) {
 		// leaf nodes that are never unwound or instrumented
 		if (node->isLeafNode()) {
 			checkLeafNodeForRemoval(node);
@@ -361,8 +372,8 @@ InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
 }
 
 void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-	if (mainMethod == NULL) {
-		std::cerr << "Received NULL as main method." << std::endl;
+	if (mainMethod == nullptr) {
+		std::cerr << "Received nullptr as main method." << std::endl;
 		return;
 	}
 
@@ -521,7 +532,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			unsigned long long expectedActualInstrumentationSavedNanos =
 					CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
 
-			unsigned long long unwindOverhead = expectedUnwindInstrumentOverheadNanos;
+			unsigned long long unwindOverhead = expectedUnwindSampleOverheadNanos;
 			unsigned long long instrumentationOverhead = expectedActualInstrumentationSavedNanos;
 
 			if (unwindOverhead < instrumentationOverhead) {
@@ -529,8 +540,6 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				///XXX
 				double expectedOverheadSavedSeconds
 						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
-//				double maxOverheadSavedSeconds
-//						= ((long long) expectedInstrumentationOverheadNanos - (long long)unwindOverhead) / 1000000000.0;
 				std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
 
 //				node->setState(CgNodeState::UNWIND, 1);

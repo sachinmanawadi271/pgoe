@@ -1,7 +1,7 @@
 #include "CubeReader.h"
 
 
-CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond) {
+CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond, double uninstrumentedTime) {
 
 	CallgraphManager* cg = new CallgraphManager(samplesPerSecond);
 
@@ -22,7 +22,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 
 		for(auto cnode : cnodes){
 			// I don't know when this happens, but it does.
-			if(cnode->get_parent() == NULL) {
+			if(cnode->get_parent() == nullptr) {
 				continue;
 			}
 
@@ -41,11 +41,37 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 				overallRuntime += timeInSeconds;
 			}
 		}
-		std::cout << "Finished construction .."
-				<< " numberOfCalls: " << overallNumberOfCalls
-				<< " | runtime: " << overallRuntime << " s"
-				<< " | target samplesPerSecond : " << samplesPerSecond
-				<< std::endl;
+
+		unsigned long long numberOfMPICalls = 0;
+
+		for (auto function : *cg) {
+			if (function->getFunctionName().find("MPI") != std::string::npos) {
+				numberOfMPICalls += function->getNumberOfCallsWithCurrentEdges();
+			}
+		}
+		unsigned long long numberOfNormalCalls = overallNumberOfCalls - numberOfMPICalls;
+		unsigned long long MPIProbeNanos = numberOfMPICalls * CgConfig::nanosPerMPIProbe;
+		unsigned long long normalProbeNanos = numberOfNormalCalls * CgConfig::nanosPerNormalProbe;
+
+		double probeSeconds = (double (MPIProbeNanos + normalProbeNanos)) / (1000*1000*1000);
+		double probePercent = probeSeconds / overallRuntime * 100;
+
+		std::cout << "Finished construction .." << std::endl
+				<< "    " << "numberOfCalls: " << overallNumberOfCalls << " | MPI: " << numberOfMPICalls
+				<< " | normal: " << numberOfNormalCalls << std::endl
+				<< "    " << "runtime: "  << overallRuntime << " seconds" << std::endl
+				<< "      " << "estimatedOverhead: " << probeSeconds << " seconds"
+				<< " or " << std::setprecision(4) << probePercent << " % (vs cube time)"<< std::endl;
+
+		if (uninstrumentedTime > .0) {
+			double deltaSeconds = overallRuntime - probeSeconds - uninstrumentedTime;
+			double deltaPercent = deltaSeconds / uninstrumentedTime * 100;
+			std::cout << "      " << "delta: " << std::setprecision(6) << deltaSeconds << " seconds"
+					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
+		}
+
+		std::cout << "    " << "target samplesPerSecond : " << samplesPerSecond
+				<< std::setprecision(6) << std::endl << std::endl;
 
 		return *cg;
 

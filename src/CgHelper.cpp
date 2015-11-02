@@ -44,7 +44,7 @@ namespace CgHelper {
 		}
 
 		if (isConjunction(node)) {
-			return NULL;
+			return nullptr;
 		}
 		// single parent
 		auto parentNode = getUniqueParent(node);

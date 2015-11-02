@@ -12,6 +12,7 @@
 #include <map>
 
 #include <unordered_set>
+#include <algorithm>
 
 enum CgNodeState {
 	NONE,
@@ -46,7 +47,12 @@ public:
 	unsigned long long getNumberOfCallsWithCurrentEdges();
 	unsigned long long getNumberOfCalls(CgNodePtr parentNode);
 
+	void setNumberOfStatements(int numStmts);
+	int getNumberOfStatements();
+
 	double getRuntimeInSeconds();
+	double getInclusiveRuntimeInSeconds();
+	void setInclusiveRuntimeInSeconds(double newInclusiveRuntimeInSeconds);
 	void setRuntimeInSeconds(double newRuntimeInSeconds);
 	unsigned long long getExpectedNumberOfSamples();
 
@@ -84,6 +90,9 @@ public:
 	void print();
 	void printMinimal();
 
+	void setDominance(CgNodePtr child, double dominance);
+	double getDominance(CgNodePtr child);
+
 	friend std::ostream& operator<< (std::ostream& stream, const CgNode& n);
 
 private:
@@ -92,9 +101,11 @@ private:
 
 	int numberOfUnwindSteps;
 	unsigned long long numberOfCalls;
+	int numberOfStatements;
 
 	// note that these metrics are based on a profile and might be pessimistic
 	double runtimeInSeconds;
+	double inclusiveRuntimeInSeconds;
 	unsigned long long expectedNumberOfSamples;
 
 	CgNodePtrSet childNodes;
@@ -102,6 +113,9 @@ private:
 
 	// parentNode -> number of calls by that parent
 	std::map<CgNodePtr, unsigned long long> numberOfCallsBy;
+
+	// 
+	std::map<CgNodePtr, double> dominanceMap;
 
 	// if the node is a conjunction, these are the potentially instrumented nodes
 	CgNodePtrSet potentialMarkerPositions;

@@ -7,32 +7,27 @@
 
 #include <memory>
 #include <queue>
-#include <unordered_set>
+#include <set>
 
 #include <cassert>
 
 #include "CgNode.h"
 #include "CgHelper.h"
-
-class Callgraph {
-public:
-
-	void insert(CgNodePtr node);
-
-	void eraseInstrumentedNode(CgNodePtr node);
-
-	void erase(CgNodePtr node, bool rewireAfterDeletion=false, bool force=false);
-
-	CgNodePtrSet::iterator begin();
-	CgNodePtrSet::iterator end();
-
-	size_t size();
-private:
-	// this set represents the call graph during the actual computation
-	CgNodePtrSet graph;
-};
+#include "Callgraph.h"
 
 struct CgReport {
+
+	CgReport() :
+		instrumentedMethods(0),
+		overallMethods(0),
+		instrumentedCalls(0),
+		unwindSamples(0),
+		instrumentationOverhead(.0),
+		unwindOverhead(.0),
+		phaseName(std::string()),
+		instrumentedNames(std::set<std::string>())
+	{}
+
 	unsigned int instrumentedMethods;
 	unsigned int overallMethods;
 
@@ -43,6 +38,8 @@ struct CgReport {
 	double unwindOverhead;	// nanos
 
 	std::string phaseName;
+
+	std::set<std::string> instrumentedNames;
 
 };
 
@@ -75,7 +72,7 @@ protected:
  */
 class RemoveUnrelatedNodesEstimatorPhase : public EstimatorPhase {
 public:
-	RemoveUnrelatedNodesEstimatorPhase(bool aggressiveReduction = false);
+	RemoveUnrelatedNodesEstimatorPhase(bool onlyRemoveUnrelatedNodes = true, bool aggressiveReduction = false);
 	~RemoveUnrelatedNodesEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -91,6 +88,7 @@ private:
 	int numAdvancedOptimizations;
 
 	bool aggressiveReduction;
+	bool onlyRemoveUnrelatedNodes;
 
 	CgNodePtrSet nodesToRemove;
 };
