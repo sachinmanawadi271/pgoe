@@ -1,12 +1,7 @@
-
-# check if variables are defined, as of: http://stackoverflow.com/a/22540516
-#check-var-defined = $(if $(strip $($1)),,$(error "$1" is not defined))
-#$(call check-var-defined,CUBE_INCLUDE_PATH)
-#$(call check-var-defined,CUBE_LIBRARY_PATH)
-
 CXXFLAGS=-std=c++11 -Wall
 
 INCLUDEFLAGS=`cube-config --cube-cxxflags`
+LDFLAGS=`cube-config --cube-ldflags`
 
 DEBUG=-g -Og
 
@@ -19,21 +14,19 @@ src/IPCGReader.cpp src/IPCGEstimatorPhase.cpp \
 OBJ=$(SOURCES:.cpp=.o)
 DEP=$(OBJ:.o=.d)
 
+all: CubeCallGraphTool SimpleOverheadEliminator
 
-# MICE
-# source a script (e.g. /opt/scorep/load_cube-4.2.2-gcc4.6.sh) to load cube before compilation
-LDFLAGS=`cube-config --cube-ldflags`
+#check for cube-config in PATH
+cube-config-exists: ; @which cube-config > /dev/null
 
 # those strange flags build dependency files, so headers are dependencies too
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -c -o $@ $(DEBUG)  -MD -MP -MF ${@:.o=.d}  $<
 
-all: CubeCallGraphTool SimpleOverheadEliminator
+CubeCallGraphTool: cube-config-exists $(OBJ) src/main.o
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o $@ $(OBJ) src/main.o $(LDFLAGS) $(DEBUG)
 
-CubeCallGraphTool: $(OBJ) src/main.o
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o CubeCallgraphTool $(OBJ) src/main.o $(LDFLAGS) $(DEBUG)
-
-SimpleOverheadEliminator: $(OBJ) src/main_SimpleOverheadElimination.o
+SimpleOverheadEliminator: cube-config-exists $(OBJ) src/main_SimpleOverheadElimination.o
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o $@ $(OBJ) src/main_SimpleOverheadElimination.o $(LDFLAGS) $(DEBUG)
 
 clean:
