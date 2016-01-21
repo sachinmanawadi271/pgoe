@@ -5,6 +5,8 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 
 	CallgraphManager* cg = new CallgraphManager(samplesPerSecond);
 
+	double smallestFunctionInSeconds = 10e9;
+
 	try {
 		// Create cube instance
 		cube::Cube cube;
@@ -39,6 +41,11 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 
 				overallNumberOfCalls += numberOfCalls;
 				overallRuntime += timeInSeconds;
+
+				double runtimePerCallInSeconds = timeInSeconds / numberOfCalls;
+				if (runtimePerCallInSeconds < smallestFunctionInSeconds) {
+					smallestFunctionInSeconds = runtimePerCallInSeconds;
+				}
 			}
 		}
 
@@ -71,6 +78,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 		}
 
 		std::cout << "    " << "target samplesPerSecond : " << samplesPerSecond
+				<< " | smallestFunction : " << smallestFunctionInSeconds << "s"
 				<< std::setprecision(6) << std::endl << std::endl;
 
 		return *cg;

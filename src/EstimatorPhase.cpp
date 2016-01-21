@@ -510,30 +510,36 @@ UnwindEstimatorPhase::~UnwindEstimatorPhase() {
 
 void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
+	double overallSavedSeconds = .0;
+
 	for (auto node : (*graph)) {
 
 		// first select all leafs that are conjunctions
-//		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
-		if (CgHelper::isConjunction(node)) {
+		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
+//		if (CgHelper::isConjunction(node)) {
 
 			unwindCandidates++;
 
 			// TODO: use the actual benefit (with remaining instrumentation)
 			// TODO: consider inserting multiple parallel unwind nodes at the same time, accumulate overhead
+
+			// unwind in sample
 			unsigned long long expectedUnwindSampleOverheadNanos =
 					node->getExpectedNumberOfSamples() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
-
+			// unwind in instrumentation
 			unsigned long long expectedUnwindInstrumentOverheadNanos =
 					node->getNumberOfCalls() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
 
+			// optimistic
 			unsigned long long expectedInstrumentationOverheadNanos =
 					CgHelper::getInstrumentationOverheadOfConjunction(node);
-
+			// pessimistic
 			unsigned long long expectedActualInstrumentationSavedNanos =
 					CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
 
 			unsigned long long unwindOverhead = expectedUnwindSampleOverheadNanos;
 			unsigned long long instrumentationOverhead = expectedActualInstrumentationSavedNanos;
+
 
 			if (unwindOverhead < instrumentationOverhead) {
 
@@ -542,28 +548,32 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
 				std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
 
-//				node->setState(CgNodeState::UNWIND, 1);
+				overallSavedSeconds += expectedOverheadSavedSeconds;
+
+				node->setState(CgNodeState::UNWIND, 1);
 				unwoundNodes++;
 
-//			// remove redundant instrumentation in direct parents
-//				for (auto parentNode : node->getParentNodes()) {
-//
-//					bool redundantInstrumentation = true;
-//					for (auto childOfParentNode : parentNode->getChildNodes()) {
-//
-//						if (!childOfParentNode->isUnwound()
-//								&& CgHelper::isConjunction(childOfParentNode)) {
-//							redundantInstrumentation = false;
-//						}
-//					}
-//
-//					if (redundantInstrumentation) {
-//						CgHelper::removeInstrumentationOnPath(parentNode);
-//					}
-//				}
+			// remove redundant instrumentation in direct parents
+				for (auto parentNode : node->getParentNodes()) {
+
+					bool redundantInstrumentation = true;
+					for (auto childOfParentNode : parentNode->getChildNodes()) {
+
+						if (!childOfParentNode->isUnwound()
+								&& CgHelper::isConjunction(childOfParentNode)) {
+							redundantInstrumentation = false;
+						}
+					}
+
+					if (redundantInstrumentation) {
+						CgHelper::removeInstrumentationOnPath(parentNode);
+					}
+				}
 			}
 		}
 	}
+
+	std::cout << overallSavedSeconds << " s maximum save through unwinding." << std::endl;
 }
 
 void UnwindEstimatorPhase::printAdditionalReport() {
