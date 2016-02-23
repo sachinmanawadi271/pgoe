@@ -27,9 +27,11 @@ void registerEstimatorPhases(CallgraphManager& cg, std::string otherPath) {
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	// node based

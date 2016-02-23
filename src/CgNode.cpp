@@ -150,6 +150,15 @@ void CgNode::addCallData(CgNodePtr parentNode, unsigned long long calls,
 
 void CgNode::setState(CgNodeState state, int numberOfUnwindSteps) {
 
+	// TODO i think this breaks something
+	if (this->state != CgNodeState::NONE && this->state != state) {
+		std::cerr << "# setState old:" << this->state << " new:" << state << std::endl;
+
+		if (this->state == CgNodeState::INSTRUMENT_WITNESS && state == CgNodeState::INSTRUMENT_WITNESS) {
+			return;	// instrument conjunction is stronger
+		}
+	}
+
   this->state = state;
 
   if (state == CgNodeState::UNWIND) {
@@ -170,7 +179,9 @@ double CgNode::getInclusiveRuntimeInSeconds() {
 	return inclusiveRuntimeInSeconds;
 }
 
-bool CgNode::isInstrumented() { return state == CgNodeState::INSTRUMENT; }
+bool CgNode::isInstrumented() { return isInstrumentedWitness() || isInstrumentedConjunction(); }
+bool CgNode::isInstrumentedWitness() { return state == CgNodeState::INSTRUMENT_WITNESS; }
+bool CgNode::isInstrumentedConjunction() { return state == CgNodeState::INSTRUMENT_CONJUNCTION; }
 
 bool CgNode::isUnwound() { return state == CgNodeState::UNWIND; }
 

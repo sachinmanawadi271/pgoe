@@ -19,7 +19,7 @@ void FirstNLevelsEstimatorPhase::instrumentLevel(CgNodePtr parentNode, int level
 		return;
 	}
 
-	parentNode->setState(CgNodeState::INSTRUMENT);
+	parentNode->setState(CgNodeState::INSTRUMENT_WITNESS);
 
 	for (auto childNode : parentNode->getChildNodes()) {
 		instrumentLevel(childNode, levelsLeft-1);
@@ -76,7 +76,7 @@ void StatementCountEstimatorPhase::estimateStatementCount(CgNodePtr startNode) {
 	}
 
 	if (inclStmtCount > numberOfStatementsThreshold) {
-		startNode->setState(CgNodeState::INSTRUMENT);
+		startNode->setState(CgNodeState::INSTRUMENT_WITNESS);
 	}
 
 }
@@ -116,7 +116,7 @@ void WLCallpathDifferentiationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) 
 	for (auto node : *graph) {
 		if (CgHelper::isConjunction(node) && (whitelist.find(node) != whitelist.end()) ) {
 			for (auto parentNode : node->getParentNodes()) {
-				parentNode->setState(CgNodeState::INSTRUMENT);
+				parentNode->setState(CgNodeState::INSTRUMENT_WITNESS);
 			}
 		}
 	}

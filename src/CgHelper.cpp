@@ -25,7 +25,7 @@ namespace CgHelper {
 		for (auto potentiallyMarked : instrumentationPaths) {
 
 			// RN: the main function can be instrumented as this is part of the heuristic
-			if (potentiallyMarked->isInstrumented()) {
+			if (potentiallyMarked->isInstrumentedWitness()) {
 
 				costInNanos += potentiallyMarked->getNumberOfCalls()
 						* CgConfig::nanosPerInstrumentedCall;
@@ -39,7 +39,7 @@ namespace CgHelper {
 	// TODO: check because of new nodeBased Conventions
 	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node) {
 		// XXX RN: this method has slowly grown up to a real mess
-		if (node->isInstrumented() || node->isRootNode()) {
+		if (node->isInstrumentedWitness() || node->isRootNode()) {
 			return node;
 		}
 
@@ -130,7 +130,7 @@ namespace CgHelper {
 				return false;
 			}
 
-			if (node->isInstrumented() || node->isRootNode()) {
+			if (node->isInstrumentedWitness() || node->isRootNode()) {
 				continue;
 			}
 
@@ -203,7 +203,7 @@ namespace CgHelper {
 		return std::accumulate(
 				potentiallyInstrumented.begin(), potentiallyInstrumented.end(), 0ULL,
 				[] (unsigned long long acc, CgNodePtr node) {
-					if (node->isInstrumented()) {
+					if (node->isInstrumentedWitness()) {
 						return acc + (node->getNumberOfCalls()*CgConfig::nanosPerInstrumentedCall);
 					}
 					return acc;
@@ -227,7 +227,7 @@ namespace CgHelper {
 				potentiallyInstrumented.begin(), potentiallyInstrumented.end(), 0ULL,
 				[] (unsigned long long acc, CgNodePtr node) {
 					bool onlyOneDependendConjunction = node->getDependentConjunctions().size() == 1;
-					if (node->isInstrumented() && onlyOneDependendConjunction) {
+					if (node->isInstrumentedWitness() && onlyOneDependendConjunction) {
 						return acc + (node->getNumberOfCalls()*CgConfig::nanosPerInstrumentedCall);
 					}
 					return acc;
@@ -240,7 +240,7 @@ namespace CgHelper {
 	 * 	returns false if no instrumentation found */
 	// TODO: check because of new nodeBased Conventions
 	bool removeInstrumentationOnPath(CgNodePtr node) {
-		if (node->isInstrumented()) {
+		if (node->isInstrumentedWitness()) {
 
 			node->setState(CgNodeState::NONE);
 			return true;

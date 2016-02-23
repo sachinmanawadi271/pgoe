@@ -92,7 +92,7 @@ void OptimalNodeBasedEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	step(stateStack.top());
 
 	for (auto node : optimalInstrumentation) {
-		node->setState(CgNodeState::INSTRUMENT);
+		node->setState(CgNodeState::INSTRUMENT_WITNESS);
 	}
 	mainMethod->setState(CgNodeState::NONE);	// main() is implicitly instrumented
 

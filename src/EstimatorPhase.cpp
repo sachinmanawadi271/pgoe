@@ -337,7 +337,7 @@ void DiamondPatternSolverEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 				///XXX instrument parents
 				for (auto& marker : node->getMarkerPositions()) {
-					marker->setState(CgNodeState::INSTRUMENT);
+					marker->setState(CgNodeState::INSTRUMENT_WITNESS);
 				}
 
 				numUniqueConjunction++;
@@ -390,7 +390,7 @@ void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 		if (CgHelper::isConjunction(node)) {
 			for (auto nodeToInstrument : node->getParentNodes()) {
-				nodeToInstrument->setState(CgNodeState::INSTRUMENT);
+				nodeToInstrument->setState(CgNodeState::INSTRUMENT_WITNESS);
 			}
 		}
 
@@ -420,7 +420,7 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 		auto nextAncestor = node;
 
 		// If the node was not selected previously, we continue
-		if (!nextAncestor->isInstrumented()) {
+		if (!nextAncestor->isInstrumentedWitness()) {
 			continue;
 		}
 
@@ -441,7 +441,7 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 
 		if (!minimalCalls->isSameFunction(nextAncestor)) {
 			node->setState(CgNodeState::NONE);
-			minimalCalls->setState(CgNodeState::INSTRUMENT);
+			minimalCalls->setState(CgNodeState::INSTRUMENT_WITNESS);
 			movedInstrumentations++;
 		}
 	}
@@ -500,7 +500,7 @@ void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
 //// CONJUNCTION ESTIMATOR PHASE
 
 ConjunctionEstimatorPhase::ConjunctionEstimatorPhase(bool instrumentOnlyConjunctions) :
-		EstimatorPhase("Conjunction"), instrumentOnlyConjunctions(instrumentOnlyConjunctions) {}
+		EstimatorPhase(instrumentOnlyConjunctions ? "ConjunctionOnly" : "ConjunctionOrWitness"), instrumentOnlyConjunctions(instrumentOnlyConjunctions) {}
 
 ConjunctionEstimatorPhase::~ConjunctionEstimatorPhase() {}
 
@@ -509,7 +509,7 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	if (instrumentOnlyConjunctions) {
 		for (auto node : (*graph)) {
 			if (CgHelper::isConjunction(node)) {
-				node->setState(CgNodeState::INSTRUMENT);
+				node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
 			}
 		}
 	} else {
@@ -533,17 +533,17 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 					unsigned long long conjunctionCallsToInstrument = node->getNumberOfCalls();
 					unsigned long long parentCallsToInstrument = 0;
 					for (auto parent : node->getParentNodes()) {
-						if (!parent->isInstrumented()) {
+						if (!parent->isInstrumentedWitness()) {
 							parentCallsToInstrument += parent->getNumberOfCalls();
 						}
 					}
 
 					if (parentCallsToInstrument <= conjunctionCallsToInstrument) {
 						for (auto parent : node->getParentNodes()) {
-							parent->setState(CgNodeState::INSTRUMENT);
+							parent->setState(CgNodeState::INSTRUMENT_WITNESS);
 						}
 					} else {
-						node->setState(CgNodeState::INSTRUMENT);
+						node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
 					}
 				}
 			}

@@ -125,12 +125,12 @@ void CallgraphManager::printDOT(std::string prefix) {
 		if (CgHelper::isConjunction(node)) {
 			attributes += "color=green, ";
 		}
-		if (node->isInstrumented()) {
+		if (node->isInstrumentedWitness()) {
 			attributes += "shape=doublecircle, ";
 		}
 		if (node->isUnwound()) {
 			attributes += "shape=doubleoctagon, ";
-		} else if (node->isInstrumented()) {
+		} else if (node->isInstrumentedWitness()) {
 			attributes += "shape=doublecircle, ";
 		} else if (node->isLeafNode()) {
 			attributes += "shape=octagon, ";

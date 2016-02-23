@@ -16,8 +16,9 @@
 
 enum CgNodeState {
 	NONE,
-	INSTRUMENT,
-	UNWIND
+	INSTRUMENT_WITNESS,
+	UNWIND,
+	INSTRUMENT_CONJUNCTION
 };
 
 class CgNode;
@@ -59,6 +60,8 @@ public:
 
 	void setState(CgNodeState state, int numberOfUnwindSteps = 0);
 	bool isInstrumented();
+	bool isInstrumentedWitness();
+	bool isInstrumentedConjunction();
 	bool isUnwound();
 	int getNumberOfUnwindSteps();
 

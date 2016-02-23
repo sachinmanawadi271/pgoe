@@ -12,7 +12,7 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 
 		// unwound nodes are fine as they are
-		if(!CgHelper::isConjunction(node) || node->isUnwound()) {
+		if(!CgHelper::isConjunction(node) || node->isUnwound() || node->isInstrumentedConjunction()) {
 			continue;
 		}
 
