@@ -151,10 +151,10 @@ void CgNode::addCallData(CgNodePtr parentNode, unsigned long long calls,
 void CgNode::setState(CgNodeState state, int numberOfUnwindSteps) {
 
 	// TODO i think this breaks something
-	if (this->state != CgNodeState::NONE && this->state != state) {
+	if (this->state == CgNodeState::INSTRUMENT_CONJUNCTION && this->state != state) {
 		std::cerr << "# setState old:" << this->state << " new:" << state << std::endl;
 
-		if (this->state == CgNodeState::INSTRUMENT_WITNESS && state == CgNodeState::INSTRUMENT_WITNESS) {
+		if (state == CgNodeState::INSTRUMENT_WITNESS) {
 			return;	// instrument conjunction is stronger
 		}
 	}

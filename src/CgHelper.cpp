@@ -130,7 +130,7 @@ namespace CgHelper {
 				return false;
 			}
 
-			if (node->isInstrumentedWitness() || node->isRootNode()) {
+			if (node->isInstrumented() || node->isRootNode()) {
 				continue;
 			}
 

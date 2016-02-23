@@ -51,6 +51,9 @@ void EstimatorPhase::printReport() {
 
 	double overallOverhead = report.instrumentationOverhead+report.unwindOverhead;
 
+#ifdef TINY_REPORT
+	std::cout << "==" << report.phaseName << "== Phase TinyReport " << overallOverhead/1e9 <<" s" << std::endl;
+#else
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "instrumented " << report.instrumentedMethods
 			<< " of " << report.overallMethods << " methods" << std::endl
@@ -62,6 +65,7 @@ void EstimatorPhase::printReport() {
 			<< " | that is: " << overallOverhead/1e9 <<" s"<< std::endl;
 
 	printAdditionalReport();
+#endif
 }
 
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
@@ -86,9 +90,9 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		return;
 	}
 
+	/* remove unrelated nodes */
 	CgNodePtrSet nodesReachableFromMain;
 	std::queue<CgNodePtr> workQueue;
-
 	/** XXX RN: code duplication */
 	workQueue.push(mainMethod);
 	while(!workQueue.empty()) {
@@ -103,7 +107,6 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			}
 		}
 	}
-
 	for (auto node : (*graph)) {
 		// remove nodes that were not reachable from the main method
 		if (nodesReachableFromMain.find(node) == nodesReachableFromMain.end()) {
@@ -117,6 +120,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		return;
 	}
 
+	/* remove leaf nodes */
 	for (auto node : (*graph)) {
 		// leaf nodes that are never unwound or instrumented
 		if (node->isLeafNode()) {
@@ -128,11 +132,11 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		graph->erase(node);
 	}
 
+	/* remove linear chains */
 	for (auto node : (*graph)) {
-		// reduce chain
 		if (node->hasUniqueChild()) {
 
-			if (!aggressiveReduction && CgHelper::isConjunction(node)) {
+			if (CgHelper::isConjunction(node)) {
 				continue;
 			}
 
@@ -153,8 +157,12 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	}
 
+	if (!aggressiveReduction) {
+		return;
+	}
+
 	for (auto node : (*graph)) {
-		// advanced optimization
+		// advanced optimization (remove node with subset of dependentConjunctions
 		if (node->hasUniqueParent()	&& node->hasUniqueChild()
 				&& node->getUniqueParent()->getNumberOfCalls() <= node->getNumberOfCalls() ) {
 
@@ -464,33 +472,50 @@ DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase(
 
 void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
+	std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> pq;
 	for (auto node : (*graph)) {
-
-		if (!CgHelper::isConjunction(node) || node->isUnwound()) {
-			continue;
+		if (node->isInstrumentedWitness()) {
+			pq.push(node);
 		}
+	}
 
-		if (!CgHelper::allParentsPathsInstrumented(node)) {
-			continue;
-		}
+	while (!pq.empty()) {
+		auto node = pq.top();
+		pq.pop();
 
-		unsigned long long expensivePath = 0;
-		CgNodePtr mostExpensiveParent = 0;
-
-		// XXX RN: the heuristic is far from perfect and might block another node with the same parent
-		for (auto parentNode : node->getParentNodes()) {
-			auto pathCosts = CgHelper::getInstrumentationOverheadOfPath(parentNode);
-			// for some strange reason there are edges with 0 calls in the spec profiles
-			if (pathCosts > expensivePath && CgHelper::instrumentationCanBeDeleted(parentNode)) {
-				mostExpensiveParent = parentNode;
-			}
-		}
-
-		if(mostExpensiveParent) {
-			CgHelper::removeInstrumentationOnPath(mostExpensiveParent);
+		if (CgHelper::instrumentationCanBeDeleted(node)) {
+			node->setState(CgNodeState::NONE);
 			deletedInstrumentationMarkers++;
 		}
 	}
+
+
+//	for (auto node : (*graph)) {
+//		if (!CgHelper::isConjunction(node) || node->isUnwound()) {
+//			continue;
+//		}
+//
+//		if (!CgHelper::allParentsPathsInstrumented(node)) {
+//			continue;
+//		}
+//
+//		unsigned long long expensivePath = 0;
+//		CgNodePtr mostExpensiveParent = 0;
+//
+//		// XXX RN: the heuristic is far from perfect and might block another node with the same parent
+//		for (auto parentNode : node->getParentNodes()) {
+//			auto pathCosts = CgHelper::getInstrumentationOverheadOfPath(parentNode);
+//			// for some strange reason there are edges with 0 calls in the spec profiles
+//			if (pathCosts > expensivePath && CgHelper::instrumentationCanBeDeleted(parentNode)) {
+//				mostExpensiveParent = parentNode;
+//			}
+//		}
+//
+//		if(mostExpensiveParent) {
+//			CgHelper::removeInstrumentationOnPath(mostExpensiveParent);
+//			deletedInstrumentationMarkers++;
+//		}
+//	}
 }
 
 void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {

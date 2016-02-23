@@ -15,15 +15,28 @@
 #include "IPCGEstimatorPhase.h"
 
 void registerEstimatorPhases(CallgraphManager& cg, std::string otherPath) {
-//	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, false));
 
-	// heuristic
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//	cg.registerEstimatorPhase(new MoveInstrumentationUpwardsEstimatorPhase());
-//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true));
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));

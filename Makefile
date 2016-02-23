@@ -21,7 +21,7 @@ cube-config-exists: ; @which cube-config > /dev/null
 
 # those strange flags build dependency files, so headers are dependencies too
 %.o : %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -c -o $@ $(DEBUG)  -MD -MP -MF ${@:.o=.d}  $<
+	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) $(MORE) -c -o $@ $(DEBUG)  -MD -MP -MF ${@:.o=.d}  $<
 
 CubeCallGraphTool: cube-config-exists $(OBJ) src/main.o
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o $@ $(OBJ) src/main.o $(LDFLAGS) $(DEBUG)

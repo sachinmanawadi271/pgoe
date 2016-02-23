@@ -175,11 +175,4 @@ namespace std {
 	};
 }
 
-struct CalledMoreOften {
-	bool operator() (const CgNodePtr& lhs, const CgNodePtr& rhs) {
-		return lhs->getNumberOfCalls() < rhs->getNumberOfCalls();
-	}
-};
-
-
 #endif
