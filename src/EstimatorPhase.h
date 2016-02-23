@@ -226,9 +226,8 @@ public:
 	ResetEstimatorPhase();
 	~ResetEstimatorPhase();
 
+	void printReport() override;
 	void modifyGraph(CgNodePtr mainMethod);
-protected:
-	void printAdditionalReport();
 };
 
 #endif

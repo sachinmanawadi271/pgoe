@@ -149,7 +149,7 @@ void CallgraphManager::printDOT(std::string prefix) {
 	outfile << "\n}" << std::endl;
 	outfile.close();
 
-	std::cout << "DOT file dumped (" << filename << ")." << std::endl;
+//	std::cout << "DOT file dumped (" << filename << ")." << std::endl;
 
 }
 

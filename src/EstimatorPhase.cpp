@@ -657,7 +657,8 @@ void ResetEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 }
 
-void ResetEstimatorPhase::printAdditionalReport() {
-	std::cout << std::endl;
+void ResetEstimatorPhase::printReport() {
+	std::cout << "==" << report.phaseName << "== Phase " << std::endl << std::endl;
 }
+
 
