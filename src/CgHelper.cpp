@@ -87,41 +87,64 @@ namespace CgHelper {
 	/** Returns a set of all nodes from the starting node up to the instrumented nodes.
 	 *  It should not break for cycles, because cycles have to be instrumented by definition. */
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start) {
-		CgNodePtrSet path = {start};
 
-		if (start->isInstrumented()) {
-			return path;
-		}
-		if (start->isRootNode()) {
-			return path;
-		}
-		if (hasUniqueParent(start)) {
+		CgNodePtrSet path = { start };	// visited nodes
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(start);
 
-			auto parentNode = getUniqueParent(start);
-			auto parentPath = getInstrumentationPath(parentNode);
-			path.insert(parentPath.begin(), parentPath.end());
-			return path;
-		}
+		while (!workQueue.empty()) {
 
-		if (isConjunction(start)) {
-			for (auto parentNode : start->getParentNodes()) {
+			auto node = workQueue.front();
+			workQueue.pop();
 
-				auto parentPath = getInstrumentationPath(parentNode);
-				path.insert(parentPath.begin(), parentPath.end());
+			if (node->isInstrumented() || node->isRootNode()) {
+				continue;
 			}
 
-			return path;
+			for (auto parentNode : node->getParentNodes()) {
+				if (path.find(parentNode) != path.end()) {
+					workQueue.push(parentNode);
+					path.insert(parentNode);
+				}
+			}
+
 		}
 
-		std::cout << "Error: Unknown case in getInstrumentationPath()"
-				<< "start : " << *start << std::endl;
-		return CgNodePtrSet();
+		return path;
+	}
+
+	bool isUniquelyInstrumented(CgNodePtr conjunctionNode) {
+
+		CgNodePtrSet visited;	// visited nodes
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(conjunctionNode);
+
+		while (!workQueue.empty()) {
+
+			auto node = workQueue.front();
+			workQueue.pop();
+
+			if (visited.find(node) == visited.end()) {
+				visited.insert(node);
+			} else {
+				return false;
+			}
+
+			if (node->isInstrumented() || node->isRootNode()) {
+				continue;
+			}
+
+			for (auto parentNode : node->getParentNodes()) {
+				workQueue.push(parentNode);
+			}
+		}
+		return true;
 	}
 
 	/**
 	 * Checks the instrumentation paths (node based!) above a conjunction node for intersection.
 	 * Returns the Number Of Errors ! */
-	bool uniqueInstrumentationTest(CgNodePtr conjunctionNode) {
+	int uniqueInstrumentationTest(CgNodePtr conjunctionNode) {
 
 		int numberOfErrors = 0;
 

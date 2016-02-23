@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-CCG=./CubeCallgraphTool
+CCG=./CubeCallGraphTool
 # output is dumped here
 SPEC_OUTPUT=spec-output-stats
 # cubex profiles of spec benchmarks
@@ -22,7 +22,7 @@ for bm in $BENCHMARKS ;do
 
 	$CCG $SPEC_PATH/$FILE $1 &> $SPEC_OUTPUT/$FILE.log
 
-	mv Instrument-callgraph.dot $SPEC_OUTPUT/$FILE.dot
+	# mv Instrument-callgraph.dot $SPEC_OUTPUT/$FILE.dot
 
 	# generate the dot
 #	dottopng.sh Instrument-callgraph.dot spec-png/$FILE.png

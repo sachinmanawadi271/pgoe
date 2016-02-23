@@ -190,6 +190,20 @@ private:
 };
 
 /**
+ * Instrument all conjunction nodes.
+ * This assumes that the instrumentation hook contains the call site.
+ */
+class ConjunctionEstimatorPhase : public EstimatorPhase {
+public:
+	ConjunctionEstimatorPhase(bool instrumentOnlyConjunctions = false);
+	~ConjunctionEstimatorPhase();
+
+	void modifyGraph(CgNodePtr mainMethod);
+private:
+	bool instrumentOnlyConjunctions;
+};
+
+/**
  * Local Unwind from all leaf nodes.
  * Remove redundant instrumentation.
  * TODO RN: this phase can not deal with the advanced instrumentation from NodeBasedOptimum

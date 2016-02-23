@@ -497,6 +497,67 @@ void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
 	std::cout << "\t" << "deleted " << deletedInstrumentationMarkers << " instrumentation marker(s)" << std::endl;
 }
 
+//// CONJUNCTION ESTIMATOR PHASE
+
+ConjunctionEstimatorPhase::ConjunctionEstimatorPhase(bool instrumentOnlyConjunctions) :
+		EstimatorPhase("Conjunction"), instrumentOnlyConjunctions(instrumentOnlyConjunctions) {}
+
+ConjunctionEstimatorPhase::~ConjunctionEstimatorPhase() {}
+
+void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+
+	if (instrumentOnlyConjunctions) {
+		for (auto node : (*graph)) {
+			if (CgHelper::isConjunction(node)) {
+				node->setState(CgNodeState::INSTRUMENT);
+			}
+		}
+	} else {
+
+		// either instrument all parents or the conjunction itself
+
+		std::queue<CgNodePtr> workQueue;
+		CgNodePtrSet doneNodes;
+
+		/** XXX RN: code duplication */
+		workQueue.push(mainMethod);
+		while (!workQueue.empty()) {
+
+			auto node = workQueue.front();
+			workQueue.pop();
+			doneNodes.insert(node);
+
+			if (CgHelper::isConjunction(node)) {
+
+				if (!CgHelper::isUniquelyInstrumented(node)) {
+					unsigned long long conjunctionCallsToInstrument = node->getNumberOfCalls();
+					unsigned long long parentCallsToInstrument = 0;
+					for (auto parent : node->getParentNodes()) {
+						if (!parent->isInstrumented()) {
+							parentCallsToInstrument += parent->getNumberOfCalls();
+						}
+					}
+
+					if (parentCallsToInstrument <= conjunctionCallsToInstrument) {
+						for (auto parent : node->getParentNodes()) {
+							parent->setState(CgNodeState::INSTRUMENT);
+						}
+					} else {
+						node->setState(CgNodeState::INSTRUMENT);
+					}
+				}
+			}
+
+			// add child to work queue if not done yet
+			for (auto childNode : node->getChildNodes()) {
+				if (doneNodes.find(childNode) == doneNodes.end()) {
+					workQueue.push(childNode);
+				}
+			}
+		}
+	}
+}
+
 //// UNWIND ESTIMATOR PHASE
 
 UnwindEstimatorPhase::UnwindEstimatorPhase() :

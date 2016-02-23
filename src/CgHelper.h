@@ -29,7 +29,8 @@ namespace CgHelper {
 
 	CgNodePtr getUniqueParent(CgNodePtr node);
 
-	bool uniqueInstrumentationTest(CgNodePtr conjunctionNode);
+	int uniqueInstrumentationTest(CgNodePtr conjunctionNode);
+	bool isUniquelyInstrumented(CgNodePtr conjunctionNode);
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start);
 
 	bool instrumentationCanBeDeleted(CgNodePtr node);
