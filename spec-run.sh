@@ -5,13 +5,12 @@ CCG=./CubeCallGraphTool
 # output is dumped here
 SPEC_OUTPUT=spec-output-stats
 # cubex profiles of spec benchmarks
-SPEC_PATH=./spec-testcases
+SPEC_PATH=spec-centos
 
 rm -rf $SPEC_OUTPUT
 mkdir $SPEC_OUTPUT
 
-BENCHMARKS=`find $SPEC_PATH -name *.cubex`
-BENCHMARKS=`find spec-testcases/ -name "*.cubex"`
+BENCHMARKS=`find $SPEC_PATH -name "*.cubex"`
 
 echo $BENCHMARKS
 
