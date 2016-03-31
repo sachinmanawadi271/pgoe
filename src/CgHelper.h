@@ -13,12 +13,12 @@
 
 // TODO this numbers should be in a config file
 namespace CgConfig {
-	const unsigned int nanosPerInstrumentedCall = 10;	// TODO modified
+	const unsigned int nanosPerInstrumentedCall = 7;	// TODO modified
 
 	const unsigned int nanosPerUnwindSample 	= 0;
-	const unsigned int nanosPerUnwindStep 		= 900;
+	const unsigned int nanosPerUnwindStep 		= 1000;
 
-	const unsigned int nanosPerNormalProbe		= 170;
+	const unsigned long long nanosPerNormalProbe		= 220;
 	const unsigned int nanosPerMPIProbe 			= 200;
 }
 
