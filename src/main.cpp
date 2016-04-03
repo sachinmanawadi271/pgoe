@@ -19,32 +19,35 @@ void registerEstimatorPhases(CallgraphManager& cg, std::string otherPath) {
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true));
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true));
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 	// node based
@@ -74,6 +77,7 @@ int main(int argc, char** argv) {
 	double uninstrumentedReferenceRuntime = .0;
 	int samplesPerSecond = 1000;
 	std::string otherPath;
+	bool useMangledNames = false;
 
 	for(int i = 1; i < argc; ++i) {
 		auto arg = std::string(argv[i]);
@@ -90,13 +94,16 @@ int main(int argc, char** argv) {
 			uninstrumentedReferenceRuntime = atof(argv[++i]);
 			continue;
 		}
+		if (arg=="-mangled" || arg=="-m") {
+			useMangledNames=true;	
+		}
 	}
 
 	CallgraphManager cg;
 	std::string filePath(argv[1]);
 
 	if (stringEndsWith(filePath, ".cubex")) {
-		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond, uninstrumentedReferenceRuntime);
+		cg = CubeCallgraphBuilder::build(filePath, samplesPerSecond, useMangledNames, uninstrumentedReferenceRuntime);
 	} else if (stringEndsWith(filePath, ".dot")) {
 		cg = DOTCallgraphBuilder::build(filePath, samplesPerSecond);
 	} else if (stringEndsWith(filePath, ".ipcg")){

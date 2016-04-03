@@ -78,7 +78,7 @@ void CgNode::updateNodeAttributes(int samplesPerSecond) {
   this->uniqueCallPath = (parents.size() == 0);
 
   // expected samples in this function
-  this->expectedNumberOfSamples = samplesPerSecond * runtimeInSeconds;
+  this->expectedNumberOfSamples = (unsigned long long) ( (double) samplesPerSecond * runtimeInSeconds);
 }
 
 bool CgNode::hasUniqueCallPath() { return uniqueCallPath; }

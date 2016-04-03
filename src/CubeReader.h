@@ -15,7 +15,7 @@
  */
 namespace CubeCallgraphBuilder {
 
-	CallgraphManager build(std::string filePath, int samplesPerSecond, double uninstrumentedTime = .0);
+	CallgraphManager build(std::string filePath, int samplesPerSecond, bool useMangledNames, double uninstrumentedTime = .0);
 
 };
 

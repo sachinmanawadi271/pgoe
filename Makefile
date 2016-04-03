@@ -14,7 +14,7 @@ src/IPCGReader.cpp src/IPCGEstimatorPhase.cpp \
 OBJ=$(SOURCES:.cpp=.o)
 DEP=$(OBJ:.o=.d)
 
-all: CubeCallGraphTool SimpleOverheadEliminator
+all: CubeCallGraphTool
 
 #check for cube-config in PATH
 cube-config-exists: ; @which cube-config > /dev/null
@@ -25,9 +25,6 @@ cube-config-exists: ; @which cube-config > /dev/null
 
 CubeCallGraphTool: cube-config-exists $(OBJ) src/main.o
 	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o $@ $(OBJ) src/main.o $(LDFLAGS) $(DEBUG)
-
-SimpleOverheadEliminator: cube-config-exists $(OBJ) src/main_SimpleOverheadElimination.o
-	$(CXX) $(CXXFLAGS) $(INCLUDEFLAGS) -o $@ $(OBJ) src/main_SimpleOverheadElimination.o $(LDFLAGS) $(DEBUG)
 
 clean:
 	rm -rf $(OBJ) $(DEP) src/*.o src/*.d CubeCallgraphTool

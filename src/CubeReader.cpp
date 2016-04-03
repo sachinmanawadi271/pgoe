@@ -1,11 +1,9 @@
 #include "CubeReader.h"
 
 
-CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond, double uninstrumentedTime) {
+CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond, bool useMangledNames, double uninstrumentedTime) {
 
 	CallgraphManager* cg = new CallgraphManager(samplesPerSecond);
-
-	double smallestFunctionInSeconds = 10e9;
 
 	try {
 		// Create cube instance
@@ -16,6 +14,10 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 		const std::vector<cube::Cnode*>& cnodes = cube.get_cnodev();
 		unsigned long long overallNumberOfCalls = 0;
 		double overallRuntime = 0.0;
+
+		double smallestFunctionInSeconds = 1e9;
+		std::string smallestFunctionName;
+		int edgesWithZeroRuntime = 0;
 
 		cube::Metric* timeMetric = cube.get_met("time");
 		cube::Metric* visitsMetric = cube.get_met("visits");
@@ -30,14 +32,25 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 
 			// Put the parent/child pair into our call graph
 			auto parentNode = cnode->get_parent()->get_callee();	// RN: don't trust no one. It IS the parent node
-			auto childnode = cnode->get_callee();
+			auto childNode = cnode->get_callee();
+
+			auto parentName = useMangledNames ? parentNode->get_mangled_name() : parentNode->get_name();
+			auto childName = useMangledNames ? childNode->get_mangled_name() : childNode->get_name();
 
 			for(unsigned int i = 0; i < threads.size(); i++) {
 				unsigned long long numberOfCalls = (unsigned long long) cube.get_sev(visitsMetric, cnode, threads.at(i));
 				double timeInSeconds = cube.get_sev(timeMetric, cnode, threads.at(i));
 
-				cg->putEdge(parentNode->get_name(), parentNode->get_mod(), parentNode->get_begn_ln(),
-						childnode->get_name(), numberOfCalls, timeInSeconds);
+				///XXX overhead compensation wip
+//				std::cout << "calls:" << numberOfCalls << " sec:" << timeInSeconds << std::endl;
+//				timeInSeconds = timeInSeconds - ((double) (numberOfCalls * CgConfig::nanosPerNormalProbe) / 1e9);
+//				if (timeInSeconds < 0) {
+//					timeInSeconds = 0;
+//					edgesWithZeroRuntime++;
+//				}
+
+				cg->putEdge(parentName, parentNode->get_mod(), parentNode->get_begn_ln(),
+						childName, numberOfCalls, timeInSeconds);
 
 				overallNumberOfCalls += numberOfCalls;
 				overallRuntime += timeInSeconds;
@@ -45,6 +58,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 				double runtimePerCallInSeconds = timeInSeconds / numberOfCalls;
 				if (runtimePerCallInSeconds < smallestFunctionInSeconds) {
 					smallestFunctionInSeconds = runtimePerCallInSeconds;
+					smallestFunctionName = childName;
 				}
 			}
 		}
@@ -61,7 +75,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 		unsigned long long normalProbeNanos = numberOfNormalCalls * CgConfig::nanosPerNormalProbe;
 
 		double probeSeconds = (double (MPIProbeNanos + normalProbeNanos)) / (1000*1000*1000);
-		double probePercent = probeSeconds / overallRuntime * 100;
+		double probePercent = probeSeconds / (overallRuntime-probeSeconds) * 100;
 
 		std::cout << "Finished construction .." << std::endl
 				<< "    " << "numberOfCalls: " << overallNumberOfCalls << " | MPI: " << numberOfMPICalls
@@ -78,7 +92,8 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 		}
 
 		std::cout << "    " << "target samplesPerSecond : " << samplesPerSecond
-				<< " | smallestFunction : " << smallestFunctionInSeconds << "s"
+				<< " | smallestFunction : " << smallestFunctionName << " : " << smallestFunctionInSeconds * 1e9 << "ns"
+				<< " | edgesWithZeroRuntime: " << edgesWithZeroRuntime
 				<< std::setprecision(6) << std::endl << std::endl;
 
 		return *cg;

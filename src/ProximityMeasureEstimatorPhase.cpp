@@ -3,7 +3,7 @@
 ProximityMeasureEstimatorPhase::ProximityMeasureEstimatorPhase(
     std::string filename)
     : EstimatorPhase("proximity-estimator"), filename(filename),
-      compareAgainst(CubeCallgraphBuilder::build(filename, 1)) {
+      compareAgainst(CubeCallgraphBuilder::build(filename, 1, false)) {
   std::cout << "Everything constructed" << std::endl;
 }
 
