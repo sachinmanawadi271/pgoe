@@ -5,7 +5,8 @@ EstimatorPhase::EstimatorPhase(std::string name) :
 
 		graph(nullptr),	// just so eclipse does not nag
 		report(),	// initializes all members of report
-		name(name) {
+		name(name),
+		config(nullptr) {
 }
 
 void EstimatorPhase::generateReport() {

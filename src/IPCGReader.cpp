@@ -1,9 +1,9 @@
 #include "IPCGReader.h"
 
 /** RN: note that the format is child -> parent for whatever reason.. */
-CallgraphManager IPCGAnal::build(std::string filename) {
+CallgraphManager IPCGAnal::build(std::string filename, Config* c) {
 
-	CallgraphManager *cg = new CallgraphManager();
+	CallgraphManager *cg = new CallgraphManager(c);
 
 	std::ifstream file(filename);
 	std::string line;

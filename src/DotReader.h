@@ -22,8 +22,8 @@ namespace DOTCallgraphBuilder {
 		return s.substr(first, second-first);
 	}
 
-	CallgraphManager build(std::string filePath) {
-		CallgraphManager* cg = new CallgraphManager();
+	CallgraphManager build(std::string filePath, Config* c) {
+		CallgraphManager* cg = new CallgraphManager(c);
 
 		std::ifstream file(filePath);
 		std::string line;

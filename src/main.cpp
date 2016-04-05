@@ -14,9 +14,9 @@
 #include "ProximityMeasureEstimatorPhase.h"
 #include "IPCGEstimatorPhase.h"
 
-void registerEstimatorPhases(CallgraphManager& cg, Config c) {
+void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 
-	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c.nanosPerHalfProbe));
+	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
 
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
@@ -56,7 +56,7 @@ void registerEstimatorPhases(CallgraphManager& cg, Config c) {
 //	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-//		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(c.otherPath));
+//		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(c->otherPath));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
@@ -103,21 +103,21 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	CallgraphManager cg;
+	CallgraphManager cg(&c);
 	std::string filePath(argv[1]);
 
 	if (stringEndsWith(filePath, ".cubex")) {
-		cg = CubeCallgraphBuilder::build(filePath, c);
+		cg = CubeCallgraphBuilder::build(filePath, &c);
 	} else if (stringEndsWith(filePath, ".dot")) {
-		cg = DOTCallgraphBuilder::build(filePath);
+		cg = DOTCallgraphBuilder::build(filePath, &c);
 	} else if (stringEndsWith(filePath, ".ipcg")){
-		cg = IPCGAnal::build(filePath);
+		cg = IPCGAnal::build(filePath, &c);
 	}	else {
 		std::cerr << "ERROR: Unknown file ending in " << filePath << std::endl;
 		exit(-1);
 	}
 
-	registerEstimatorPhases(cg, c);
+	registerEstimatorPhases(cg, &c);
 
 	cg.thatOneLargeMethod();
 

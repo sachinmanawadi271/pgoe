@@ -15,7 +15,7 @@
  */
 namespace CubeCallgraphBuilder {
 
-	CallgraphManager build(std::string filePath, Config c);
+	CallgraphManager build(std::string filePath, Config* c);
 
 };
 

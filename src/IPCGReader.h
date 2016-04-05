@@ -6,7 +6,7 @@
 #include <string>
 
 namespace IPCGAnal {
-	CallgraphManager build(std::string filepath);
+	CallgraphManager build(std::string filepath, Config* c);
 
 	int addRuntimeDispatchCallsFromCubexProfile(CallgraphManager &ipcg, CallgraphManager &cubecg);
 };

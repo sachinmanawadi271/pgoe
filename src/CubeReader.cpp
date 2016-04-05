@@ -1,9 +1,9 @@
 #include "CubeReader.h"
 
 
-CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config c) {
+CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 
-	CallgraphManager* cg = new CallgraphManager();
+	CallgraphManager* cg = new CallgraphManager(c);
 
 	try {
 		// Create cube instance
@@ -27,7 +27,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config c) {
 		for(auto cnode : cnodes){
 			// I don't know when this happens, but it does.
 			if(cnode->get_parent() == nullptr) {
-				cg->findOrCreateNode(c.useMangledNames ? cnode->get_callee()->get_mangled_name() : cnode->get_callee()->get_name(), cube.get_sev(timeMetric, cnode, threads.at(0)));
+				cg->findOrCreateNode(c->useMangledNames ? cnode->get_callee()->get_mangled_name() : cnode->get_callee()->get_name(), cube.get_sev(timeMetric, cnode, threads.at(0)));
 				continue;
 			}
 
@@ -35,8 +35,8 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config c) {
 			auto parentNode = cnode->get_parent()->get_callee();	// RN: don't trust no one. It IS the parent node
 			auto childNode = cnode->get_callee();
 
-			auto parentName = c.useMangledNames ? parentNode->get_mangled_name() : parentNode->get_name();
-			auto childName = c.useMangledNames ? childNode->get_mangled_name() : childNode->get_name();
+			auto parentName = c->useMangledNames ? parentNode->get_mangled_name() : parentNode->get_name();
+			auto childName = c->useMangledNames ? childNode->get_mangled_name() : childNode->get_name();
 
 			for(unsigned int i = 0; i < threads.size(); i++) {
 				unsigned long long numberOfCalls = (unsigned long long) cube.get_sev(visitsMetric, cnode, threads.at(i));
@@ -77,9 +77,9 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config c) {
 				<< "      " << "estimatedOverhead: " << probeSeconds << " seconds"
 				<< " or " << std::setprecision(4) << probePercent << " % (vs cube time)"<< std::endl;
 
-		if (c.uninstrumentedReferenceRuntime > .0) {
-			double deltaSeconds = overallRuntime - probeSeconds - c.uninstrumentedReferenceRuntime;
-			double deltaPercent = deltaSeconds / c.uninstrumentedReferenceRuntime * 100;
+		if (c->uninstrumentedReferenceRuntime > .0) {
+			double deltaSeconds = overallRuntime - probeSeconds - c->uninstrumentedReferenceRuntime;
+			double deltaPercent = deltaSeconds / c->uninstrumentedReferenceRuntime * 100;
 			std::cout << "      " << "delta: " << std::setprecision(6) << deltaSeconds << " seconds"
 					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
 		}

@@ -28,7 +28,7 @@ namespace CgConfig {
 
 struct Config{
 	double uninstrumentedReferenceRuntime = .0;
-	std::string otherPath;
+	std::string otherPath = "";
 	bool useMangledNames = false;
 	int nanosPerHalfProbe = CgConfig::nanosPerHalfProbe;
 };

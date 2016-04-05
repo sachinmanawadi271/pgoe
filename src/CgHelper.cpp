@@ -1,6 +1,9 @@
 #include "CgHelper.h"
 
+int CgConfig::samplesPerSecond = 10000;
+
 namespace CgHelper {
+
 
 	/** returns true for nodes with two or more parents */
 	bool isConjunction(CgNodePtr node) {

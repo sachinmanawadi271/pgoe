@@ -1,6 +1,6 @@
 #include "CallgraphManager.h"
 
-CallgraphManager::CallgraphManager() {
+CallgraphManager::CallgraphManager(Config* config) : config(config) {
 }
 
 CgNodePtr CallgraphManager::findOrCreateNode(std::string name, double timeInSeconds) {
@@ -50,6 +50,7 @@ void CallgraphManager::putEdge(std::string parentName, std::string parentFilenam
 
 void CallgraphManager::registerEstimatorPhase(EstimatorPhase* phase) {
 	phases.push(phase);
+	phase->injectConfig(config);
 	phase->setGraph(&graph);
 }
 

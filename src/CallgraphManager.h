@@ -17,7 +17,7 @@
 class CallgraphManager {
 
 public:
-	CallgraphManager();
+	CallgraphManager(Config* config);
 
 	void putEdge(std::string parentName, std::string parentFilename, int parentLine,
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
@@ -40,6 +40,7 @@ private:
 	std::map<std::string, CgNodePtr> graphMapping;
 	// this set represents the call graph during the actual computation
 	Callgraph graph;
+	Config* config;
 
 	// estimator phases run in a defined order
 	std::queue<EstimatorPhase*> phases;

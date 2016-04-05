@@ -53,6 +53,7 @@ public:
 	void generateReport();
 
 	void setGraph(Callgraph* graph);
+	void injectConfig(Config* config) { this->config = config; }
 
 	struct CgReport getReport();
 	virtual void printReport();
@@ -62,6 +63,8 @@ protected:
 
 	CgReport report;
 	std::string name;
+
+	Config* config;
 
 	/* print some additional information of the phase */
 	virtual void printAdditionalReport() {}
