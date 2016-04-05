@@ -35,6 +35,12 @@ void EstimatorPhase::generateReport() {
 
 	report.instrumentationOverhead = report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall;
 
+	if (config->uninstrumentedReferenceRuntime > .0) {
+		report.instrumentationOverheadPercent = report.instrumentationOverhead / 1e7 / config->uninstrumentedReferenceRuntime;
+	} else {
+		report.instrumentationOverheadPercent = 0;
+	}
+
 	report.phaseName = name;
 
 	assert(report.instrumentedMethods == report.instrumentedNames.size());
@@ -63,7 +69,9 @@ void EstimatorPhase::printReport() {
 			<< "\t" << "unwindSamples: " << report.unwindSamples
 			<< " | undwindOverhead: " << report.unwindOverhead << " ns" << std::endl
 			<< "\t" << "overallOverhead: " << overallOverhead	<< " ns"
-			<< " | that is: " << overallOverhead/1e9 <<" s"<< std::endl;
+			<< " | that is: " << overallOverhead/1e9 <<" s"
+			<< " | that is: " << report.instrumentationOverheadPercent <<" %"
+			<< std::endl;
 
 	printAdditionalReport();
 #endif

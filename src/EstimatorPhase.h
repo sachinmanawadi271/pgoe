@@ -37,6 +37,8 @@ struct CgReport {
 	double instrumentationOverhead;	// nanos
 	double unwindOverhead;	// nanos
 
+	double instrumentationOverheadPercent;
+
 	std::string phaseName;
 
 	std::set<std::string> instrumentedNames;
