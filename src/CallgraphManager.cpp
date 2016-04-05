@@ -1,7 +1,6 @@
 #include "CallgraphManager.h"
 
-CallgraphManager::CallgraphManager(int samplesPerSecond) :
-		samplesPerSecond(samplesPerSecond) {
+CallgraphManager::CallgraphManager() {
 }
 
 CgNodePtr CallgraphManager::findOrCreateNode(std::string name, double timeInSeconds) {
@@ -60,7 +59,7 @@ void CallgraphManager::finalizeGraph() {
 	// also update all node attributes
 	for (auto node : graph) {
 
-		node->updateNodeAttributes(this->samplesPerSecond);
+		node->updateNodeAttributes();
 
 		CgNodePtrSet markerPositions = CgHelper::getPotentialMarkerPositions(node);
 		node->getMarkerPositions().insert(markerPositions.begin(), markerPositions.end());

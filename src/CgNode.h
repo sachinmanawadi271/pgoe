@@ -74,7 +74,8 @@ public:
 	bool isSpantreeParent(CgNodePtr);
 	void reset();
 
-	void updateNodeAttributes(int samplesPerSecond);
+	void updateNodeAttributes();
+	void updateExpectedNumberOfSamples();
 
 	bool hasUniqueCallPath();
 	bool isLeafNode();

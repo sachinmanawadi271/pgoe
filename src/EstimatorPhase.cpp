@@ -322,6 +322,9 @@ void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		} else {
 			node->setRuntimeInSeconds(newRuntime);
 		}
+
+		node->updateExpectedNumberOfSamples();
+
 		overallRuntime += newRuntime;
 	}
 }

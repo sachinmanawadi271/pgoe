@@ -22,11 +22,12 @@ namespace CgConfig {
 	const unsigned int nanosPerMPIProbe 					= 200;
 
 	const unsigned long long nanosPerHalfProbe = 105;
+
+	extern int samplesPerSecond;
 }
 
 struct Config{
 	double uninstrumentedReferenceRuntime = .0;
-	int samplesPerSecond = 1000;
 	std::string otherPath;
 	bool useMangledNames = false;
 	int nanosPerHalfProbe = CgConfig::nanosPerHalfProbe;

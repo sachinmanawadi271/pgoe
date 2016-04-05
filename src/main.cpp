@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		if (arg=="-samples") {
-			c.samplesPerSecond = atoi(argv[++i]);
+			CgConfig::samplesPerSecond = atoi(argv[++i]);
 			continue;
 		}
 		if (arg=="-ref") {
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
 	if (stringEndsWith(filePath, ".cubex")) {
 		cg = CubeCallgraphBuilder::build(filePath, c);
 	} else if (stringEndsWith(filePath, ".dot")) {
-		cg = DOTCallgraphBuilder::build(filePath, c.samplesPerSecond);
+		cg = DOTCallgraphBuilder::build(filePath);
 	} else if (stringEndsWith(filePath, ".ipcg")){
 		cg = IPCGAnal::build(filePath);
 	}	else {

@@ -1,5 +1,6 @@
 
 #include "CgNode.h"
+#include "CgHelper.h"
 
 #define RENDER_DEPS 0
 
@@ -59,7 +60,7 @@ void CgNode::reset() {
   this->spantreeParents.clear();
 }
 
-void CgNode::updateNodeAttributes(int samplesPerSecond) {
+void CgNode::updateNodeAttributes() {
 
   // this number will not change
   this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
@@ -77,8 +78,12 @@ void CgNode::updateNodeAttributes(int samplesPerSecond) {
   }
   this->uniqueCallPath = (parents.size() == 0);
 
-  // expected samples in this function
-  this->expectedNumberOfSamples = (unsigned long long) ( (double) samplesPerSecond * runtimeInSeconds);
+  updateExpectedNumberOfSamples();
+}
+
+void CgNode::updateExpectedNumberOfSamples() {
+	// expected samples in this function (always round up)
+	this->expectedNumberOfSamples = (unsigned long long) ( (double) CgConfig::samplesPerSecond * runtimeInSeconds + 0.5);
 }
 
 bool CgNode::hasUniqueCallPath() { return uniqueCallPath; }

@@ -3,7 +3,7 @@
 
 CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config c) {
 
-	CallgraphManager* cg = new CallgraphManager(c.samplesPerSecond);
+	CallgraphManager* cg = new CallgraphManager();
 
 	try {
 		// Create cube instance
@@ -84,7 +84,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config c) {
 					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
 		}
 
-		std::cout << "    " << "target samplesPerSecond : " << c.samplesPerSecond
+		std::cout << "    " << "target samplesPerSecond : " << CgConfig::samplesPerSecond
 				<< " | smallestFunction : " << smallestFunctionName << " : " << smallestFunctionInSeconds * 1e9 << "ns"
 				<< " | edgesWithZeroRuntime: " << edgesWithZeroRuntime
 				<< std::setprecision(6) << std::endl << std::endl;
