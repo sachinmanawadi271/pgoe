@@ -93,6 +93,24 @@ private:
 	CgNodePtrSet nodesToRemove;
 };
 
+class OverheadCompensationEstimatorPhase : public EstimatorPhase {
+public:
+	OverheadCompensationEstimatorPhase(int nanosPerHalpProbe);
+	~OverheadCompensationEstimatorPhase() {}
+
+	void modifyGraph(CgNodePtr mainMethod);
+
+	void printReport() {
+		printAdditionalReport();
+	}
+private:
+	void printAdditionalReport();
+	int nanosPerHalpProbe;
+
+	double overallRuntime;
+	int numOvercompensatedFunctions;
+};
+
 /**
  * Read out some statistics about the current call graph
  */

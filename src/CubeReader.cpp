@@ -1,9 +1,9 @@
 #include "CubeReader.h"
 
 
-CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPerSecond, bool useMangledNames, double uninstrumentedTime) {
+CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config c) {
 
-	CallgraphManager* cg = new CallgraphManager(samplesPerSecond);
+	CallgraphManager* cg = new CallgraphManager(c.samplesPerSecond);
 
 	try {
 		// Create cube instance
@@ -27,6 +27,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 		for(auto cnode : cnodes){
 			// I don't know when this happens, but it does.
 			if(cnode->get_parent() == nullptr) {
+				cg->findOrCreateNode(c.useMangledNames ? cnode->get_callee()->get_mangled_name() : cnode->get_callee()->get_name(), cube.get_sev(timeMetric, cnode, threads.at(0)));
 				continue;
 			}
 
@@ -34,20 +35,12 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 			auto parentNode = cnode->get_parent()->get_callee();	// RN: don't trust no one. It IS the parent node
 			auto childNode = cnode->get_callee();
 
-			auto parentName = useMangledNames ? parentNode->get_mangled_name() : parentNode->get_name();
-			auto childName = useMangledNames ? childNode->get_mangled_name() : childNode->get_name();
+			auto parentName = c.useMangledNames ? parentNode->get_mangled_name() : parentNode->get_name();
+			auto childName = c.useMangledNames ? childNode->get_mangled_name() : childNode->get_name();
 
 			for(unsigned int i = 0; i < threads.size(); i++) {
 				unsigned long long numberOfCalls = (unsigned long long) cube.get_sev(visitsMetric, cnode, threads.at(i));
 				double timeInSeconds = cube.get_sev(timeMetric, cnode, threads.at(i));
-
-				///XXX overhead compensation wip
-//				std::cout << "calls:" << numberOfCalls << " sec:" << timeInSeconds << std::endl;
-//				timeInSeconds = timeInSeconds - ((double) (numberOfCalls * CgConfig::nanosPerNormalProbe) / 1e9);
-//				if (timeInSeconds < 0) {
-//					timeInSeconds = 0;
-//					edgesWithZeroRuntime++;
-//				}
 
 				cg->putEdge(parentName, parentNode->get_mod(), parentNode->get_begn_ln(),
 						childName, numberOfCalls, timeInSeconds);
@@ -84,14 +77,14 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, int samplesPe
 				<< "      " << "estimatedOverhead: " << probeSeconds << " seconds"
 				<< " or " << std::setprecision(4) << probePercent << " % (vs cube time)"<< std::endl;
 
-		if (uninstrumentedTime > .0) {
-			double deltaSeconds = overallRuntime - probeSeconds - uninstrumentedTime;
-			double deltaPercent = deltaSeconds / uninstrumentedTime * 100;
+		if (c.uninstrumentedReferenceRuntime > .0) {
+			double deltaSeconds = overallRuntime - probeSeconds - c.uninstrumentedReferenceRuntime;
+			double deltaPercent = deltaSeconds / c.uninstrumentedReferenceRuntime * 100;
 			std::cout << "      " << "delta: " << std::setprecision(6) << deltaSeconds << " seconds"
 					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
 		}
 
-		std::cout << "    " << "target samplesPerSecond : " << samplesPerSecond
+		std::cout << "    " << "target samplesPerSecond : " << c.samplesPerSecond
 				<< " | smallestFunction : " << smallestFunctionName << " : " << smallestFunctionInSeconds * 1e9 << "ns"
 				<< " | edgesWithZeroRuntime: " << edgesWithZeroRuntime
 				<< std::setprecision(6) << std::endl << std::endl;

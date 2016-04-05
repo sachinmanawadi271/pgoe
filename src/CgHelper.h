@@ -18,9 +18,19 @@ namespace CgConfig {
 	const unsigned int nanosPerUnwindSample 	= 0;
 	const unsigned int nanosPerUnwindStep 		= 1000;
 
-	const unsigned long long nanosPerNormalProbe		= 220;
-	const unsigned int nanosPerMPIProbe 			= 200;
+	const unsigned long long nanosPerNormalProbe	= 220;
+	const unsigned int nanosPerMPIProbe 					= 200;
+
+	const unsigned long long nanosPerHalfProbe = 105;
 }
+
+struct Config{
+	double uninstrumentedReferenceRuntime = .0;
+	int samplesPerSecond = 1000;
+	std::string otherPath;
+	bool useMangledNames = false;
+	int nanosPerHalfProbe = CgConfig::nanosPerHalfProbe;
+};
 
 namespace CgHelper {
 

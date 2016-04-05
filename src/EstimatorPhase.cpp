@@ -295,6 +295,44 @@ void GraphStatsEstimatorPhase::printAdditionalReport() {
 	}
 }
 
+//// OVERHEAD COMPENSATION ESTIMATOR PHASE
+
+OverheadCompensationEstimatorPhase::OverheadCompensationEstimatorPhase(int nanosPerHalpProbe) :
+	EstimatorPhase("OvCompensation"),
+	overallRuntime(0),
+	numOvercompensatedFunctions(0),
+	nanosPerHalpProbe(nanosPerHalpProbe) {}
+
+void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	for (auto node : *graph) {
+		auto oldRuntime = node->getRuntimeInSeconds();
+		unsigned long long numberOfOwnOverheads = node->getNumberOfCalls();
+		unsigned long long numberOfChildOverheads = 0;
+		for (auto child : node->getChildNodes()) {
+			numberOfChildOverheads += child->getNumberOfCalls(node);
+		}
+
+		unsigned long long timestampOverheadNanos = numberOfOwnOverheads * nanosPerHalpProbe + numberOfChildOverheads * nanosPerHalpProbe;
+		double timestampOverheadSeconds = (double) timestampOverheadNanos / 1e9;
+		double newRuntime = oldRuntime - timestampOverheadSeconds;
+
+		if (newRuntime < 0) {
+			node->setRuntimeInSeconds(0);
+			numOvercompensatedFunctions++;
+		} else {
+			node->setRuntimeInSeconds(newRuntime);
+		}
+		overallRuntime += newRuntime;
+	}
+}
+
+void OverheadCompensationEstimatorPhase::printAdditionalReport() {
+	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
+	std::cout << "\t" << "new runtime in seconds: " << overallRuntime
+			<< " | overcompensated: " << numOvercompensatedFunctions
+			<< std::endl;
+}
+
 //// DIAMOND PATTERN SOLVER ESTIMATOR PHASE
 
 DiamondPatternSolverEstimatorPhase::DiamondPatternSolverEstimatorPhase() :
@@ -632,7 +670,9 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				///XXX
 				double expectedOverheadSavedSeconds
 						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
-				std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
+				if (expectedOverheadSavedSeconds > 0.1) {
+					std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
+				}
 
 				overallSavedSeconds += expectedOverheadSavedSeconds;
 
