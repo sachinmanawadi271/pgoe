@@ -1,6 +1,8 @@
 
 #include "EstimatorPhase.h"
 
+//#define TINY_REPORT 1
+
 EstimatorPhase::EstimatorPhase(std::string name) :
 
 		graph(nullptr),	// just so eclipse does not nag
@@ -23,22 +25,28 @@ void EstimatorPhase::generateReport() {
 			unsigned long long unwindSamples = node->getExpectedNumberOfSamples();
 			unsigned long long unwindSteps = node->getNumberOfUnwindSteps();
 
-			double unwindCosts = unwindSamples *
+			unsigned long long unwindCostsNanos = unwindSamples *
 					(CgConfig::nanosPerUnwindSample + unwindSteps * CgConfig::nanosPerUnwindStep);
 
 			report.unwindSamples += unwindSamples;
-			report.unwindOverhead += unwindCosts;
+			report.unwindOverheadSeconds += (double) unwindCostsNanos / 1e9;
+
+			report.unwConjunctions++;
+		}
+		if (CgHelper::isConjunction(node)) {
+			report.overallConjunctions++;
 		}
 	}
 
 	report.overallMethods = graph->size();
 
-	report.instrumentationOverhead = report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall;
+	report.instrumentationOverheadSeconds = (double) report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall / 1e9;
 
 	if (config->uninstrumentedReferenceRuntime > .0) {
-		report.instrumentationOverheadPercent = report.instrumentationOverhead / 1e7 / config->uninstrumentedReferenceRuntime;
+ 		report.instrOvPercent = report.instrumentationOverheadSeconds / config->uninstrumentedReferenceRuntime * 100;
+ 		report.unwindOvPercent = report.unwindOverheadSeconds / config->uninstrumentedReferenceRuntime * 100;
 	} else {
-		report.instrumentationOverheadPercent = 0;
+		report.instrOvPercent = 0;
 	}
 
 	report.phaseName = name;
@@ -56,21 +64,22 @@ CgReport EstimatorPhase::getReport() {
 
 void EstimatorPhase::printReport() {
 
-	double overallOverhead = report.instrumentationOverhead+report.unwindOverhead;
+	double overallOverhead = report.instrumentationOverheadSeconds+report.unwindOverheadSeconds;
 
 #ifdef TINY_REPORT
-	std::cout << "==" << report.phaseName << "== Phase TinyReport " << overallOverhead/1e9 <<" s" << std::endl;
+	std::cout << "==" << report.phaseName << "== Phase TinyReport " << report.instrOvPercent+report.unwindOvPercent <<" %" << std::endl;
 #else
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << "\t" << "instrumented " << report.instrumentedMethods
-			<< " of " << report.overallMethods << " methods" << std::endl
-			<< "\t" << "instrumentedCalls: " << report.instrumentedCalls
-			<< " | instrumentationOverhead: " << report.instrumentationOverhead << " ns" << std::endl
-			<< "\t" << "unwindSamples: " << report.unwindSamples
-			<< " | undwindOverhead: " << report.unwindOverhead << " ns" << std::endl
-			<< "\t" << "overallOverhead: " << overallOverhead	<< " ns"
-			<< " | that is: " << overallOverhead/1e9 <<" s"
-			<< " | that is: " << report.instrumentationOverheadPercent <<" %"
+	std::cout << "\t" << "instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
+			<< " | instrCalls: " << report.instrumentedCalls
+			<< " | instrOverhead: " << report.instrumentationOverheadSeconds << " s" << std::endl
+
+			<< "\t" << "unwound " << report.unwConjunctions << " of " << report.overallConjunctions << " conj."
+			<< " | unwindSamples: " << report.unwindSamples
+			<< " | undwindOverhead: " << report.unwindOverheadSeconds << " s" << std::endl
+
+			<< "\t" << "overallOverhead: " << report.instrumentationOverheadSeconds+report.unwindOverheadSeconds	<< " s"
+			<< " | that is: " << report.instrOvPercent+report.unwindOvPercent <<" %"
 			<< std::endl;
 
 	printAdditionalReport();
@@ -538,34 +547,6 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			deletedInstrumentationMarkers++;
 		}
 	}
-
-
-//	for (auto node : (*graph)) {
-//		if (!CgHelper::isConjunction(node) || node->isUnwound()) {
-//			continue;
-//		}
-//
-//		if (!CgHelper::allParentsPathsInstrumented(node)) {
-//			continue;
-//		}
-//
-//		unsigned long long expensivePath = 0;
-//		CgNodePtr mostExpensiveParent = 0;
-//
-//		// XXX RN: the heuristic is far from perfect and might block another node with the same parent
-//		for (auto parentNode : node->getParentNodes()) {
-//			auto pathCosts = CgHelper::getInstrumentationOverheadOfPath(parentNode);
-//			// for some strange reason there are edges with 0 calls in the spec profiles
-//			if (pathCosts > expensivePath && CgHelper::instrumentationCanBeDeleted(parentNode)) {
-//				mostExpensiveParent = parentNode;
-//			}
-//		}
-//
-//		if(mostExpensiveParent) {
-//			CgHelper::removeInstrumentationOnPath(mostExpensiveParent);
-//			deletedInstrumentationMarkers++;
-//		}
-//	}
 }
 
 void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {

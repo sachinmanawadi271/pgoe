@@ -20,10 +20,14 @@ struct CgReport {
 	CgReport() :
 		instrumentedMethods(0),
 		overallMethods(0),
+		unwConjunctions(0),
+		overallConjunctions(0),
 		instrumentedCalls(0),
 		unwindSamples(0),
-		instrumentationOverhead(.0),
-		unwindOverhead(.0),
+		instrumentationOverheadSeconds(.0),
+		unwindOverheadSeconds(.0),
+		instrOvPercent(.0),
+		unwindOvPercent(.0),
 		phaseName(std::string()),
 		instrumentedNames(std::set<std::string>())
 	{}
@@ -31,13 +35,17 @@ struct CgReport {
 	unsigned int instrumentedMethods;
 	unsigned int overallMethods;
 
+	unsigned int unwConjunctions;
+	unsigned int overallConjunctions;
+
 	unsigned long long instrumentedCalls;
 	unsigned long long unwindSamples;
 
-	double instrumentationOverhead;	// nanos
-	double unwindOverhead;	// nanos
+	double instrumentationOverheadSeconds;
+	double unwindOverheadSeconds;
 
-	double instrumentationOverheadPercent;
+	double instrOvPercent;
+	double unwindOvPercent;
 
 	std::string phaseName;
 
