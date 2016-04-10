@@ -91,15 +91,17 @@ int main(int argc, char** argv) {
 			CgConfig::samplesPerSecond = atoi(argv[++i]);
 			continue;
 		}
-		if (arg=="-ref") {
+		if (arg=="-ref" || arg=="-r") {
 			c.uninstrumentedReferenceRuntime = atof(argv[++i]);
 			continue;
 		}
 		if (arg=="-mangled" || arg=="-m") {
 			c.useMangledNames=true;
+			continue;
 		}
 		if (arg=="-half" || arg=="-h") {
 			c.nanosPerHalfProbe = atoi(argv[++i]);
+			continue;
 		}
 	}
 
