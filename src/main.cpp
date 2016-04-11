@@ -105,9 +105,11 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	CallgraphManager cg(&c);
 	std::string filePath(argv[1]);
+	std::string fileName = filePath.substr(filePath.find_last_of('/')+1);
+	c.appName = fileName.substr(0, fileName.find_last_of('.'));	// remove .*
 
+	CallgraphManager cg(&c);
 	if (stringEndsWith(filePath, ".cubex")) {
 		cg = CubeCallgraphBuilder::build(filePath, &c);
 	} else if (stringEndsWith(filePath, ".dot")) {

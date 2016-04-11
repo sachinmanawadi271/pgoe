@@ -31,6 +31,7 @@ struct Config{
 	std::string otherPath = "";
 	bool useMangledNames = false;
 	int nanosPerHalfProbe = CgConfig::nanosPerHalfProbe;
+	std::string appName = "";
 };
 
 namespace CgHelper {

@@ -109,7 +109,7 @@ void CallgraphManager::thatOneLargeMethod() {
 
 void CallgraphManager::printDOT(std::string prefix) {
 
-	std::string filename = "callgraph-" + prefix + ".dot";
+	std::string filename = "out/callgraph-" + config->appName + "-" + prefix + ".dot";
 	std::ofstream outfile(filename, std::ofstream::out);
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
@@ -154,7 +154,7 @@ void CallgraphManager::printDOT(std::string prefix) {
 }
 
 void CallgraphManager::dumpInstrumentedNames(CgReport report) {
-	std::string filename = "instrumented-" + report.phaseName + ".txt";
+	std::string filename = "out/instrumented-" + config->appName + "-" + report.phaseName + ".txt";
 	std::ofstream outfile(filename, std::ofstream::out);
 
 	for (auto name : report.instrumentedNames) {
