@@ -470,6 +470,30 @@ void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 }
 
+//// WL INSTR ESTIMATOR PHASE
+
+WLInstrEstimatorPhase::WLInstrEstimatorPhase(std::string wlFilePath) :
+		EstimatorPhase("WLInstr") {
+
+	std::ifstream ifStream(wlFilePath);
+	if (!ifStream.good()) {
+		std::cerr << "Error: can not find whitelist at .. " << wlFilePath << std::endl;
+	}
+
+	std::string buff;
+	while (getline(ifStream, buff)) {
+		whiteList.insert(buff);
+	}
+}
+
+void WLInstrEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	for (auto node : (*graph)) {
+		if (whiteList.find(node->getFunctionName()) != whiteList.end()) {
+			node->setState(CgNodeState::INSTRUMENT_WITNESS);
+		}
+	}
+}
+
 //// MOVE INSTRUMENTATION UPWARDS ESTIMATOR PHASE
 
 MoveInstrumentationUpwardsEstimatorPhase::MoveInstrumentationUpwardsEstimatorPhase() :

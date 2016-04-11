@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <iomanip>	//  std::setw()
 
 #include <memory>
@@ -188,6 +189,19 @@ public:
 	~InstrumentEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
+};
+
+/**
+ * Instrument according to white list
+ */
+class WLInstrEstimatorPhase : public EstimatorPhase {
+public:
+	WLInstrEstimatorPhase(std::string wlFilePath);
+	~WLInstrEstimatorPhase() {}
+
+	void modifyGraph(CgNodePtr mainMethod);
+private:
+	std::set<std::string> whiteList;
 };
 
 /**

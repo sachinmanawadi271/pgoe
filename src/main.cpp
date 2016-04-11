@@ -24,6 +24,9 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new WLInstrEstimatorPhase("out/instrumented-" + c->appName + "-Instrument.txt"));
+
 //	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 //
