@@ -24,8 +24,9 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new WLInstrEstimatorPhase("out/instrumented-" + c->appName + "-Instrument.txt"));
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new WLInstrEstimatorPhase("out/instrumented-" + c->appName + "-Instrument.txt"));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
@@ -55,11 +56,6 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	// node based
-//	cg.registerEstimatorPhase(new OptimalNodeBasedEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-//		cg.registerEstimatorPhase(new ProximityMeasureEstimatorPhase(c->otherPath));
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
