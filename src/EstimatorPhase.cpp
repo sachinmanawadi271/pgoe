@@ -648,7 +648,7 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 //// UNWIND ESTIMATOR PHASE
 
 UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindInInstr) :
-		EstimatorPhase("Unwind"),
+		EstimatorPhase(unwindInInstr ? "UnwindInstr" : "UnwindSample"),
 		unwoundNodes(0),
 		unwindCandidates(0),
 		unwindInInstr(unwindInInstr) {
