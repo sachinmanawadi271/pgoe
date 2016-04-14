@@ -81,8 +81,13 @@ CgReport EstimatorPhase::getReport() {
 
 void EstimatorPhase::printReport() {
 
+	double overallOvSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
+	double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
+
 #ifdef TINY_REPORT
-	std::cout << "==" << report.phaseName << "== Phase TinyReport " << report.instrOvPercent+report.unwindOvPercent <<" %" << std::endl;
+	if (overallOvPercent>.0) {
+		std::cout << "==" << report.phaseName << "== Phase TinyReport " << overallOvPercent <<" %" << std::endl;
+	}
 #else
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout
@@ -100,8 +105,8 @@ void EstimatorPhase::printReport() {
 			<< " | taken samples: " << report.samplesTaken
 			<< " | samplingOverhead: " << report.samplingOvSeconds << " s" << std::endl
 
-			<< "\t" <<std::setw(8) << report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent << " %"
-			<< " | overallOverhead: " << report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds << " s"
+			<< "\t" <<std::setw(8) << overallOvPercent << " %"
+			<< " | overallOverhead: " << overallOvSeconds << " s"
 			<< std::endl;
 
 	printAdditionalReport();
