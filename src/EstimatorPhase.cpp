@@ -22,7 +22,14 @@ void EstimatorPhase::generateReport() {
 			report.instrumentedNames.insert(node->getFunctionName());
 		}
 		if(node->isUnwound()) {
-			unsigned long long unwindSamples = node->getExpectedNumberOfSamples();
+			unsigned long long unwindSamples;
+			if (node->isUnwoundInstr()) {
+				unwindSamples = node->getNumberOfCalls();
+			} else if (node->isUnwoundSample()) {
+				unwindSamples	= node->getExpectedNumberOfSamples();
+			} else {
+				std::cerr << "Error in generateRepor." << std::endl;
+			}
 			unsigned long long unwindSteps = node->getNumberOfUnwindSteps();
 
 			unsigned long long unwindCostsNanos = unwindSamples *
@@ -640,10 +647,11 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 //// UNWIND ESTIMATOR PHASE
 
-UnwindEstimatorPhase::UnwindEstimatorPhase() :
+UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindInInstr) :
 		EstimatorPhase("Unwind"),
 		unwoundNodes(0),
-		unwindCandidates(0) {
+		unwindCandidates(0),
+		unwindInInstr(unwindInInstr) {
 }
 
 UnwindEstimatorPhase::~UnwindEstimatorPhase() {
@@ -656,7 +664,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 
 		// first select all leafs that are conjunctions
-		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
+		if (CgHelper::isConjunction(node) && (node->isLeafNode() || unwindInInstr)) {
 //		if (CgHelper::isConjunction(node)) {
 
 			unwindCandidates++;
@@ -670,6 +678,13 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			// unwind in instrumentation
 			unsigned long long expectedUnwindInstrumentOverheadNanos =
 					node->getNumberOfCalls() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
+			unsigned long long unwindOverhead;
+
+			if (unwindInInstr) {
+				unwindOverhead = expectedUnwindInstrumentOverheadNanos;
+			} else {
+				unwindOverhead = expectedUnwindSampleOverheadNanos;
+			}
 
 			// optimistic
 			unsigned long long expectedInstrumentationOverheadNanos =
@@ -678,8 +693,8 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			unsigned long long expectedActualInstrumentationSavedNanos =
 					CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
 
-			unsigned long long unwindOverhead = expectedUnwindSampleOverheadNanos;
-			unsigned long long instrumentationOverhead = expectedActualInstrumentationSavedNanos;
+			unsigned long long instrumentationOverhead =
+					(expectedInstrumentationOverheadNanos + expectedActualInstrumentationSavedNanos) / 2;
 
 
 			if (unwindOverhead < instrumentationOverhead) {
@@ -693,7 +708,11 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 				overallSavedSeconds += expectedOverheadSavedSeconds;
 
-				node->setState(CgNodeState::UNWIND, 1);
+				if (unwindInInstr) {
+					node->setState(CgNodeState::UNWIND_INSTR, 1);
+				} else {
+					node->setState(CgNodeState::UNWIND_SAMPLE, 1);
+				}
 				unwoundNodes++;
 
 			// remove redundant instrumentation in direct parents

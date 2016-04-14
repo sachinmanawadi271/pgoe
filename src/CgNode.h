@@ -17,8 +17,9 @@
 enum CgNodeState {
 	NONE,
 	INSTRUMENT_WITNESS,
-	UNWIND,
-	INSTRUMENT_CONJUNCTION
+	UNWIND_SAMPLE,
+	INSTRUMENT_CONJUNCTION,
+	UNWIND_INSTR
 };
 
 class CgNode;
@@ -63,6 +64,9 @@ public:
 	bool isInstrumentedWitness();
 	bool isInstrumentedConjunction();
 	bool isUnwound();
+	bool isUnwoundSample();
+	bool isUnwoundInstr();
+
 	int getNumberOfUnwindSteps();
 
 	// marker pos & dependent conjunction stuff

@@ -166,7 +166,7 @@ void CgNode::setState(CgNodeState state, int numberOfUnwindSteps) {
 
   this->state = state;
 
-  if (state == CgNodeState::UNWIND) {
+  if (state == CgNodeState::UNWIND_SAMPLE || state == CgNodeState::UNWIND_INSTR) {
     this->numberOfUnwindSteps = numberOfUnwindSteps;
   } else {
     this->numberOfUnwindSteps = 0;
@@ -188,7 +188,15 @@ bool CgNode::isInstrumented() { return isInstrumentedWitness() || isInstrumented
 bool CgNode::isInstrumentedWitness() { return state == CgNodeState::INSTRUMENT_WITNESS; }
 bool CgNode::isInstrumentedConjunction() { return state == CgNodeState::INSTRUMENT_CONJUNCTION; }
 
-bool CgNode::isUnwound() { return state == CgNodeState::UNWIND; }
+bool CgNode::isUnwound() {
+	return state == CgNodeState::UNWIND_SAMPLE || state == CgNodeState::UNWIND_INSTR;
+}
+bool CgNode::isUnwoundSample() {
+	return state == CgNodeState::UNWIND_SAMPLE;
+}
+bool CgNode::isUnwoundInstr() {
+	return state == CgNodeState::UNWIND_INSTR;
+}
 
 int CgNode::getNumberOfUnwindSteps() { return numberOfUnwindSteps; }
 

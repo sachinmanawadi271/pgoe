@@ -21,7 +21,15 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-	cg.registerEstimatorPhase(new UnwindEstimatorPhase());
+	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
