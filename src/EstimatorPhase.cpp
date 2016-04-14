@@ -5,12 +5,13 @@
 //#define TINY_REPORT 1
 #define NO_DEBUG
 
-EstimatorPhase::EstimatorPhase(std::string name) :
+EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
 
 		graph(nullptr),	// just so eclipse does not nag
 		report(),	// initializes all members of report
 		name(name),
-		config(nullptr) {
+		config(nullptr),
+		isMetaPhase(isMetaPhase) {
 }
 
 void EstimatorPhase::generateReport() {
@@ -65,7 +66,7 @@ void EstimatorPhase::generateReport() {
 	report.samplingOvPercent = (double) (CgConfig::nanosPerSample * CgConfig::samplesPerSecond) / 1e7;
 
 
-
+	report.metaPhase = isMetaPhase;
 	report.phaseName = name;
 
 	assert(report.instrumentedMethods == report.instrumentedNames.size());
@@ -81,15 +82,23 @@ CgReport EstimatorPhase::getReport() {
 
 void EstimatorPhase::printReport() {
 
-	double overallOvSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
 	double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 
 #ifdef TINY_REPORT
-	if (overallOvPercent>.0) {
-		std::cout << "==" << report.phaseName << "== Phase TinyReport " << overallOvPercent <<" %" << std::endl;
+	if (!report.metaPhase) {
+		std::cout << "==" << report.phaseName << "==  " << overallOvPercent <<" %" << std::endl;
 	}
 #else
-	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
+	std::cout << "==" << report.phaseName << "==  " << std::endl;
+	printAdditionalReport();
+#endif
+}
+
+void EstimatorPhase::printAdditionalReport() {
+
+	double overallOvSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
+	double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
+
 	std::cout
 			<< "\t" <<std::setw(8) << std::left << report.instrOvPercent << " %"
 			<< " | instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
@@ -108,15 +117,12 @@ void EstimatorPhase::printReport() {
 			<< "\t" <<std::setw(8) << overallOvPercent << " %"
 			<< " | overallOverhead: " << overallOvSeconds << " s"
 			<< std::endl;
-
-	printAdditionalReport();
-#endif
 }
 
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE
 
 RemoveUnrelatedNodesEstimatorPhase::RemoveUnrelatedNodesEstimatorPhase(bool onlyRemoveUnrelatedNodes, bool aggressiveReduction) :
-		EstimatorPhase("RemoveUnrelated"),
+		EstimatorPhase("RemoveUnrelated", true),
 		numUnconnectedRemoved(0),
 		numLeafsRemoved(0),
 		numChainsRemoved(0),
@@ -242,13 +248,7 @@ void RemoveUnrelatedNodesEstimatorPhase::checkLeafNodeForRemoval(CgNodePtr node)
 	}
 }
 
-void RemoveUnrelatedNodesEstimatorPhase::printReport() {
-	// only print the additional report
-	printAdditionalReport();
-}
-
 void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
-	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "Removed " << numUnconnectedRemoved << " unconnected node(s)."	<< std::endl;
 	std::cout << "\t" << "Removed " << numLeafsRemoved << " leaf node(s)."	<< std::endl;
 	std::cout << "\t" << "Removed " << numChainsRemoved << " node(s) in linear call chains."	<< std::endl;
@@ -258,17 +258,12 @@ void RemoveUnrelatedNodesEstimatorPhase::printAdditionalReport() {
 //// GRAPH STATS ESTIMATOR PHASE
 
 GraphStatsEstimatorPhase::GraphStatsEstimatorPhase() :
-	EstimatorPhase("GraphStats"),
+	EstimatorPhase("GraphStats", true),
 	numCyclesDetected(0),
 	numberOfConjunctions(0) {
 }
 
 GraphStatsEstimatorPhase::~GraphStatsEstimatorPhase() {
-}
-
-void GraphStatsEstimatorPhase::printReport() {
-	// only print the additional report
-	printAdditionalReport();
 }
 
 void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
@@ -330,7 +325,6 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 }
 
 void GraphStatsEstimatorPhase::printAdditionalReport() {
-	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "nodes in cycles: " << numCyclesDetected << std::endl;
 	std::cout << "\t" << "numberOfConjunctions: " << numberOfConjunctions
 			<< " | allValidMarkerPositions: " << allValidMarkerPositions.size() << std::endl;
@@ -343,7 +337,7 @@ void GraphStatsEstimatorPhase::printAdditionalReport() {
 //// OVERHEAD COMPENSATION ESTIMATOR PHASE
 
 OverheadCompensationEstimatorPhase::OverheadCompensationEstimatorPhase(int nanosPerHalpProbe) :
-	EstimatorPhase("OvCompensation"),
+	EstimatorPhase("OvCompensation", true),
 	overallRuntime(0),
 	numOvercompensatedFunctions(0),
 	nanosPerHalpProbe(nanosPerHalpProbe) {}
@@ -377,7 +371,6 @@ void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 }
 
 void OverheadCompensationEstimatorPhase::printAdditionalReport() {
-	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "new runtime in seconds: " << overallRuntime
 			<< " | overcompensated: " << numOvercompensatedFunctions
 			<< std::endl;
@@ -446,13 +439,7 @@ void DiamondPatternSolverEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 }
 
-void DiamondPatternSolverEstimatorPhase::printReport() {
-	// only print the additional report
-	printAdditionalReport();
-}
-
 void DiamondPatternSolverEstimatorPhase::printAdditionalReport() {
-	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
 	std::cout << "\t" << "numberOfDiamonds: " << numDiamonds << std::endl;
 	std::cout << "\t" << "numUniqueConjunction: " << numUniqueConjunction << std::endl;
 	std::cout << "\t" << "numOperableConjunctions: " << numOperableConjunctions << std::endl;
@@ -567,11 +554,6 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 	}
 }
 
-void MoveInstrumentationUpwardsEstimatorPhase::printAdditionalReport() {
-	std::cout << "\t" << "moved " << movedInstrumentations
-			<< " instrumentation marker(s)" << std::endl;
-}
-
 //// DELETE ONE INSTRUMENTATION ESTIMATOR PHASE
 
 DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase() :
@@ -603,7 +585,10 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 }
 
 void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
+	EstimatorPhase::printAdditionalReport();
+#ifndef TINY_REPORT
 	std::cout << "\t" << "deleted " << deletedInstrumentationMarkers << " instrumentation marker(s)" << std::endl;
+#endif
 }
 
 //// CONJUNCTION ESTIMATOR PHASE
@@ -757,8 +742,11 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 }
 
 void UnwindEstimatorPhase::printAdditionalReport() {
+	EstimatorPhase::printAdditionalReport();
+#ifndef TINY_REPORT
 	std::cout << "\t" << "unwound " << unwoundNodes << " leaf node(s) of "
 			<< unwindCandidates << " candidate(s)" << std::endl;
+#endif
 }
 
 //// UNWIND ESTIMATOR PHASE

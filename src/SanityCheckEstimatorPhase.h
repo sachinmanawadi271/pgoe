@@ -18,8 +18,6 @@ public:
 	/** does NOT modify the graph */
 	void modifyGraph(CgNodePtr mainMethod);
 
-	void printReport();
-
 private:
 	int numberOfErrors;
 

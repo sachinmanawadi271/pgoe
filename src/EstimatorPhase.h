@@ -33,6 +33,7 @@ struct CgReport {
 		unwindOvPercent(.0),
 		samplingOvPercent(.0),
 		phaseName(std::string()),
+		metaPhase(false),
 		instrumentedNames(std::set<std::string>())
 	{}
 
@@ -55,6 +56,7 @@ struct CgReport {
 	double samplingOvPercent;
 
 	std::string phaseName;
+	bool metaPhase;
 
 	std::set<std::string> instrumentedNames;
 
@@ -62,7 +64,7 @@ struct CgReport {
 
 class EstimatorPhase {
 public:
-	EstimatorPhase(std::string name);
+	EstimatorPhase(std::string name, bool isMetaPhase = false);
 	virtual ~EstimatorPhase() {}
 
 	virtual void modifyGraph(CgNodePtr mainMethod) = 0;
@@ -80,11 +82,12 @@ protected:
 
 	CgReport report;
 	std::string name;
+	bool isMetaPhase;
 
 	Config* config;
 
 	/* print some additional information of the phase */
-	virtual void printAdditionalReport() {}
+	virtual void printAdditionalReport();
 };
 
 /**
@@ -96,8 +99,6 @@ public:
 	~RemoveUnrelatedNodesEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
-
-	void printReport();
 private:
 	void printAdditionalReport();
 	void checkLeafNodeForRemoval(CgNodePtr node);
@@ -120,9 +121,6 @@ public:
 
 	void modifyGraph(CgNodePtr mainMethod);
 
-	void printReport() {
-		printAdditionalReport();
-	}
 private:
 	void printAdditionalReport();
 	int nanosPerHalpProbe;
@@ -140,7 +138,6 @@ public:
 	~GraphStatsEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
-	void printReport();
 private:
 	void printAdditionalReport();
 	bool hasDependencyFor(CgNodePtr conjunction) {
@@ -177,7 +174,6 @@ public:
 	~DiamondPatternSolverEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
-	void printReport();
 private:
 	int numDiamonds;
 	int numUniqueConjunction;	// all potential marker positions are necessary
@@ -219,8 +215,6 @@ public:
 	~MoveInstrumentationUpwardsEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
-protected:
-	void printAdditionalReport();
 private:
 	int movedInstrumentations;
 };
