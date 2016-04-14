@@ -100,21 +100,23 @@ void EstimatorPhase::printAdditionalReport() {
 	double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 
 	std::cout
-			<< "\t" <<std::setw(8) << std::left << report.instrOvPercent << " %"
+			<< " INSTR \t" <<std::setw(8) << std::left << report.instrOvPercent << " %"
 			<< " | instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
 			<< " | instrCalls: " << report.instrumentedCalls
-			<< " | instrOverhead: " << report.instrOvSeconds << " s" << std::endl
-
-			<< "\t" << std::setw(8) << report.unwindOvPercent << " %"
+			<< " | instrOverhead: " << report.instrOvSeconds << " s" << std::endl;
+if (report.unwindSamples > 0) {
+	std::cout
+			<< "   UNW \t" << std::setw(8) << report.unwindOvPercent << " %"
 			<< " | unwound " << report.unwConjunctions << " of " << report.overallConjunctions << " conj."
 			<< " | unwindSamples: " << report.unwindSamples
-			<< " | undwindOverhead: " << report.unwindOvSeconds << " s" << std::endl
-
-			<< "\t" << std::setw(8)  << report.samplingOvPercent << " %"
+			<< " | undwindOverhead: " << report.unwindOvSeconds << " s" << std::endl;
+}
+	std::cout
+			<< " SAMPL \t" << std::setw(8)  << report.samplingOvPercent << " %"
 			<< " | taken samples: " << report.samplesTaken
 			<< " | samplingOverhead: " << report.samplingOvSeconds << " s" << std::endl
 
-			<< "\t" <<std::setw(8) << overallOvPercent << " %"
+			<< " ---->\t" <<std::setw(8) << overallOvPercent << " %"
 			<< " | overallOverhead: " << overallOvSeconds << " s"
 			<< std::endl;
 }
