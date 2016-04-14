@@ -1,7 +1,9 @@
 
 #include "EstimatorPhase.h"
+#include <iomanip>
 
 //#define TINY_REPORT 1
+#define NO_DEBUG
 
 EstimatorPhase::EstimatorPhase(std::string name) :
 
@@ -36,7 +38,7 @@ void EstimatorPhase::generateReport() {
 					(CgConfig::nanosPerUnwindSample + unwindSteps * CgConfig::nanosPerUnwindStep);
 
 			report.unwindSamples += unwindSamples;
-			report.unwindOverheadSeconds += (double) unwindCostsNanos / 1e9;
+			report.unwindOvSeconds += (double) unwindCostsNanos / 1e9;
 
 			report.unwConjunctions++;
 		}
@@ -47,14 +49,22 @@ void EstimatorPhase::generateReport() {
 
 	report.overallMethods = graph->size();
 
-	report.instrumentationOverheadSeconds = (double) report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall / 1e9;
+	report.instrOvSeconds = (double) report.instrumentedCalls * CgConfig::nanosPerInstrumentedCall / 1e9;
 
-	if (config->uninstrumentedReferenceRuntime > .0) {
- 		report.instrOvPercent = report.instrumentationOverheadSeconds / config->uninstrumentedReferenceRuntime * 100;
- 		report.unwindOvPercent = report.unwindOverheadSeconds / config->uninstrumentedReferenceRuntime * 100;
+	if (config->referenceRuntime > .0) {
+ 		report.instrOvPercent = report.instrOvSeconds / config->referenceRuntime * 100;
+ 		report.unwindOvPercent = report.unwindOvSeconds / config->referenceRuntime * 100;
+
+ 		report.samplesTaken = config->referenceRuntime * CgConfig::samplesPerSecond;
 	} else {
 		report.instrOvPercent = 0;
+		report.samplesTaken = 0;
 	}
+	// sampling overhead
+	report.samplingOvSeconds = report.samplesTaken * CgConfig::nanosPerSample / 1e9;
+	report.samplingOvPercent = (double) (CgConfig::nanosPerSample * CgConfig::samplesPerSecond) / 1e7;
+
+
 
 	report.phaseName = name;
 
@@ -71,22 +81,27 @@ CgReport EstimatorPhase::getReport() {
 
 void EstimatorPhase::printReport() {
 
-	double overallOverhead = report.instrumentationOverheadSeconds+report.unwindOverheadSeconds;
-
 #ifdef TINY_REPORT
 	std::cout << "==" << report.phaseName << "== Phase TinyReport " << report.instrOvPercent+report.unwindOvPercent <<" %" << std::endl;
 #else
 	std::cout << "==" << report.phaseName << "== Phase Report " << std::endl;
-	std::cout << "\t" << "instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
+	std::cout
+			<< "\t" <<std::setw(8) << std::left << report.instrOvPercent << " %"
+			<< " | instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
 			<< " | instrCalls: " << report.instrumentedCalls
-			<< " | instrOverhead: " << report.instrumentationOverheadSeconds << " s" << std::endl
+			<< " | instrOverhead: " << report.instrOvSeconds << " s" << std::endl
 
-			<< "\t" << "unwound " << report.unwConjunctions << " of " << report.overallConjunctions << " conj."
+			<< "\t" << std::setw(8) << report.unwindOvPercent << " %"
+			<< " | unwound " << report.unwConjunctions << " of " << report.overallConjunctions << " conj."
 			<< " | unwindSamples: " << report.unwindSamples
-			<< " | undwindOverhead: " << report.unwindOverheadSeconds << " s" << std::endl
+			<< " | undwindOverhead: " << report.unwindOvSeconds << " s" << std::endl
 
-			<< "\t" << "overallOverhead: " << report.instrumentationOverheadSeconds+report.unwindOverheadSeconds	<< " s"
-			<< " | that is: " << report.instrOvPercent+report.unwindOvPercent <<" %"
+			<< "\t" << std::setw(8)  << report.samplingOvPercent << " %"
+			<< " | taken samples: " << report.samplesTaken
+			<< " | samplingOverhead: " << report.samplingOvSeconds << " s" << std::endl
+
+			<< "\t" <<std::setw(8) << report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent << " %"
+			<< " | overallOverhead: " << report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds << " s"
 			<< std::endl;
 
 	printAdditionalReport();
@@ -352,6 +367,8 @@ void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 		overallRuntime += newRuntime;
 	}
+
+	config->actualRuntime = overallRuntime;
 }
 
 void OverheadCompensationEstimatorPhase::printAdditionalReport() {
@@ -663,14 +680,9 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	for (auto node : (*graph)) {
 
-		// first select all leafs that are conjunctions
 		if (CgHelper::isConjunction(node) && (node->isLeafNode() || unwindInInstr)) {
-//		if (CgHelper::isConjunction(node)) {
 
 			unwindCandidates++;
-
-			// TODO: use the actual benefit (with remaining instrumentation)
-			// TODO: consider inserting multiple parallel unwind nodes at the same time, accumulate overhead
 
 			// unwind in sample
 			unsigned long long expectedUnwindSampleOverheadNanos =
@@ -696,18 +708,17 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			unsigned long long instrumentationOverhead =
 					(expectedInstrumentationOverheadNanos + expectedActualInstrumentationSavedNanos) / 2;
 
-
 			if (unwindOverhead < instrumentationOverhead) {
 
+#ifndef NO_DEBUG
 				///XXX
 				double expectedOverheadSavedSeconds
 						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
 				if (expectedOverheadSavedSeconds > 0.1) {
 					std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
 				}
-
 				overallSavedSeconds += expectedOverheadSavedSeconds;
-
+#endif
 				if (unwindInInstr) {
 					node->setState(CgNodeState::UNWIND_INSTR, 1);
 				} else {
@@ -735,7 +746,9 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	}
 
+#ifndef NO_DEBUG
 	std::cout << overallSavedSeconds << " s maximum save through unwinding." << std::endl;
+#endif
 }
 
 void UnwindEstimatorPhase::printAdditionalReport() {

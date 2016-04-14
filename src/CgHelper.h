@@ -13,25 +13,28 @@
 
 // TODO this numbers should be in a config file
 namespace CgConfig {
-	const unsigned int nanosPerInstrumentedCall = 7;
+	const unsigned long long nanosPerInstrumentedCall = 7;
 
-	const unsigned int nanosPerUnwindSample 	= 0;
-	const unsigned int nanosPerUnwindStep 		= 1000;
+	const unsigned long long nanosPerUnwindSample 		= 0;
+	const unsigned long long nanosPerUnwindStep 			= 1000;
 
-	const unsigned long long nanosPerNormalProbe	= 220;
-	const unsigned int nanosPerMPIProbe 					= 200;
+	const unsigned long long nanosPerNormalProbe			= 220;
+	const unsigned long long nanosPerMPIProbe 				= 200;
 
-	const unsigned long long nanosPerHalfProbe = 105;
+	const unsigned long long nanosPerSample						= 4500;
+
+	const unsigned long long nanosPerHalfProbe 				= 105;
 
 	extern int samplesPerSecond;
 }
 
 struct Config{
-	double uninstrumentedReferenceRuntime = .0;
-	std::string otherPath = "";
-	bool useMangledNames = false;
-	int nanosPerHalfProbe = CgConfig::nanosPerHalfProbe;
-	std::string appName = "";
+	double referenceRuntime = .0;
+	double actualRuntime		= .0;
+	std::string otherPath 	= "";
+	bool useMangledNames 		= false;
+	int nanosPerHalfProbe		= CgConfig::nanosPerHalfProbe;
+	std::string appName 		= "";
 };
 
 namespace CgHelper {

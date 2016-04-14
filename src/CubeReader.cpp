@@ -56,6 +56,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 			}
 		}
 
+		c->actualRuntime = overallRuntime;
 		unsigned long long numberOfMPICalls = 0;
 
 		for (auto function : *cg) {
@@ -73,13 +74,13 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 		std::cout << "Finished construction .." << std::endl
 				<< "    " << "numberOfCalls: " << overallNumberOfCalls << " | MPI: " << numberOfMPICalls
 				<< " | normal: " << numberOfNormalCalls << std::endl
-				<< "    " << "runtime: "  << overallRuntime << " seconds" << std::endl
+				<< "    " << "runtime: "  << overallRuntime << " seconds (ref " << c->referenceRuntime << " s)" << std::endl
 				<< "      " << "estimatedOverhead: " << probeSeconds << " seconds"
 				<< " or " << std::setprecision(4) << probePercent << " % (vs cube time)"<< std::endl;
 
-		if (c->uninstrumentedReferenceRuntime > .0) {
-			double deltaSeconds = overallRuntime - probeSeconds - c->uninstrumentedReferenceRuntime;
-			double deltaPercent = deltaSeconds / c->uninstrumentedReferenceRuntime * 100;
+		if (c->referenceRuntime > .0) {
+			double deltaSeconds = overallRuntime - probeSeconds - c->referenceRuntime;
+			double deltaPercent = deltaSeconds / c->referenceRuntime * 100;
 			std::cout << "      " << "delta: " << std::setprecision(6) << deltaSeconds << " seconds"
 					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
 		}

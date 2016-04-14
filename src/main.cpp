@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		if (arg=="-ref" || arg=="-r") {
-			c.uninstrumentedReferenceRuntime = atof(argv[++i]);
+			c.referenceRuntime = atof(argv[++i]);
 			continue;
 		}
 		if (arg=="-mangled" || arg=="-m") {
