@@ -82,9 +82,9 @@ protected:
 
 	CgReport report;
 	std::string name;
-	bool isMetaPhase;
 
 	Config* config;
+	bool isMetaPhase;
 
 	/* print some additional information of the phase */
 	virtual void printAdditionalReport();
@@ -218,9 +218,8 @@ private:
 	void visit(CgNodePtr from, CgNodePtr current);
 
 	std::set<CgEdge> visitedEdges;
-	bool unwindUntilUniqueCallpath;
-
 	int currentDepth;
+	bool unwindUntilUniqueCallpath;
 };
 
 /**

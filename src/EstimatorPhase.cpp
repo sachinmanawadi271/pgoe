@@ -26,7 +26,7 @@ void EstimatorPhase::generateReport() {
 			report.instrumentedNames.insert(node->getFunctionName());
 		}
 		if(node->isUnwound()) {
-			unsigned long long unwindSamples;
+			unsigned long long unwindSamples = 0;
 			if (node->isUnwoundInstr()) {
 				unwindSamples = node->getNumberOfCalls();
 			} else if (node->isUnwoundSample()) {
@@ -83,10 +83,10 @@ CgReport EstimatorPhase::getReport() {
 
 void EstimatorPhase::printReport() {
 
-	double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 
 #ifdef TINY_REPORT
 	if (!report.metaPhase) {
+		double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 		std::cout << "==" << report.phaseName << "==  " << overallOvPercent <<" %" << std::endl;
 	}
 #else
@@ -343,9 +343,9 @@ void GraphStatsEstimatorPhase::printAdditionalReport() {
 
 OverheadCompensationEstimatorPhase::OverheadCompensationEstimatorPhase(int nanosPerHalpProbe) :
 	EstimatorPhase("OvCompensation", true),
+	nanosPerHalpProbe(nanosPerHalpProbe),
 	overallRuntime(0),
-	numOvercompensatedFunctions(0),
-	nanosPerHalpProbe(nanosPerHalpProbe) {}
+	numOvercompensatedFunctions(0) {}
 
 void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : *graph) {
@@ -708,9 +708,9 @@ UnwindEstimatorPhase::~UnwindEstimatorPhase() {
 }
 
 void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-
+#ifndef NO_DEBUG
 	double overallSavedSeconds = .0;
-
+#endif
 	for (auto node : (*graph)) {
 
 		if (CgHelper::isConjunction(node) && (node->isLeafNode() || unwindInInstr)) {
