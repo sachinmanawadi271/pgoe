@@ -12,11 +12,11 @@ EdgeBasedOptimumEstimatorPhase::~EdgeBasedOptimumEstimatorPhase() {
 
 void EdgeBasedOptimumEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	std::priority_queue<CgEdge, std::vector<CgEdge>, MoreCalls> pq;
+	std::priority_queue<CgEdgeWithCalls, std::vector<CgEdgeWithCalls>, MoreCalls> pq;
 	// get all edges
 	for (auto parentNode : (*graph)) {
 		for (auto childNode : parentNode->getChildNodes()) {
-			pq.push(CgEdge({
+			pq.push(CgEdgeWithCalls({
 				childNode->getNumberOfCalls(parentNode), childNode, parentNode
 			}));
 		}
@@ -111,11 +111,11 @@ int EdgeBasedOptimumEstimatorPhase::checkParentsForOverlappingCallpaths(CgNodePt
 CgEdgeSet EdgeBasedOptimumEstimatorPhase::getInstrumentationPathEdges(CgNodePtr startNode,
 		CgNodePtr childOfStartNode) {
 
-	CgEdge startEdge = CgEdge( { childOfStartNode->getNumberOfCalls(startNode),
+	CgEdgeWithCalls startEdge = CgEdgeWithCalls( { childOfStartNode->getNumberOfCalls(startNode),
 		childOfStartNode, startNode });
 
 	CgEdgeSet visitedEdges;
-	std::queue<CgEdge> workQueue;
+	std::queue<CgEdgeWithCalls> workQueue;
 	workQueue.push(startEdge);
 
 	while (!workQueue.empty()) {
@@ -131,12 +131,12 @@ CgEdgeSet EdgeBasedOptimumEstimatorPhase::getInstrumentationPathEdges(CgNodePtr 
 
 		if (edge.parent->isRootNode()) {
 			// add the implicit edge for the main function once it is reached
-			CgEdge implicitRootEdge = CgEdge( {0, edge.parent, edge.parent} );
+			CgEdgeWithCalls implicitRootEdge = CgEdgeWithCalls( {0, edge.parent, edge.parent} );
 			visitedEdges.insert(implicitRootEdge);
 		}
 
 		for (auto grandParent : edge.parent->getParentNodes()) {
-			CgEdge grandParentEdge = CgEdge( { edge.parent->getNumberOfCalls(grandParent),
+			CgEdgeWithCalls grandParentEdge = CgEdgeWithCalls( { edge.parent->getNumberOfCalls(grandParent),
 					edge.parent, grandParent} );
 			if (visitedEdges.find(grandParentEdge) == visitedEdges.end()) {
 				workQueue.push(grandParentEdge);

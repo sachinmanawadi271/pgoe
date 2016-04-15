@@ -16,23 +16,6 @@
 #include "CgHelper.h"
 #include "Callgraph.h"
 
-struct CallGraphEdge {
-	CgNodePtr from;
-	CgNodePtr to;
-
-	CallGraphEdge(CgNodePtr from, CgNodePtr to) : from(from), to(to) {}
-
-	bool operator<(const CallGraphEdge& other) const {
-		return std::tie(from, to)
-				< std::tie(other.from, other.to);
-	}
-
-	friend bool operator==(const CallGraphEdge& lhs, const CallGraphEdge& rhs) {
-		return std::tie(lhs.from, lhs.to)
-						== std::tie(rhs.from, rhs.to);
-	}
-};
-
 struct CgReport {
 
 	CgReport() :
@@ -234,7 +217,7 @@ public:
 private:
 	void visit(CgNodePtr from, CgNodePtr current);
 
-	std::set<CallGraphEdge> visitedEdges;
+	std::set<CgEdge> visitedEdges;
 	bool unwindUntilUniqueCallpath;
 
 	int currentDepth;

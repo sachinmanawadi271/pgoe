@@ -535,7 +535,7 @@ void LibUnwindEstimatorPhase::visit(CgNodePtr from, CgNodePtr current) {
 		currentDepth++;
 	}
 
-	visitedEdges.insert(CallGraphEdge(from, current));
+	visitedEdges.insert(CgEdge(from, current));
 
 	auto unwindSteps = current->getNumberOfUnwindSteps();
 	if (currentDepth > unwindSteps) {
@@ -543,7 +543,7 @@ void LibUnwindEstimatorPhase::visit(CgNodePtr from, CgNodePtr current) {
 	}
 
 	for (CgNodePtr child : current->getChildNodes()) {
-		if (visitedEdges.find(CallGraphEdge(current, child)) == visitedEdges.end()) {
+		if (visitedEdges.find(CgEdge(current, child)) == visitedEdges.end()) {
 			visit(current, child);
 		}
 	}

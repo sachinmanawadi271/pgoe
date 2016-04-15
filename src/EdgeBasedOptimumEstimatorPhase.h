@@ -6,32 +6,32 @@
 
 #include <algorithm> // for std::set_intersection
 
-struct CgEdge {
+struct CgEdgeWithCalls {
 	unsigned long long calls;
 	CgNodePtr child;
 	CgNodePtr parent;
 
-	bool operator<(const CgEdge& other) const {
+	bool operator<(const CgEdgeWithCalls& other) const {
 		return std::tie(calls, child, parent)
 				< std::tie(other.calls, other.child, other.parent);
 	}
 
-	friend bool operator==(const CgEdge& lhs, const CgEdge& rhs) {
+	friend bool operator==(const CgEdgeWithCalls& lhs, const CgEdgeWithCalls& rhs) {
 		return std::tie(lhs.calls, lhs.child, lhs.parent)
 						== std::tie(rhs.calls, rhs.child, rhs.parent);
 	}
 
-	friend std::ostream& operator<< (std::ostream& stream, const CgEdge& c) {
+	friend std::ostream& operator<< (std::ostream& stream, const CgEdgeWithCalls& c) {
 		stream << "(" << *(c.parent) << ", "<< *(c.child) << ", " << c.calls << ")";
 
 		return stream;
  	}
 };
 
-typedef std::set<CgEdge> CgEdgeSet;
+typedef std::set<CgEdgeWithCalls> CgEdgeSet;
 
 struct MoreCalls {
-	bool operator() (const CgEdge& lhs, const CgEdge& rhs) {
+	bool operator() (const CgEdgeWithCalls& lhs, const CgEdgeWithCalls& rhs) {
 		return lhs.calls < rhs.calls;
 	}
 };

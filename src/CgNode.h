@@ -147,4 +147,23 @@ struct CalledMoreOften {
 	}
 };
 
+
+struct CgEdge {
+	CgNodePtr from;
+	CgNodePtr to;
+
+	CgEdge(CgNodePtr from, CgNodePtr to) : from(from), to(to) {}
+
+	bool operator<(const CgEdge& other) const {
+		return std::tie(from, to)
+				< std::tie(other.from, other.to);
+	}
+
+	friend bool operator==(const CgEdge& lhs, const CgEdge& rhs) {
+		return std::tie(lhs.from, lhs.to)
+						== std::tie(rhs.from, rhs.to);
+	}
+};
+
+
 #endif
