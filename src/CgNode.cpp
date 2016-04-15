@@ -121,7 +121,7 @@ void CgNode::dumpToDot(std::ofstream &outStream) {
   for (auto parentNode : parentNodes) {
 
     std::string edgeColor = "";
-    if (!isSpantreeParent(parentNode)) {
+    if (isSpantreeParent(parentNode)) {
       edgeColor = ", color=red, fontcolor=red";
     }
 

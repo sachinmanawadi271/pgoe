@@ -21,7 +21,8 @@ namespace CgConfig {
 	const unsigned long long nanosPerNormalProbe			= 220;
 	const unsigned long long nanosPerMPIProbe 				= 200;
 
-	const unsigned long long nanosPerSample						= 4500;
+	const unsigned long long nanosPerSample						= 4500;	// PAPI timers
+//	const unsigned long long nanosPerSample						= 2000;	// itimers
 
 	const unsigned long long nanosPerHalfProbe 				= 105;
 

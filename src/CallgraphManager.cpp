@@ -118,6 +118,7 @@ void CallgraphManager::printDOT(std::string prefix) {
 
 		std::string functionName = node->getFunctionName();
 		std::string attributes;
+		std::string additionalLabel;
 
 		if (node->hasUniqueCallPath()) {
 			attributes += "color=blue, ";
@@ -130,6 +131,8 @@ void CallgraphManager::printDOT(std::string prefix) {
 		}
 		if (node->isUnwound()) {
 			attributes += "shape=doubleoctagon, ";
+			additionalLabel += std::string("\\n unwindSteps: ");
+			additionalLabel += std::to_string(node->getNumberOfUnwindSteps());
 		} else if (node->isInstrumentedWitness()) {
 			attributes += "shape=doublecircle, ";
 		} else if (node->isLeafNode()) {
@@ -140,7 +143,7 @@ void CallgraphManager::printDOT(std::string prefix) {
 				<< "label=\"" << functionName << "\\n"
 				<< node->getRuntimeInSeconds() << "s" << "\\n"
 				<< "#s: " << node->getExpectedNumberOfSamples()
-				<< "\"]" << std::endl;
+				<< additionalLabel << "\"]" << std::endl;
 	}
 
 	for (auto node : graph) {
