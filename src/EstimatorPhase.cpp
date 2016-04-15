@@ -3,8 +3,8 @@
 #include <iomanip>
 
 
-//#define TINY_REPORT 1
-#define NO_DEBUG
+#define TINY_REPORT 1
+//#define NO_DEBUG
 
 EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
 
@@ -699,12 +699,57 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindInInstr) :
 		EstimatorPhase(unwindInInstr ? "UnwindInstr" : "UnwindSample"),
-		unwoundNodes(0),
+		numUnwoundNodes(0),
 		unwindCandidates(0),
 		unwindInInstr(unwindInInstr) {
 }
 
 UnwindEstimatorPhase::~UnwindEstimatorPhase() {
+}
+
+/** XXX never call this if there are cycles in the successors of the start node */
+void UnwindEstimatorPhase::getUnwoundNodes(std::map<CgNodePtr, int>& unwoundNodes, CgNodePtr startNode, int unwindSteps) {
+
+	if (unwoundNodes.find(startNode) == unwoundNodes.end() || unwoundNodes[startNode] < unwindSteps) {
+		unwoundNodes[startNode] = unwindSteps;
+	}
+	for (auto child : startNode->getChildNodes()) {
+		getUnwoundNodes(unwoundNodes, child, unwindSteps+1);
+	}
+}
+
+bool UnwindEstimatorPhase::canBeUnwound(CgNodePtr startNode) {
+	for (auto node : CgHelper::getDescendants(startNode)) {
+		if (CgHelper::isOnCycle(node)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+unsigned long long UnwindEstimatorPhase::getUnwindOverheadNanos(std::map<CgNodePtr, int>& unwoundNodes) {
+	unsigned long long unwindSampleOverheadNanos = 0;
+	for (auto pair : unwoundNodes) {
+		unsigned long long numSamples = pair.first->getExpectedNumberOfSamples();
+		unsigned long long numUnwindSteps = pair.second;
+		unwindSampleOverheadNanos += numSamples * numUnwindSteps * CgConfig::nanosPerUnwindStep;
+	}
+
+	return unwindSampleOverheadNanos;
+}
+
+unsigned long long UnwindEstimatorPhase::getInstrOverheadNanos(std::map<CgNodePtr, int>& unwoundNodes) {
+	// optimistic
+	std::set<CgNodePtr> keySet;
+	for (auto pair : unwoundNodes) { keySet.insert(pair.first); }
+
+	unsigned long long expectedInstrumentationOverheadNanos;
+	CgHelper::getInstrumentationOverheadOfConjunction(keySet);
+
+	unsigned long long expectedActualInstrumentationSavedNanos =
+			CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(keySet);
+
+	return (expectedInstrumentationOverheadNanos + expectedActualInstrumentationSavedNanos) / 2;
 }
 
 void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
@@ -713,33 +758,20 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 #endif
 	for (auto node : (*graph)) {
 
-		if (CgHelper::isConjunction(node) && (node->isLeafNode() || unwindInInstr)) {
-
+		if (CgHelper::isConjunction(node) && canBeUnwound(node)) {
 			unwindCandidates++;
 
-			// unwind in sample
-			unsigned long long expectedUnwindSampleOverheadNanos =
-					node->getExpectedNumberOfSamples() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
-			// unwind in instrumentation
-			unsigned long long expectedUnwindInstrumentOverheadNanos =
-					node->getNumberOfCalls() * (CgConfig::nanosPerUnwindSample + CgConfig::nanosPerUnwindStep);
-			unsigned long long unwindOverhead;
+			std::map<CgNodePtr, int> unwoundNodes;
+			getUnwoundNodes(unwoundNodes, node);
 
+			unsigned long long unwindOverhead;
 			if (unwindInInstr) {
-				unwindOverhead = expectedUnwindInstrumentOverheadNanos;
+				unwindOverhead = node->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
 			} else {
-				unwindOverhead = expectedUnwindSampleOverheadNanos;
+				unwindOverhead = getUnwindOverheadNanos(unwoundNodes);
 			}
 
-			// optimistic
-			unsigned long long expectedInstrumentationOverheadNanos =
-					CgHelper::getInstrumentationOverheadOfConjunction(node);
-			// pessimistic
-			unsigned long long expectedActualInstrumentationSavedNanos =
-					CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
-
-			unsigned long long instrumentationOverhead =
-					(expectedInstrumentationOverheadNanos + expectedActualInstrumentationSavedNanos) / 2;
+			unsigned long long instrumentationOverhead = getInstrOverheadNanos(unwoundNodes);
 
 			if (unwindOverhead < instrumentationOverhead) {
 
@@ -748,31 +780,40 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				double expectedOverheadSavedSeconds
 						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
 				if (expectedOverheadSavedSeconds > 0.1) {
+					if (!node->isLeafNode()) {
+						std::cout << "No Leaf: " << std::endl;
+					}
 					std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
 				}
 				overallSavedSeconds += expectedOverheadSavedSeconds;
 #endif
+
 				if (unwindInInstr) {
 					node->setState(CgNodeState::UNWIND_INSTR, 1);
+					numUnwoundNodes++;
 				} else {
-					node->setState(CgNodeState::UNWIND_SAMPLE, 1);
+					for (auto pair : unwoundNodes) {
+						pair.first->setState(CgNodeState::UNWIND_SAMPLE, pair.second);
+						numUnwoundNodes++;
+					}
 				}
-				unwoundNodes++;
 
 			// remove redundant instrumentation in direct parents
-				for (auto parentNode : node->getParentNodes()) {
+				for (auto pair : unwoundNodes) {
+					for (auto parentNode : pair.first->getParentNodes()) {
 
-					bool redundantInstrumentation = true;
-					for (auto childOfParentNode : parentNode->getChildNodes()) {
+						bool redundantInstrumentation = true;
+						for (auto childOfParentNode : parentNode->getChildNodes()) {
 
-						if (!childOfParentNode->isUnwound()
-								&& CgHelper::isConjunction(childOfParentNode)) {
-							redundantInstrumentation = false;
+							if (!childOfParentNode->isUnwound()
+									&& CgHelper::isConjunction(childOfParentNode)) {
+								redundantInstrumentation = false;
+							}
 						}
-					}
 
-					if (redundantInstrumentation) {
-						CgHelper::removeInstrumentationOnPath(parentNode);
+						if (redundantInstrumentation) {
+							CgHelper::removeInstrumentationOnPath(parentNode);
+						}
 					}
 				}
 			}
@@ -787,7 +828,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 void UnwindEstimatorPhase::printAdditionalReport() {
 	EstimatorPhase::printAdditionalReport();
 #ifndef TINY_REPORT
-	std::cout << "\t" << "unwound " << unwoundNodes << " leaf node(s) of "
+	std::cout << "\t" << "unwound " << numUnwoundNodes << " leaf node(s) of "
 			<< unwindCandidates << " candidate(s)" << std::endl;
 #endif
 }

@@ -18,15 +18,15 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 
 	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
 
-	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(true));
-	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(true));
+//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 //
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 //
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //

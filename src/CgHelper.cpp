@@ -191,6 +191,7 @@ namespace CgHelper {
 	}
 
 	/** returns the overhead caused by a call path */
+	// TODO this will only work with direct parents instrumented
 	unsigned long long getInstrumentationOverheadOfConjunction(
 			CgNodePtr conjunctionNode) {
 
@@ -214,6 +215,35 @@ namespace CgHelper {
 		);
 	}
 
+	/** returns the overhead caused by a call path */
+	// TODO this will only work with direct parents instrumented
+	unsigned long long getInstrumentationOverheadOfConjunction(
+			CgNodePtrSet conjunctionNodes) {
+
+		CgNodePtrSet allParents;
+		for (auto n : conjunctionNodes) {
+			CgNodePtrSet parents = n->getParentNodes();
+			allParents.insert(parents.begin(), parents.end());
+		}
+
+		CgNodePtrSet potentiallyInstrumented;
+		for (auto parentNode : allParents) {
+			auto tmpSet = getInstrumentationPath(parentNode);
+			potentiallyInstrumented.insert(tmpSet.begin(), tmpSet.end());
+		}
+
+		// add costs if node is instrumented
+		return std::accumulate(
+				potentiallyInstrumented.begin(), potentiallyInstrumented.end(), 0ULL,
+				[] (unsigned long long acc, CgNodePtr node) {
+					if (node->isInstrumentedWitness()) {
+						return acc + (node->getNumberOfCalls()*CgConfig::nanosPerInstrumentedCall);
+					}
+					return acc;
+				}
+		);
+	}
+
 	unsigned long long getInstrumentationOverheadServingOnlyThisConjunction(
 			CgNodePtr conjunctionNode) {
 
@@ -221,6 +251,34 @@ namespace CgHelper {
 
 		CgNodePtrSet potentiallyInstrumented;
 		for (auto parentNode : parents) {
+			auto tmpSet = getInstrumentationPath(parentNode);
+			potentiallyInstrumented.insert(tmpSet.begin(), tmpSet.end());
+		}
+
+		// add costs if node is instrumented
+		return std::accumulate(
+				potentiallyInstrumented.begin(), potentiallyInstrumented.end(), 0ULL,
+				[] (unsigned long long acc, CgNodePtr node) {
+					bool onlyOneDependendConjunction = node->getDependentConjunctions().size() == 1;
+					if (node->isInstrumentedWitness() && onlyOneDependendConjunction) {
+						return acc + (node->getNumberOfCalls()*CgConfig::nanosPerInstrumentedCall);
+					}
+					return acc;
+				}
+		);
+	}
+
+	unsigned long long getInstrumentationOverheadServingOnlyThisConjunction(
+			CgNodePtrSet conjunctionNodes) {
+
+		CgNodePtrSet allParents;
+		for (auto n : conjunctionNodes) {
+			CgNodePtrSet parents = n->getParentNodes();
+			allParents.insert(parents.begin(), parents.end());
+		}
+
+		CgNodePtrSet potentiallyInstrumented;
+		for (auto parentNode : allParents) {
 			auto tmpSet = getInstrumentationPath(parentNode);
 			potentiallyInstrumented.insert(tmpSet.begin(), tmpSet.end());
 		}

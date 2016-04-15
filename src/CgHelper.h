@@ -53,7 +53,9 @@ namespace CgHelper {
 	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode);
 
 	unsigned long long getInstrumentationOverheadOfConjunction(CgNodePtr conjunctionNode);
+	unsigned long long getInstrumentationOverheadOfConjunction(CgNodePtrSet conjunctionNodes);
 	unsigned long long getInstrumentationOverheadServingOnlyThisConjunction(CgNodePtr conjunctionNode);
+	unsigned long long getInstrumentationOverheadServingOnlyThisConjunction(CgNodePtrSet conjunctionNodes);
 	unsigned long long getInstrumentationOverheadOfPath(CgNodePtr node);
 	CgNodePtr getInstrumentedNodeOnPath(CgNodePtr node);
 

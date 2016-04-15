@@ -142,7 +142,7 @@ void CallgraphManager::printDOT(std::string prefix) {
 		outfile << "\"" << functionName << "\"[" << attributes
 				<< "label=\"" << functionName << "\\n"
 				<< node->getRuntimeInSeconds() << "s" << "\\n"
-				<< "#s: " << node->getExpectedNumberOfSamples()
+				<< "#samples: " << node->getExpectedNumberOfSamples()
 				<< additionalLabel << "\"]" << std::endl;
 	}
 
