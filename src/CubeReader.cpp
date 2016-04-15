@@ -71,7 +71,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 		double probeSeconds = (double (MPIProbeNanos + normalProbeNanos)) / (1000*1000*1000);
 		double probePercent = probeSeconds / (overallRuntime-probeSeconds) * 100;
 
-		std::cout << "Finished construction .." << std::endl
+		std::cout << "####################### " << c->appName << " #######################"<< std::endl
 				<< "    " << "numberOfCalls: " << overallNumberOfCalls << " | MPI: " << numberOfMPICalls
 				<< " | normal: " << numberOfNormalCalls << std::endl
 				<< "    " << "runtime: "  << overallRuntime << " seconds (ref " << c->referenceRuntime << " s)" << std::endl

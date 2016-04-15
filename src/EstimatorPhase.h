@@ -16,6 +16,23 @@
 #include "CgHelper.h"
 #include "Callgraph.h"
 
+struct CallGraphEdge {
+	CgNodePtr from;
+	CgNodePtr to;
+
+	CallGraphEdge(CgNodePtr from, CgNodePtr to) : from(from), to(to) {}
+
+	bool operator<(const CallGraphEdge& other) const {
+		return std::tie(from, to)
+				< std::tie(other.from, other.to);
+	}
+
+	friend bool operator==(const CallGraphEdge& lhs, const CallGraphEdge& rhs) {
+		return std::tie(lhs.from, lhs.to)
+						== std::tie(rhs.from, rhs.to);
+	}
+};
+
 struct CgReport {
 
 	CgReport() :
@@ -204,6 +221,23 @@ public:
 	void modifyGraph(CgNodePtr mainMethod);
 private:
 	std::set<std::string> whiteList;
+};
+
+
+/** unwind in all samples until the call context is known */
+class LibUnwindEstimatorPhase : public EstimatorPhase {
+public:
+	LibUnwindEstimatorPhase(bool unwindUntilUniqueCallpath);
+	~LibUnwindEstimatorPhase() {}
+
+	void modifyGraph(CgNodePtr mainMethod);
+private:
+	void visit(CgNodePtr from, CgNodePtr current);
+
+	std::set<CallGraphEdge> visitedEdges;
+	bool unwindUntilUniqueCallpath;
+
+	int currentDepth;
 };
 
 /**

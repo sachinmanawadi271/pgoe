@@ -2,6 +2,7 @@
 #include "EstimatorPhase.h"
 #include <iomanip>
 
+
 //#define TINY_REPORT 1
 #define NO_DEBUG
 
@@ -99,11 +100,13 @@ void EstimatorPhase::printAdditionalReport() {
 	double overallOvSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
 	double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 
+if (report.instrumentedCalls > 0) {
 	std::cout
 			<< " INSTR \t" <<std::setw(8) << std::left << report.instrOvPercent << " %"
 			<< " | instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
 			<< " | instrCalls: " << report.instrumentedCalls
 			<< " | instrOverhead: " << report.instrOvSeconds << " s" << std::endl;
+}
 if (report.unwindSamples > 0) {
 	std::cout
 			<< "   UNW \t" << std::setw(8) << report.unwindOvPercent << " %"
@@ -509,6 +512,44 @@ void WLInstrEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		if (whiteList.find(node->getFunctionName()) != whiteList.end()) {
 			node->setState(CgNodeState::INSTRUMENT_WITNESS);
 		}
+	}
+}
+
+//// LIBUNWIND ESTIMATOR PHASE
+
+LibUnwindEstimatorPhase::LibUnwindEstimatorPhase(bool unwindUntilUniqueCallpath) :
+		EstimatorPhase(unwindUntilUniqueCallpath ? "LibUnwUnique" : "LibUnwStandard"),
+		currentDepth(0),
+		unwindUntilUniqueCallpath(unwindUntilUniqueCallpath) {}
+
+void LibUnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	// find max distance from main for every function
+	for (auto child : mainMethod->getChildNodes()) {
+		visit (mainMethod, child);
+	}
+}
+
+void LibUnwindEstimatorPhase::visit(CgNodePtr from, CgNodePtr current) {
+
+	if (!(unwindUntilUniqueCallpath && current->hasUniqueCallPath())) {
+		currentDepth++;
+	}
+
+	visitedEdges.insert(CallGraphEdge(from, current));
+
+	auto unwindSteps = current->getNumberOfUnwindSteps();
+	if (currentDepth > unwindSteps) {
+		current->setState(CgNodeState::UNWIND_SAMPLE, currentDepth);
+	}
+
+	for (CgNodePtr child : current->getChildNodes()) {
+		if (visitedEdges.find(CallGraphEdge(current, child)) == visitedEdges.end()) {
+			visit(current, child);
+		}
+	}
+
+	if (!(unwindUntilUniqueCallpath && current->hasUniqueCallPath())) {
+		currentDepth--;
 	}
 }
 
