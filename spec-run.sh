@@ -10,7 +10,7 @@ S_IN=spec-centos
 rm -rf $S_OUT
 mkdir $S_OUT
 
-PARAMS="-mangled"
+PARAMS="--mangled"
 
 while [[ $# > 0 ]]
 do
@@ -18,11 +18,11 @@ key="$1"
 
 case $key in
     -s|--samples)
-    PARAMS+=" -samples $2"
+    PARAMS+=" --samples $2"
 	shift # past argument
     ;;
     -t|--tiny)
-    PARAMS+=" -tiny"
+    PARAMS+=" --tiny"
     ;;
     *)
     # unknown option

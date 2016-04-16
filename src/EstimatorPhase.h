@@ -275,8 +275,6 @@ public:
 	~UnwindEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
-protected:
-	void printAdditionalReport();
 private:
 	void getNewlyUnwoundNodes(std::map<CgNodePtr, int>& unwoundNodes, CgNodePtr StartNode, int unwindSteps=1);
 	bool canBeUnwound(CgNodePtr startNode);

@@ -847,14 +847,6 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 #endif
 }
 
-void UnwindEstimatorPhase::printAdditionalReport() {
-	EstimatorPhase::printAdditionalReport();
-	if (!config->tinyReport) {
-		std::cout << "\t" << "unwound " << numUnwoundNodes << " node(s) [" << unwindCandidates << " conjunction(s)]"
-				<< std::endl;
-	}
-}
-
 //// UNWIND ESTIMATOR PHASE
 
 ResetEstimatorPhase::ResetEstimatorPhase() :

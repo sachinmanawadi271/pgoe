@@ -81,13 +81,6 @@ bool stringEndsWith(const std::string& s, const std::string& suffix) {
 
 int main(int argc, char** argv) {
 
-	std::cout << "Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
-			<< " [-other /PATH/TO/PROFILE/TO/COMPARE/TO]"
-			<< " [-samples NUMBER_OF_SAMPLES_PER_SECOND]"
-			<< " [-ref UNINSTRUMENTED_RUNTIME_SECONDS]"
-			<< " [-mangled]"
-			<< std::endl << std::endl;
-
 	if (argc == 1) {
 		std::cerr << "ERROR: too few arguments." << std::endl;
 		exit(-1);
@@ -95,33 +88,41 @@ int main(int argc, char** argv) {
 
 	Config c;
 
-	for(int i = 1; i < argc; ++i) {
+	for(int i = 2; i < argc; ++i) {
 		auto arg = std::string(argv[i]);
 
-		if (arg=="-other") {
+		if (arg=="--other") {
 			c.otherPath = std::string(argv[++i]);
 			continue;
 		}
-		if (arg=="-samples") {
+		if (arg=="--samples" || arg=="-s") {
 			CgConfig::samplesPerSecond = atoi(argv[++i]);
 			continue;
 		}
-		if (arg=="-ref" || arg=="-r") {
+		if (arg=="--ref" || arg=="-r") {
 			c.referenceRuntime = atof(argv[++i]);
 			continue;
 		}
-		if (arg=="-mangled" || arg=="-m") {
+		if (arg=="--mangled" || arg=="-m") {
 			c.useMangledNames=true;
 			continue;
 		}
-		if (arg=="-half" || arg=="-h") {
+		if (arg=="--half" || arg=="-h") {
 			c.nanosPerHalfProbe = atoi(argv[++i]);
 			continue;
 		}
-		if (arg=="-tiny" || arg=="-t") {
+		if (arg=="--tiny" || arg=="-t") {
 			c.tinyReport = true;
 			continue;
 		}
+
+		std::cout << "Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
+				<< " [--other|-o /PATH/TO/PROFILE/TO/COMPARE/TO]"
+				<< " [--samples|-s NUMBER_OF_SAMPLES_PER_SECOND]"
+				<< " [--ref|-r UNINSTRUMENTED_RUNTIME_SECONDS]"
+				<< " [--half|-h NANOS_FOR_OVERHEAD_COMPENSATION"
+				<< " [--mangled|-m]" << " [--tiny|-t]"
+				<< std::endl << std::endl;
 	}
 
 	std::string filePath(argv[1]);
