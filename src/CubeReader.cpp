@@ -74,12 +74,6 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 				<< "    " << "runtime: " << overallRuntime << " s (ref " << c->referenceRuntime << " s)";
 		std::cout << " | " << "overhead: " << (hasRefTime ? "" : "(est.) ") << probeSeconds << " s"
 						<< " or " << std::setprecision(4) << probePercent << " %" << std::endl;
-		if (hasRefTime) {
-			double deltaSeconds = overallRuntime - probeSeconds - c->referenceRuntime;
-			double deltaPercent = deltaSeconds / c->referenceRuntime * 100;
-			std::cout << "      " << "delta: " << std::setprecision(6) << deltaSeconds << " seconds"
-					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
-		}
 
 		std::cout
 				<< "    smallestFunction : " << smallestFunctionName << " : " << smallestFunctionInSeconds * 1e9 << "ns"
