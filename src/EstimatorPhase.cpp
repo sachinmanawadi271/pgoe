@@ -3,7 +3,7 @@
 #include <iomanip>
 
 
-//#define TINY_REPORT 1
+#define TINY_REPORT 1
 #define NO_DEBUG
 
 EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
@@ -698,7 +698,10 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 //// UNWIND ESTIMATOR PHASE
 
 UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindOnlyLeafNodes, bool unwindInInstr) :
-		EstimatorPhase(unwindInInstr ? "UnwindInstr" : "UnwindSample"),
+		EstimatorPhase(
+				unwindOnlyLeafNodes ?
+						(unwindInInstr ? "UnwindInstrLeaf" : "UnwindSampleLeaf") :
+						(unwindInInstr ? "UnwindInstr" : "UnwindSample")),
 		numUnwoundNodes(0),
 		unwindCandidates(0),
 		unwindOnlyLeafNodes(unwindOnlyLeafNodes),
