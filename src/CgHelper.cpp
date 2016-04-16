@@ -522,8 +522,7 @@ namespace CgHelper {
 			childs.insert(node);
 
 			for (auto childNode : node->getChildNodes()) {
-				if (childNode->isSpantreeParent(node)
-						&& childs.find(childNode) == childs.end()) {
+				if(childs.find(childNode) == childs.end()) {
 					workQueue.push(childNode);
 				}
 			}
@@ -547,8 +546,7 @@ namespace CgHelper {
 			ancestors.insert(node);
 
 			for (auto parentNode : node->getParentNodes()) {
-				if (node->isSpantreeParent(parentNode)
-						&& ancestors.find(parentNode) == ancestors.end()) {
+				if (ancestors.find(parentNode) == ancestors.end()) {
 					workQueue.push(parentNode);
 				}
 			}

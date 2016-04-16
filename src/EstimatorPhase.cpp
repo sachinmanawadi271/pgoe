@@ -3,8 +3,8 @@
 #include <iomanip>
 
 
-#define TINY_REPORT 1
-//#define NO_DEBUG
+//#define TINY_REPORT 1
+#define NO_DEBUG
 
 EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
 
@@ -697,10 +697,11 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 //// UNWIND ESTIMATOR PHASE
 
-UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindInInstr) :
+UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindOnlyLeafNodes, bool unwindInInstr) :
 		EstimatorPhase(unwindInInstr ? "UnwindInstr" : "UnwindSample"),
 		numUnwoundNodes(0),
 		unwindCandidates(0),
+		unwindOnlyLeafNodes(unwindOnlyLeafNodes),
 		unwindInInstr(unwindInInstr) {
 }
 
@@ -719,6 +720,11 @@ void UnwindEstimatorPhase::getUnwoundNodes(std::map<CgNodePtr, int>& unwoundNode
 }
 
 bool UnwindEstimatorPhase::canBeUnwound(CgNodePtr startNode) {
+
+	if (unwindOnlyLeafNodes && !startNode->isLeafNode()) {
+		return false;
+	}
+
 	for (auto node : CgHelper::getDescendants(startNode)) {
 		if (CgHelper::isOnCycle(node)) {
 			return false;
@@ -743,8 +749,8 @@ unsigned long long UnwindEstimatorPhase::getInstrOverheadNanos(std::map<CgNodePt
 	std::set<CgNodePtr> keySet;
 	for (auto pair : unwoundNodes) { keySet.insert(pair.first); }
 
-	unsigned long long expectedInstrumentationOverheadNanos;
-	CgHelper::getInstrumentationOverheadOfConjunction(keySet);
+	unsigned long long expectedInstrumentationOverheadNanos =
+			CgHelper::getInstrumentationOverheadOfConjunction(keySet);
 
 	unsigned long long expectedActualInstrumentationSavedNanos =
 			CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(keySet);
@@ -781,7 +787,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
 				if (expectedOverheadSavedSeconds > 0.1) {
 					if (!node->isLeafNode()) {
-						std::cout << "No Leaf: " << std::endl;
+						std::cout << "No Leaf - " << unwoundNodes.size() << " nodes unwound" << std::endl;
 					}
 					std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
 				}

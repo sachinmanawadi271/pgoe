@@ -271,7 +271,7 @@ private:
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
 public:
-	UnwindEstimatorPhase(bool unwindInInstr = false);
+	UnwindEstimatorPhase(bool unwindOnlyLeafNodes = false, bool unwindInInstr = false);
 	~UnwindEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
@@ -286,6 +286,8 @@ private:
 
 	int numUnwoundNodes;
 	int unwindCandidates;
+
+	bool unwindOnlyLeafNodes;
 	bool unwindInInstr;
 };
 
