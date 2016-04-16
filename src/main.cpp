@@ -118,6 +118,10 @@ int main(int argc, char** argv) {
 			c.nanosPerHalfProbe = atoi(argv[++i]);
 			continue;
 		}
+		if (arg=="-tiny" || arg=="-t") {
+			c.tinyReport = true;
+			continue;
+		}
 	}
 
 	std::string filePath(argv[1]);

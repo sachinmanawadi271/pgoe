@@ -36,6 +36,7 @@ struct Config{
 	bool useMangledNames 		= false;
 	int nanosPerHalfProbe		= CgConfig::nanosPerHalfProbe;
 	std::string appName 		= "";
+	bool tinyReport				= false;
 };
 
 namespace CgHelper {

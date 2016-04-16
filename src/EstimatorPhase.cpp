@@ -3,7 +3,6 @@
 #include <iomanip>
 
 
-#define TINY_REPORT 1
 #define NO_DEBUG
 
 EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
@@ -83,16 +82,17 @@ CgReport EstimatorPhase::getReport() {
 
 void EstimatorPhase::printReport() {
 
-
-#ifdef TINY_REPORT
-	if (!report.metaPhase) {
-		double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
-		std::cout << "==" << report.phaseName << "==  " << overallOvPercent <<" %" << std::endl;
+	if (config->tinyReport) {
+		if (!report.metaPhase) {
+			double overallOvPercent = report.instrOvPercent
+					+ report.unwindOvPercent + report.samplingOvPercent;
+			std::cout << "==" << report.phaseName << "==  " << overallOvPercent
+					<< " %" << std::endl;
+		}
+	} else {
+		std::cout << "==" << report.phaseName << "==  " << std::endl;
+		printAdditionalReport();
 	}
-#else
-	std::cout << "==" << report.phaseName << "==  " << std::endl;
-	printAdditionalReport();
-#endif
 }
 
 void EstimatorPhase::printAdditionalReport() {
@@ -629,9 +629,10 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
 	EstimatorPhase::printAdditionalReport();
-#ifndef TINY_REPORT
-	std::cout << "\t" << "deleted " << deletedInstrumentationMarkers << " instrumentation marker(s)" << std::endl;
-#endif
+	if (!config->tinyReport) {
+		std::cout << "\t" << "deleted " << deletedInstrumentationMarkers
+				<< " instrumentation marker(s)" << std::endl;
+	}
 }
 
 //// CONJUNCTION ESTIMATOR PHASE
@@ -849,10 +850,10 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 void UnwindEstimatorPhase::printAdditionalReport() {
 	EstimatorPhase::printAdditionalReport();
-#ifndef TINY_REPORT
-	std::cout << "\t" << "unwound " << numUnwoundNodes << " leaf node(s) of "
-			<< unwindCandidates << " candidate(s)" << std::endl;
-#endif
+	if (!config->tinyReport) {
+		std::cout << "\t" << "unwound " << numUnwoundNodes << " leaf node(s) of " << unwindCandidates << " candidate(s)"
+				<< std::endl;
+	}
 }
 
 //// UNWIND ESTIMATOR PHASE

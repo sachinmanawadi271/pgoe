@@ -16,6 +16,10 @@ else
 	SAMPLES="-samples $1"
 fi
 
+if [ $2 == "-t" ] || [ $1 == "-t" ]; then
+	SAMPLES+=" -tiny"
+fi
+
 PARAMS="-mangled $SAMPLES"
 
 #$CCG $S_IN/403.gcc.scorep.cubex              -h 105 -r 40.3  $PARAMS 2>&1 | tee $S_OUT/403.gcc.clang.scorep.log
