@@ -10,17 +10,26 @@ S_IN=spec-centos
 rm -rf $S_OUT
 mkdir $S_OUT
 
-if [ -z "$1" ]; then
-	SAMPLES=""
-else
-	SAMPLES="-samples $1"
-fi
+PARAMS="-mangled"
 
-if [ $2 == "-t" ] || [ $1 == "-t" ]; then
-	SAMPLES+=" -tiny"
-fi
+while [[ $# > 0 ]]
+do
+key="$1"
 
-PARAMS="-mangled $SAMPLES"
+case $key in
+    -s|--samples)
+    PARAMS+=" -samples $2"
+	shift # past argument
+    ;;
+    -t|--tiny)
+    PARAMS+=" -tiny"
+    ;;
+    *)
+    # unknown option
+    ;;
+esac
+shift # past argument or value
+done
 
 #$CCG $S_IN/403.gcc.scorep.cubex              -h 105 -r 40.3  $PARAMS 2>&1 | tee $S_OUT/403.gcc.clang.scorep.log
 $CCG $S_IN/429.mcf.clang.scorep.cubex        -h 105 -r 236.2 $PARAMS 2>&1 | tee $S_OUT/429.mcf.clang.scorep.log
