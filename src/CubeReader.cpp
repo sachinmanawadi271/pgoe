@@ -68,8 +68,10 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 		}
 
 		std::cout << "####################### " << c->appName << " #######################" << std::endl;
-		std::cout
-				<< "    " << "numberOfCalls: " << overallNumberOfCalls
+		if (!hasRefTime) {
+			std::cout << "HAS NO REF TIME" << std::endl;
+		}
+		std::cout << "    " << "numberOfCalls: " << overallNumberOfCalls
 				<< " | " << "samplesPerSecond : " << CgConfig::samplesPerSecond << std::endl
 				<< "    " << "runtime: " << overallRuntime << " s (ref " << c->referenceRuntime << " s)";
 		std::cout << " | " << "overhead: " << (hasRefTime ? "" : "(est.) ") << probeSeconds << " s"
