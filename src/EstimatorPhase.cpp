@@ -84,8 +84,7 @@ void EstimatorPhase::printReport() {
 
 	if (config->tinyReport) {
 		if (!report.metaPhase) {
-			double overallOvPercent = report.instrOvPercent
-					+ report.unwindOvPercent + report.samplingOvPercent;
+			double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 			std::cout << "==" << report.phaseName << "==  " << overallOvPercent
 					<< " %" << std::endl;
 		}
@@ -851,7 +850,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 void UnwindEstimatorPhase::printAdditionalReport() {
 	EstimatorPhase::printAdditionalReport();
 	if (!config->tinyReport) {
-		std::cout << "\t" << "unwound " << numUnwoundNodes << " leaf node(s) of " << unwindCandidates << " candidate(s)"
+		std::cout << "\t" << "unwound " << numUnwoundNodes << " node(s) [" << unwindCandidates << " conjunction(s)]"
 				<< std::endl;
 	}
 }

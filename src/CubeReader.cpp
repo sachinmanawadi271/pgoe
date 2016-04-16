@@ -57,36 +57,32 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 		}
 
 		c->actualRuntime = overallRuntime;
-		unsigned long long numberOfMPICalls = 0;
+		bool hasRefTime = c->referenceRuntime > .0;
+		unsigned long long normalProbeNanos = overallNumberOfCalls * CgConfig::nanosPerNormalProbe;
 
-		for (auto function : *cg) {
-			if (function->getFunctionName().find("MPI") != std::string::npos) {
-				numberOfMPICalls += function->getNumberOfCallsWithCurrentEdges();
-			}
-		}
-		unsigned long long numberOfNormalCalls = overallNumberOfCalls - numberOfMPICalls;
-		unsigned long long MPIProbeNanos = numberOfMPICalls * CgConfig::nanosPerMPIProbe;
-		unsigned long long normalProbeNanos = numberOfNormalCalls * CgConfig::nanosPerNormalProbe;
-
-		double probeSeconds = (double (MPIProbeNanos + normalProbeNanos)) / (1000*1000*1000);
+		double probeSeconds = (double (normalProbeNanos)) / (1000*1000*1000);
 		double probePercent = probeSeconds / (overallRuntime-probeSeconds) * 100;
+		if (hasRefTime) {
+			probeSeconds = overallRuntime - c->referenceRuntime;
+			probePercent = probeSeconds / c->referenceRuntime * 100;
+		}
 
-		std::cout << "####################### " << c->appName << " #######################"<< std::endl
-				<< "    " << "numberOfCalls: " << overallNumberOfCalls << " | MPI: " << numberOfMPICalls
-				<< " | normal: " << numberOfNormalCalls << std::endl
-				<< "    " << "runtime: "  << overallRuntime << " seconds (ref " << c->referenceRuntime << " s)" << std::endl
-				<< "      " << "estimatedOverhead: " << probeSeconds << " seconds"
-				<< " or " << std::setprecision(4) << probePercent << " % (vs cube time)"<< std::endl;
-
-		if (c->referenceRuntime > .0) {
+		std::cout << "####################### " << c->appName << " #######################" << std::endl;
+		std::cout
+				<< "    " << "numberOfCalls: " << overallNumberOfCalls
+				<< " | " << "samplesPerSecond : " << CgConfig::samplesPerSecond << std::endl
+				<< "    " << "runtime: " << overallRuntime << " s (ref " << c->referenceRuntime << " s)";
+		std::cout << " | " << "overhead: " << (hasRefTime ? "" : "(est.) ") << probeSeconds << " s"
+						<< " or " << std::setprecision(4) << probePercent << " %" << std::endl;
+		if (hasRefTime) {
 			double deltaSeconds = overallRuntime - probeSeconds - c->referenceRuntime;
 			double deltaPercent = deltaSeconds / c->referenceRuntime * 100;
 			std::cout << "      " << "delta: " << std::setprecision(6) << deltaSeconds << " seconds"
 					<< " or " << std::setprecision(4) << deltaPercent << " % (vs ref time)" << std::endl;
 		}
 
-		std::cout << "    " << "target samplesPerSecond : " << CgConfig::samplesPerSecond
-				<< " | smallestFunction : " << smallestFunctionName << " : " << smallestFunctionInSeconds * 1e9 << "ns"
+		std::cout
+				<< "    smallestFunction : " << smallestFunctionName << " : " << smallestFunctionInSeconds * 1e9 << "ns"
 				<< " | edgesWithZeroRuntime: " << edgesWithZeroRuntime
 				<< std::setprecision(6) << std::endl << std::endl;
 
