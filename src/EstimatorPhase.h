@@ -278,7 +278,7 @@ public:
 protected:
 	void printAdditionalReport();
 private:
-	void getUnwoundNodes(std::map<CgNodePtr, int>& unwoundNodes, CgNodePtr StartNode, int unwindSteps=1);
+	void getNewlyUnwoundNodes(std::map<CgNodePtr, int>& unwoundNodes, CgNodePtr StartNode, int unwindSteps=1);
 	bool canBeUnwound(CgNodePtr startNode);
 
 	unsigned long long getUnwindOverheadNanos(std::map<CgNodePtr, int>& unwoundNodes);

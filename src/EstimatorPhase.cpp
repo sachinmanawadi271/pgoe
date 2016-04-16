@@ -712,13 +712,13 @@ UnwindEstimatorPhase::~UnwindEstimatorPhase() {
 }
 
 /** XXX never call this if there are cycles in the successors of the start node */
-void UnwindEstimatorPhase::getUnwoundNodes(std::map<CgNodePtr, int>& unwoundNodes, CgNodePtr startNode, int unwindSteps) {
+void UnwindEstimatorPhase::getNewlyUnwoundNodes(std::map<CgNodePtr, int>& unwoundNodes, CgNodePtr startNode, int unwindSteps) {
 
 	if (unwoundNodes.find(startNode) == unwoundNodes.end() || unwoundNodes[startNode] < unwindSteps) {
 		unwoundNodes[startNode] = unwindSteps;
 	}
 	for (auto child : startNode->getChildNodes()) {
-		getUnwoundNodes(unwoundNodes, child, unwindSteps+1);
+		getNewlyUnwoundNodes(unwoundNodes, child, unwindSteps+1);
 	}
 }
 
@@ -739,9 +739,17 @@ bool UnwindEstimatorPhase::canBeUnwound(CgNodePtr startNode) {
 unsigned long long UnwindEstimatorPhase::getUnwindOverheadNanos(std::map<CgNodePtr, int>& unwoundNodes) {
 	unsigned long long unwindSampleOverheadNanos = 0;
 	for (auto pair : unwoundNodes) {
+
+		int numUnwindSteps = pair.second;
+		int numExistingUnwindSteps = pair.first->getNumberOfUnwindSteps();
+
+		int numNewUnwindSteps = 0;
+		if(numUnwindSteps > numExistingUnwindSteps) {
+			numNewUnwindSteps = numUnwindSteps - numExistingUnwindSteps;
+		}
+
 		unsigned long long numSamples = pair.first->getExpectedNumberOfSamples();
-		unsigned long long numUnwindSteps = pair.second;
-		unwindSampleOverheadNanos += numSamples * numUnwindSteps * CgConfig::nanosPerUnwindStep;
+		unwindSampleOverheadNanos += numSamples * numNewUnwindSteps * CgConfig::nanosPerUnwindStep;
 	}
 
 	return unwindSampleOverheadNanos;
@@ -771,7 +779,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			unwindCandidates++;
 
 			std::map<CgNodePtr, int> unwoundNodes;
-			getUnwoundNodes(unwoundNodes, node);
+			getNewlyUnwoundNodes(unwoundNodes, node);
 
 			unsigned long long unwindOverhead;
 			if (unwindInInstr) {
@@ -802,8 +810,11 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 					numUnwoundNodes++;
 				} else {
 					for (auto pair : unwoundNodes) {
-						pair.first->setState(CgNodeState::UNWIND_SAMPLE, pair.second);
-						numUnwoundNodes++;
+						int numExistingUnwindSteps = pair.first->getNumberOfUnwindSteps();
+						if (pair.second > numExistingUnwindSteps) {
+							pair.first->setState(CgNodeState::UNWIND_SAMPLE, pair.second);
+							numUnwoundNodes++;
+						}
 					}
 				}
 
