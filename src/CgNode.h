@@ -72,6 +72,8 @@ public:
 	// marker pos & dependent conjunction stuff
 	CgNodePtrSet& getMarkerPositions();
 	CgNodePtrSet& getDependentConjunctions();
+	const CgNodePtrSet& getMarkerPositionsConst() const;
+	const CgNodePtrSet& getDependentConjunctionsConst() const;
 
 	// spanning tree stuff
 	void addSpantreeParent(CgNodePtr parentNode);

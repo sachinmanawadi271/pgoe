@@ -199,7 +199,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			auto uniqueChild = node->getUniqueChild();
 
 			if (CgHelper::hasUniqueParent(uniqueChild)
-					&& (node->getDependentConjunctions() == uniqueChild->getDependentConjunctions())
+					&& (node->getDependentConjunctionsConst() == uniqueChild->getDependentConjunctionsConst())
 					&& !CgHelper::isOnCycle(node)) {
 
 				numChainsRemoved++;
@@ -222,8 +222,8 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		if (node->hasUniqueParent()	&& node->hasUniqueChild()
 				&& node->getUniqueParent()->getNumberOfCalls() <= node->getNumberOfCalls() ) {
 
-			CgNodePtrSet intersect = CgHelper::setIntersect(node->getUniqueParent()->getDependentConjunctions(), node->getDependentConjunctions());
-			if (intersect == node->getDependentConjunctions()) {
+			CgNodePtrSet intersect = CgHelper::setIntersect(node->getUniqueParent()->getDependentConjunctionsConst(), node->getDependentConjunctionsConst());
+			if (intersect == node->getDependentConjunctionsConst()) {
 				// TODO: also the two nodes have to serve the same conjunctions
 
 				numAdvancedOptimizations++;

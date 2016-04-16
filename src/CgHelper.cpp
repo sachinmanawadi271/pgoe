@@ -260,7 +260,7 @@ namespace CgHelper {
 		return std::accumulate(
 				potentiallyInstrumented.begin(), potentiallyInstrumented.end(), 0ULL,
 				[] (unsigned long long acc, CgNodePtr node) {
-					bool onlyOneDependendConjunction = node->getDependentConjunctions().size() == 1;
+					bool onlyOneDependendConjunction = node->getDependentConjunctionsConst().size() == 1;
 					if (node->isInstrumentedWitness() && onlyOneDependendConjunction) {
 						return acc + (node->getNumberOfCalls()*CgConfig::nanosPerInstrumentedCall);
 					}
@@ -290,7 +290,7 @@ namespace CgHelper {
 				[] (unsigned long long acc, CgNodePtr node) {
 
 					bool onlyOneDependendConjunction = true;
-					for (auto dependentConj : node->getDependentConjunctions()) {
+					for (auto dependentConj : node->getDependentConjunctionsConst()) {
 						if (dependentConj != node && dependentConj->isUnwound()) {
 							onlyOneDependendConjunction = false;
 						}

@@ -41,7 +41,11 @@ void CgNode::removeParentNode(CgNodePtr parentNode) {
 }
 
 CgNodePtrSet &CgNode::getMarkerPositions() { return potentialMarkerPositions; }
+const CgNodePtrSet &CgNode::getMarkerPositionsConst() const { return potentialMarkerPositions; }
 CgNodePtrSet &CgNode::getDependentConjunctions() {
+  return dependentConjunctions;
+}
+const CgNodePtrSet &CgNode::getDependentConjunctionsConst() const {
   return dependentConjunctions;
 }
 
