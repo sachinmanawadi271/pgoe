@@ -781,11 +781,9 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			std::map<CgNodePtr, int> unwoundNodes;
 			getNewlyUnwoundNodes(unwoundNodes, node);
 
-			unsigned long long unwindOverhead;
+			unsigned long long unwindOverhead = getUnwindOverheadNanos(unwoundNodes);;
 			if (unwindInInstr) {
 				unwindOverhead = node->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
-			} else {
-				unwindOverhead = getUnwindOverheadNanos(unwoundNodes);
 			}
 
 			unsigned long long instrumentationOverhead = getInstrOverheadNanos(unwoundNodes);
@@ -811,9 +809,11 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 				} else {
 					for (auto pair : unwoundNodes) {
 						int numExistingUnwindSteps = pair.first->getNumberOfUnwindSteps();
+						if (numExistingUnwindSteps == 0) {
+							numUnwoundNodes++;
+						}
 						if (pair.second > numExistingUnwindSteps) {
 							pair.first->setState(CgNodeState::UNWIND_SAMPLE, pair.second);
-							numUnwoundNodes++;
 						}
 					}
 				}
@@ -832,7 +832,9 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 						}
 
 						if (redundantInstrumentation) {
-							CgHelper::removeInstrumentationOnPath(parentNode);
+							if (parentNode->isInstrumented()) {
+								parentNode->setState(CgNodeState::NONE);
+							}
 						}
 					}
 				}

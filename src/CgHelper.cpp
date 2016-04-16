@@ -227,6 +227,7 @@ namespace CgHelper {
 		}
 
 		CgNodePtrSet potentiallyInstrumented;
+
 		for (auto parentNode : allParents) {
 			auto tmpSet = getInstrumentationPath(parentNode);
 			potentiallyInstrumented.insert(tmpSet.begin(), tmpSet.end());
