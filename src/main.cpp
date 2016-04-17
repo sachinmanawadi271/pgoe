@@ -23,8 +23,8 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
 	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
@@ -34,44 +34,23 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	cg.registerEstimatorPhase(new WLInstrEstimatorPhase("out/instrumented-" + c->appName + "-Instrument.txt"));
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true));
 //	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 //	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 }
 
 bool stringEndsWith(const std::string& s, const std::string& suffix) {
