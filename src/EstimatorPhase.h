@@ -29,9 +29,11 @@ struct CgReport {
 		instrOvSeconds(.0),
 		unwindOvSeconds(.0),
 		samplingOvSeconds(.0),
+		overallSeconds(.0),
 		instrOvPercent(.0),
 		unwindOvPercent(.0),
 		samplingOvPercent(.0),
+		overallPercent(.0),
 		phaseName(std::string()),
 		metaPhase(false),
 		instrumentedNames(std::set<std::string>())
@@ -50,10 +52,12 @@ struct CgReport {
 	double instrOvSeconds;
 	double unwindOvSeconds;
 	double samplingOvSeconds;
+	double overallSeconds;
 
 	double instrOvPercent;
 	double unwindOvPercent;
 	double samplingOvPercent;
+	double overallPercent;
 
 	std::string phaseName;
 	bool metaPhase;

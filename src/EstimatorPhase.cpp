@@ -65,9 +65,16 @@ void EstimatorPhase::generateReport() {
 	report.samplingOvSeconds = report.samplesTaken * CgConfig::nanosPerSample / 1e9;
 	report.samplingOvPercent = (double) (CgConfig::nanosPerSample * CgConfig::samplesPerSecond) / 1e7;
 
+	report.overallSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
+	report.overallPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 
 	report.metaPhase = isMetaPhase;
 	report.phaseName = name;
+
+	if (!isMetaPhase && report.overallPercent < config->fastestPhaseOvPercent) {
+		config->fastestPhaseOvPercent = report.overallPercent;
+		config->fastestPhaseName = report.phaseName;
+	}
 
 	assert(report.instrumentedMethods == report.instrumentedNames.size());
 }
@@ -96,9 +103,6 @@ void EstimatorPhase::printReport() {
 
 void EstimatorPhase::printAdditionalReport() {
 
-	double overallOvSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
-	double overallOvPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
-
 if (report.instrumentedCalls > 0) {
 	std::cout
 			<< " INSTR \t" <<std::setw(8) << std::left << report.instrOvPercent << " %"
@@ -118,8 +122,8 @@ if (report.unwindSamples > 0) {
 			<< " | taken samples: " << report.samplesTaken
 			<< " | samplingOverhead: " << report.samplingOvSeconds << " s" << std::endl
 
-			<< " ---->\t" <<std::setw(8) << overallOvPercent << " %"
-			<< " | overallOverhead: " << overallOvSeconds << " s"
+			<< " ---->\t" <<std::setw(8) << report.overallPercent << " %"
+			<< " | overallOverhead: " << report.overallSeconds << " s"
 			<< std::endl;
 }
 
@@ -850,7 +854,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 //// UNWIND ESTIMATOR PHASE
 
 ResetEstimatorPhase::ResetEstimatorPhase() :
-		EstimatorPhase("Reset") {
+		EstimatorPhase("Reset", true) {
 }
 
 ResetEstimatorPhase::~ResetEstimatorPhase() {
