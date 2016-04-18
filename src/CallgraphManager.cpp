@@ -102,8 +102,8 @@ void CallgraphManager::thatOneLargeMethod() {
 		phases.pop();
 	}
 
-	std::cout << "\t" << "Fastest Phase - " << config->fastestPhaseName << " : " << config->fastestPhaseOvPercent
-			<< " %" << std::endl;
+	std::cout << " ---- " << "Fastest Phase: " << std::setw(8) <<  config->fastestPhaseOvPercent << " % with "
+			<< config->fastestPhaseName << std::endl;
 
 #if PRINT_FINAL_DOT
 	printDOT("final");
