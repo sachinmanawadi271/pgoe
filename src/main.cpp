@@ -16,11 +16,8 @@
 
 void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false)); 	// remove only unconnected nodes
 	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
-
-//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(true));
-//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
 
