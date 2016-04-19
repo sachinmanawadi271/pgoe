@@ -87,7 +87,7 @@ void CgNode::updateNodeAttributes() {
 
 void CgNode::updateExpectedNumberOfSamples() {
 	// expected samples in this function (always round up)
-	this->expectedNumberOfSamples = (unsigned long long) ( (double) CgConfig::samplesPerSecond * runtimeInSeconds + 0.5);
+	this->expectedNumberOfSamples = (unsigned long long) ( (double) CgConfig::samplesPerSecond * runtimeInSeconds + 1);
 }
 
 bool CgNode::hasUniqueCallPath() { return uniqueCallPath; }
