@@ -227,7 +227,11 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 			CgNodePtrSet intersect = CgHelper::setIntersect(node->getUniqueParent()->getDependentConjunctionsConst(), node->getDependentConjunctionsConst());
 			if (intersect == node->getDependentConjunctionsConst()) {
-				// TODO: also the two nodes have to serve the same conjunctions
+
+				///XXX
+//				std::cout << "Erased " << node->getFunctionName() << " with " << node->getNumberOfCalls() << " calls." << std::endl;
+				assert(node->getUniqueParent()->getNumberOfCalls() <= node->getNumberOfCalls());
+//				std::cout << node->getUniqueParent()->getNumberOfCalls() << " < " << node->getNumberOfCalls() << std::endl;
 
 				numAdvancedOptimizations++;
 				graph->erase(node, true);

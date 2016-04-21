@@ -131,6 +131,8 @@ void CallgraphManager::printDOT(std::string prefix) {
 		}
 		if (node->isInstrumentedWitness()) {
 			attributes += "shape=doublecircle, ";
+			additionalLabel += std::string("\\n #calls: ");
+			additionalLabel += std::to_string(node->getNumberOfCalls());
 		}
 		if (node->isUnwound()) {
 			attributes += "shape=doubleoctagon, ";
