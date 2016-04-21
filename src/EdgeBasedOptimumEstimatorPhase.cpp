@@ -12,7 +12,7 @@ EdgeBasedOptimumEstimatorPhase::~EdgeBasedOptimumEstimatorPhase() {
 
 void EdgeBasedOptimumEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	std::priority_queue<CgEdgeWithCalls, std::vector<CgEdgeWithCalls>, MoreCalls> pq;
+	std::priority_queue<CgEdgeWithCalls, std::vector<CgEdgeWithCalls>, MoreCallsOnEdge> pq;
 	// get all edges
 	for (auto parentNode : (*graph)) {
 		for (auto childNode : parentNode->getChildNodes()) {

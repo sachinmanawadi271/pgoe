@@ -30,7 +30,7 @@ struct CgEdgeWithCalls {
 
 typedef std::set<CgEdgeWithCalls> CgEdgeSet;
 
-struct MoreCalls {
+struct MoreCallsOnEdge {
 	bool operator() (const CgEdgeWithCalls& lhs, const CgEdgeWithCalls& rhs) {
 		return lhs.calls < rhs.calls;
 	}

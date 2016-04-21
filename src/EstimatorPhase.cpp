@@ -23,6 +23,7 @@ void EstimatorPhase::generateReport() {
 			report.instrumentedCalls += node->getNumberOfCalls();
 
 			report.instrumentedNames.insert(node->getFunctionName());
+			report.instrumentedNodes.push(node);
 		}
 		if(node->isUnwound()) {
 			unsigned long long unwindSamples = 0;
@@ -73,10 +74,12 @@ void EstimatorPhase::generateReport() {
 
 	if (!isMetaPhase && report.overallPercent < config->fastestPhaseOvPercent) {
 		config->fastestPhaseOvPercent = report.overallPercent;
+		config->fastestPhaseOvSeconds = report.overallSeconds;
 		config->fastestPhaseName = report.phaseName;
 	}
 
 	assert(report.instrumentedMethods == report.instrumentedNames.size());
+	assert(report.instrumentedMethods == report.instrumentedNodes.size());
 }
 
 void EstimatorPhase::setGraph(Callgraph* graph) {

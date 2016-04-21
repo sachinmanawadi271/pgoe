@@ -36,7 +36,8 @@ struct CgReport {
 		overallPercent(.0),
 		phaseName(std::string()),
 		metaPhase(false),
-		instrumentedNames(std::set<std::string>())
+		instrumentedNames(std::set<std::string>()),
+		instrumentedNodes(std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften>())
 	{}
 
 	unsigned int instrumentedMethods;
@@ -63,6 +64,7 @@ struct CgReport {
 	bool metaPhase;
 
 	std::set<std::string> instrumentedNames;
+	std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> instrumentedNodes;
 
 };
 

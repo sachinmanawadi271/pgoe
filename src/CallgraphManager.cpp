@@ -117,6 +117,10 @@ void CallgraphManager::printDOT(std::string prefix) {
 
 	outfile << "digraph callgraph {\nnode [shape=oval]\n";
 
+	unsigned long long callsForThreePercentOfOverhead = config->fastestPhaseOvSeconds * 10e9 * 0.03 / (double) CgConfig::nanosPerInstrumentedCall;
+
+	std::cout << config->fastestPhaseOvSeconds << " " << callsForThreePercentOfOverhead << std::endl;
+
 	for (auto node : graph) {
 
 		std::string functionName = node->getFunctionName();
@@ -130,7 +134,14 @@ void CallgraphManager::printDOT(std::string prefix) {
 			attributes += "color=green, ";
 		}
 		if (node->isInstrumentedWitness()) {
-			attributes += "shape=doublecircle, ";
+			attributes += "style=filled, ";
+
+			if (node->getNumberOfCalls() > callsForThreePercentOfOverhead) {
+				attributes += "fillcolor=red, ";
+			} else {
+				attributes += "fillcolor=grey, ";
+			}
+
 			additionalLabel += std::string("\\n #calls: ");
 			additionalLabel += std::to_string(node->getNumberOfCalls());
 		}
@@ -138,8 +149,6 @@ void CallgraphManager::printDOT(std::string prefix) {
 			attributes += "shape=doubleoctagon, ";
 			additionalLabel += std::string("\\n unwindSteps: ");
 			additionalLabel += std::to_string(node->getNumberOfUnwindSteps());
-		} else if (node->isInstrumentedWitness()) {
-			attributes += "shape=doublecircle, ";
 		} else if (node->isLeafNode()) {
 			attributes += "shape=octagon, ";
 		}
