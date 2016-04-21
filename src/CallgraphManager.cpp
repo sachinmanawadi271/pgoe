@@ -85,13 +85,14 @@ void CallgraphManager::thatOneLargeMethod() {
 		phase->generateReport();
 
 		phase->printReport();
-#if PRINT_DOT_AFTER_EVERY_PHASE
+
 		CgReport report = phase->getReport();
+#if PRINT_DOT_AFTER_EVERY_PHASE
 		printDOT(report.phaseName);
+#endif	// PRINT_DOT_AFTER_EVERY_PHASE
 #if DUMP_INSTRUMENTED_NAMES
 		dumpInstrumentedNames(report);
 #endif	// DUMP_INSTRUMENTED_NAMES
-#endif	// PRINT_DOT_AFTER_EVERY_PHASE
 
 #if BENCHMARK_PHASES
 		auto endTime = std::chrono::system_clock::now();
@@ -119,8 +120,6 @@ void CallgraphManager::printDOT(std::string prefix) {
 
 	unsigned long long callsForThreePercentOfOverhead = config->fastestPhaseOvSeconds * 10e9 * 0.03 / (double) CgConfig::nanosPerInstrumentedCall;
 
-	std::cout << config->fastestPhaseOvSeconds << " " << callsForThreePercentOfOverhead << std::endl;
-
 	for (auto node : graph) {
 
 		std::string functionName = node->getFunctionName();
@@ -142,8 +141,6 @@ void CallgraphManager::printDOT(std::string prefix) {
 				attributes += "fillcolor=grey, ";
 			}
 
-			additionalLabel += std::string("\\n #calls: ");
-			additionalLabel += std::to_string(node->getNumberOfCalls());
 		}
 		if (node->isUnwound()) {
 			attributes += "shape=doubleoctagon, ";
@@ -152,6 +149,10 @@ void CallgraphManager::printDOT(std::string prefix) {
 		} else if (node->isLeafNode()) {
 			attributes += "shape=octagon, ";
 		}
+
+		additionalLabel += std::string("\\n #calls: ");
+		additionalLabel += std::to_string(node->getNumberOfCalls());
+
 		// runtime & expectedSamples in node label
 		outfile << "\"" << functionName << "\"[" << attributes
 				<< "label=\"" << functionName << "\\n"
