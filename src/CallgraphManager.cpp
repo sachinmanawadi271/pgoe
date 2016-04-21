@@ -48,10 +48,14 @@ void CallgraphManager::putEdge(std::string parentName, std::string parentFilenam
 	childNode->addCallData(parentNode, numberOfCalls, timeInSeconds);
 }
 
-void CallgraphManager::registerEstimatorPhase(EstimatorPhase* phase) {
+void CallgraphManager::registerEstimatorPhase(EstimatorPhase* phase, bool noReport) {
 	phases.push(phase);
 	phase->injectConfig(config);
 	phase->setGraph(&graph);
+
+	if (noReport) {
+		phase->setNoReport();
+	}
 }
 
 void CallgraphManager::finalizeGraph() {

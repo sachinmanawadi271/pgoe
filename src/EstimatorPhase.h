@@ -83,6 +83,8 @@ public:
 	struct CgReport getReport();
 	virtual void printReport();
 
+	void setNoReport() { noReportRequired = true; }
+
 protected:
 	Callgraph* graph;
 
@@ -90,7 +92,7 @@ protected:
 	std::string name;
 
 	Config* config;
-	bool isMetaPhase;
+	bool noReportRequired;
 
 	/* print some additional information of the phase */
 	virtual void printAdditionalReport();

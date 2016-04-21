@@ -11,7 +11,7 @@ EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
 		report(),	// initializes all members of report
 		name(name),
 		config(nullptr),
-		isMetaPhase(isMetaPhase) {
+		noReportRequired(isMetaPhase) {
 }
 
 void EstimatorPhase::generateReport() {
@@ -69,10 +69,10 @@ void EstimatorPhase::generateReport() {
 	report.overallSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
 	report.overallPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
 
-	report.metaPhase = isMetaPhase;
+	report.metaPhase = noReportRequired;
 	report.phaseName = name;
 
-	if (!isMetaPhase && report.overallPercent < config->fastestPhaseOvPercent) {
+	if (!noReportRequired && report.overallPercent < config->fastestPhaseOvPercent) {
 		config->fastestPhaseOvPercent = report.overallPercent;
 		config->fastestPhaseOvSeconds = report.overallSeconds;
 		config->fastestPhaseName = report.phaseName;

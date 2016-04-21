@@ -25,7 +25,7 @@ public:
 	void putNumberOfStatements(std::string name, int numberOfStatements);
 	CgNodePtr findOrCreateNode(std::string name, double timeInSeconds = 0.0);
 
-	void registerEstimatorPhase(EstimatorPhase* phase);
+	void registerEstimatorPhase(EstimatorPhase* phase, bool noReport = false);
 
 	void thatOneLargeMethod();	// TODO RN: rename
 
