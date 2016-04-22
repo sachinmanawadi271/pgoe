@@ -210,6 +210,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 				numChainsRemoved++;
 
+
 				if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
 					graph->erase(node, true);
 				} else {
@@ -223,7 +224,15 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		return;
 	}
 
+	CgNodePtrQueue allNodes;
 	for (auto node : (*graph)) {
+		allNodes.push(node);
+	}
+	while (!allNodes.empty()) {
+
+		auto node = allNodes.top();
+		allNodes.pop();
+
 		// advanced optimization (remove node with subset of dependentConjunctions
 		if (node->hasUniqueParent()	&& node->hasUniqueChild()
 				&& node->getUniqueParent()->getNumberOfCalls() <= node->getNumberOfCalls() ) {
@@ -619,17 +628,14 @@ DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase(
 
 void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> pq;
+	CgNodePtrQueue pq;
 	for (auto node : (*graph)) {
 		if (node->isInstrumentedWitness()) {
 			pq.push(node);
 		}
 	}
 
-	while (!pq.empty()) {
-		auto node = pq.top();
-		pq.pop();
-
+	for (auto node : Container(pq)) {
 		if (CgHelper::instrumentationCanBeDeleted(node)) {
 			node->setState(CgNodeState::NONE);
 			deletedInstrumentationMarkers++;

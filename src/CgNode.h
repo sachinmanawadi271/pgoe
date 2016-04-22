@@ -10,9 +10,21 @@
 
 #include <set>
 #include <map>
+#include <queue>
 
 #include <unordered_set>
 #include <algorithm>
+
+// iterate priority_queue as of: http://stackoverflow.com/a/1385520
+template<class T, class S, class C>
+S& Container(std::priority_queue<T, S, C>& q) {
+	struct HackedQueue: private std::priority_queue<T, S, C> {
+		static S& Container(std::priority_queue<T, S, C>& q) {
+			return q.*&HackedQueue::c;
+		}
+	};
+	return HackedQueue::Container(q);
+}
 
 enum CgNodeState {
 	NONE,
@@ -21,6 +33,7 @@ enum CgNodeState {
 	INSTRUMENT_CONJUNCTION,
 	UNWIND_INSTR
 };
+
 
 class CgNode;
 typedef std::shared_ptr<CgNode> 		CgNodePtr;	// hopefully this typedef helps readability
@@ -148,7 +161,7 @@ struct CalledMoreOften {
 		return lhs->getNumberOfCalls() < rhs->getNumberOfCalls();
 	}
 };
-
+typedef std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> CgNodePtrQueue;
 
 struct CgEdge {
 	CgNodePtr from;
