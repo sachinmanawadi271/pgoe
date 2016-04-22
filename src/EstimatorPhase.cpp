@@ -224,14 +224,8 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		return;
 	}
 
-	CgNodePtrQueue allNodes;
-	for (auto node : (*graph)) {
-		allNodes.push(node);
-	}
-	while (!allNodes.empty()) {
-
-		auto node = allNodes.top();
-		allNodes.pop();
+	CgNodePtrQueue allNodes(graph->begin(), graph->end());
+	for (auto node : Container(allNodes)) {
 
 		// advanced optimization (remove node with subset of dependentConjunctions
 		if (node->hasUniqueParent()	&& node->hasUniqueChild()
