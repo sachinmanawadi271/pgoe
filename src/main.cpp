@@ -16,19 +16,26 @@
 
 void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 
-	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, false)); 	// remove chains
 	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
 
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false)); 	// remove unrelated
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), false);		// instrument
 	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true)); 	// aggressive reduction
-	cg.registerEstimatorPhase(new ResetEstimatorPhase(), true);
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, false)); 	// remove leafs and chains
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), false);		// instrument
 	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase(), true);
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true)); 	// aggressive reduction
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), false);		// instrument
+	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 
 //	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
@@ -122,6 +129,10 @@ int main(int argc, char** argv) {
 		}
 		if (arg=="--tiny" || arg=="-t") {
 			c.tinyReport = true;
+			continue;
+		}
+		if (arg=="--ignore-sampling" || arg=="-i") {
+			c.ignoreSamplingOv = true;
 			continue;
 		}
 

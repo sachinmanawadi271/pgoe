@@ -37,6 +37,7 @@ struct Config{
 	int nanosPerHalfProbe		= CgConfig::nanosPerHalfProbe;
 	std::string appName 		= "";
 	bool tinyReport				= false;
+	bool ignoreSamplingOv = false;
 
 	std::string fastestPhaseName	= "NO_PHASE";
 	double fastestPhaseOvPercent	= 1e9;

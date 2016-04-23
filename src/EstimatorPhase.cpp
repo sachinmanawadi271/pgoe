@@ -63,8 +63,10 @@ void EstimatorPhase::generateReport() {
 		report.samplesTaken = 0;
 	}
 	// sampling overhead
-	report.samplingOvSeconds = report.samplesTaken * CgConfig::nanosPerSample / 1e9;
-	report.samplingOvPercent = (double) (CgConfig::nanosPerSample * CgConfig::samplesPerSecond) / 1e7;
+	if (!config->ignoreSamplingOv) {
+		report.samplingOvSeconds = report.samplesTaken * CgConfig::nanosPerSample / 1e9;
+		report.samplingOvPercent = (double) (CgConfig::nanosPerSample * CgConfig::samplesPerSecond) / 1e7;
+	}
 
 	report.overallSeconds = report.instrOvSeconds + report.unwindOvSeconds + report.samplingOvSeconds;
 	report.overallPercent = report.instrOvPercent + report.unwindOvPercent + report.samplingOvPercent;
@@ -106,28 +108,26 @@ void EstimatorPhase::printReport() {
 
 void EstimatorPhase::printAdditionalReport() {
 
-if (report.instrumentedCalls > 0) {
-	std::cout
-			<< " INSTR \t" <<std::setw(8) << std::left << report.instrOvPercent << " %"
-			<< " | instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
-			<< " | instrCalls: " << report.instrumentedCalls
-			<< " | instrOverhead: " << report.instrOvSeconds << " s" << std::endl;
-}
-if (report.unwindSamples > 0) {
-	std::cout
-			<< "   UNW \t" << std::setw(8) << report.unwindOvPercent << " %"
-			<< " | unwound " << report.unwConjunctions << " of " << report.overallConjunctions << " conj."
-			<< " | unwindSamples: " << report.unwindSamples
-			<< " | undwindOverhead: " << report.unwindOvSeconds << " s" << std::endl;
-}
-	std::cout
-			<< " SAMPL \t" << std::setw(8)  << report.samplingOvPercent << " %"
-			<< " | taken samples: " << report.samplesTaken
-			<< " | samplingOverhead: " << report.samplingOvSeconds << " s" << std::endl
-
-			<< " ---->\t" <<std::setw(8) << report.overallPercent << " %"
-			<< " | overallOverhead: " << report.overallSeconds << " s"
-			<< std::endl;
+	if (report.instrumentedCalls > 0) {
+		std::cout << " INSTR \t" << std::setw(8) << std::left << report.instrOvPercent << " %"
+				<< " | instr. " << report.instrumentedMethods << " of " << report.overallMethods << " methods"
+				<< " | instrCalls: " << report.instrumentedCalls
+				<< " | instrOverhead: " << report.instrOvSeconds << " s" << std::endl;
+	}
+	if (report.unwindSamples > 0) {
+		std::cout << "   UNW \t" << std::setw(8) << report.unwindOvPercent << " %"
+				<< " | unwound " << report.unwConjunctions << " of " << report.overallConjunctions << " conj."
+				<< " | unwindSamples: " << report.unwindSamples
+				<< " | undwindOverhead: " << report.unwindOvSeconds << " s" << std::endl;
+	}
+	if (!config->ignoreSamplingOv) {
+		std::cout << " SAMPL \t" << std::setw(8) << report.samplingOvPercent << " %"
+				<< " | taken samples: " << report.samplesTaken
+				<< " | samplingOverhead: " << report.samplingOvSeconds << " s" << std::endl;
+	}
+	std::cout << " ---->\t" << std::setw(8) << report.overallPercent << " %"
+				<< " | overallOverhead: " << report.overallSeconds << " s"
+				<< std::endl;
 }
 
 //// REMOVE UNRELATED NODES ESTIMATOR PHASE

@@ -21,6 +21,9 @@ case $key in
     PARAMS+=" --samples $2"
 	shift # past argument
     ;;
+    -i|--ignore-sampling)
+    PARAMS+=" --ignore-sampling"
+    ;;
     -t|--tiny)
     PARAMS+=" --tiny"
     ;;
