@@ -110,6 +110,11 @@ namespace CgHelper {
 	bool isSubsetOf(const CgNodePtrSet& smallSet, const CgNodePtrSet& largeSet) {
 		return setDifference(smallSet, largeSet) == smallSet;
 	}
+
+	inline
+	bool intersects(const CgNodePtrSet& a, const CgNodePtrSet& b) {
+		return !setIntersect(a,b).empty();
+	}
 }
 
 #endif

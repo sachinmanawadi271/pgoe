@@ -16,39 +16,66 @@
 
 void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 
-	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false)); 	// remove only unconnected nodes
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, false)); 	// remove chains
 	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
 
-	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(true));	// unwind till unique
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());		// instrument
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), false);		// instrument
+	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));		// hybrid (unwind all)
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true)); 	// aggressive reduction
+	cg.registerEstimatorPhase(new ResetEstimatorPhase(), true);
 
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), false);		// instrument
+	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase(), true);
 
-	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));		// hybrid (unwind leaves)
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());	// optimal instr
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-
-	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(true));	// unwind till unique
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());		// instrument
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));		// hybrid (unwind all)
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));		// hybrid (unwind leaves)
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());	// optimal instr
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));		// hybrid (unwind leaves)
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
+//	cg.registerEstimatorPhase(new DeleteOneInstrumentationEstimatorPhase());	// optimal instr
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+//	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true));

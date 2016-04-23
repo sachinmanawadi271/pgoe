@@ -162,7 +162,7 @@ struct CalledMoreOften {
 		return lhs->getNumberOfCalls() < rhs->getNumberOfCalls();
 	}
 };
-typedef std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> CgNodePtrQueue;
+typedef std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> CgNodePtrQueueMostCalls;
 
 struct CgEdge {
 	CgNodePtr from;

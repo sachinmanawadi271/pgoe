@@ -224,15 +224,29 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		return;
 	}
 
-	CgNodePtrQueue allNodes(graph->begin(), graph->end());
+	CgNodePtrQueueMostCalls allNodes(graph->begin(), graph->end());
 	for (auto node : Container(allNodes)) {
 
 		// advanced optimization (remove node with subset of dependentConjunctions
-		if (node->hasUniqueParent()	&& node->hasUniqueChild()
-				&& node->getUniqueParent()->getNumberOfCalls() <= node->getNumberOfCalls() ) {
+		if (node->hasUniqueParent() && node->hasUniqueChild()) {
 
-			CgNodePtrSet intersect = CgHelper::setIntersect(node->getUniqueParent()->getDependentConjunctionsConst(), node->getDependentConjunctionsConst());
-			if (intersect == node->getDependentConjunctionsConst()) {
+			auto uniqueParent = node->getUniqueParent();
+			bool uniqueParentHasLessCalls = uniqueParent->getNumberOfCalls() <= node->getNumberOfCalls();
+			bool uniqueParentServesMoreOrEqualsNodes = CgHelper::isSubsetOf(node->getDependentConjunctionsConst(),
+					uniqueParent->getDependentConjunctionsConst());
+
+			bool aggressiveReductionPossible = true;
+			if (!uniqueParent->hasUniqueChild()) {
+				for (auto childOfParent : uniqueParent->getChildNodes()) {
+					if (childOfParent != node && CgHelper::intersects(node->getDependentConjunctionsConst(),
+									childOfParent->getDependentConjunctionsConst())) {
+						aggressiveReductionPossible = false;
+						break;
+					}
+				}
+			}
+
+			if (uniqueParentHasLessCalls && uniqueParentServesMoreOrEqualsNodes && aggressiveReductionPossible) {
 
 				///XXX
 //				std::cout << "Erased " << node->getFunctionName() << " with " << node->getNumberOfCalls() << " calls." << std::endl;
@@ -622,7 +636,7 @@ DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase(
 
 void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	CgNodePtrQueue pq;
+	CgNodePtrQueueMostCalls pq;
 	for (auto node : (*graph)) {
 		if (node->isInstrumentedWitness()) {
 			pq.push(node);
@@ -663,6 +677,8 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	} else {
 
 		// either instrument all parents or the conjunction itself
+
+		// TODO build this phase like unwinding estimation -> substitute instr with conj instr
 
 		std::queue<CgNodePtr> workQueue;
 		CgNodePtrSet doneNodes;
