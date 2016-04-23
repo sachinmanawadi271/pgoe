@@ -454,8 +454,7 @@ InstrumentEstimatorPhase::InstrumentEstimatorPhase() :
 	EstimatorPhase("Instrument") {
 }
 
-InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
-}
+InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {}
 
 void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
@@ -626,47 +625,40 @@ void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 	} else {
 
-		// either instrument all parents or the conjunction itself
-
-		// TODO build this phase like unwinding estimation -> substitute instr with conj instr
-
-		std::queue<CgNodePtr> workQueue;
-		CgNodePtrSet doneNodes;
-
-		/** XXX RN: code duplication */
-		workQueue.push(mainMethod);
-		while (!workQueue.empty()) {
-
-			auto node = workQueue.front();
-			workQueue.pop();
-			doneNodes.insert(node);
+		CgNodePtrQueueMostCalls pq(graph->begin(), graph->end());
+		for (auto node : Container(pq)) {
 
 			if (CgHelper::isConjunction(node)) {
 
-				if (!CgHelper::isUniquelyInstrumented(node)) {
-					unsigned long long conjunctionCallsToInstrument = node->getNumberOfCalls();
-					unsigned long long parentCallsToInstrument = 0;
-					for (auto parent : node->getParentNodes()) {
-						if (!parent->isInstrumentedWitness()) {
-							parentCallsToInstrument += parent->getNumberOfCalls();
+				unsigned long long conjInstrCosts = node->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
+
+				unsigned long long expectedInstrumentationOverheadNanos =
+						CgHelper::getInstrumentationOverheadOfConjunction(node);
+				unsigned long long expectedActualInstrumentationSavedNanos =
+						CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
+				unsigned long long witnessIntrsCostsSaved =
+						expectedInstrumentationOverheadNanos;
+//						(expectedInstrumentationOverheadNanos + expectedActualInstrumentationSavedNanos) / 2;
+
+				if (conjInstrCosts < witnessIntrsCostsSaved) {
+					node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
+				}
+
+				// TODO remove substituted instr
+				for (auto parentNode : node->getParentNodes()) {
+					bool redundantInstrumentation = true;
+					for (auto childOfParentNode : parentNode->getChildNodes()) {
+						if (!childOfParentNode->isInstrumentedConjunction() && CgHelper::isConjunction(childOfParentNode)) {
+							redundantInstrumentation = false;
 						}
 					}
-
-					if (parentCallsToInstrument <= conjunctionCallsToInstrument) {
-						for (auto parent : node->getParentNodes()) {
-							parent->setState(CgNodeState::INSTRUMENT_WITNESS);
+					if (redundantInstrumentation) {
+						if (parentNode->isInstrumentedWitness()) {
+							parentNode->setState(CgNodeState::NONE);
 						}
-					} else {
-						node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
 					}
 				}
-			}
 
-			// add child to work queue if not done yet
-			for (auto childNode : node->getChildNodes()) {
-				if (doneNodes.find(childNode) == doneNodes.end()) {
-					workQueue.push(childNode);
-				}
 			}
 		}
 	}

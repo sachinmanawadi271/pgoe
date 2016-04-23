@@ -60,9 +60,8 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
-	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));		// hybrid (unwind leaves)
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 }
