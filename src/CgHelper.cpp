@@ -4,19 +4,9 @@ int CgConfig::samplesPerSecond = 10000;
 
 namespace CgHelper {
 
-
 	/** returns true for nodes with two or more parents */
 	bool isConjunction(CgNodePtr node) {
 		return (node->getParentNodes().size() > 1);
-	}
-	/** returns true for nodes with exactly one parent */
-	bool hasUniqueParent(CgNodePtr node) {
-		return (node->getParentNodes().size() == 1);
-	}
-
-	/** returns the first and unique parent of a node, NO error handling */
-	CgNodePtr getUniqueParent(CgNodePtr node) {
-		return *(node->getParentNodes().begin());
 	}
 
 	/** returns overhead of all the instrumented nodes of the call path. (node based) */
@@ -50,8 +40,7 @@ namespace CgHelper {
 			return nullptr;
 		}
 		// single parent
-		auto parentNode = getUniqueParent(node);
-
+		auto parentNode = node->getUniqueParent();
 
 		return getInstrumentedNodeOnPath(parentNode);
 	}
@@ -319,12 +308,12 @@ namespace CgHelper {
 		}
 
 		// there can not be instrumentation up here if the parent has multiple children
-		auto uniqueParent = getUniqueParent(node);
+		auto uniqueParent = node->getUniqueParent();
 		if (uniqueParent->getChildNodes().size()>1) {
 			return false;
 		}
 
-		return removeInstrumentationOnPath(getUniqueParent(node));
+		return removeInstrumentationOnPath(node->getUniqueParent());
 	}
 
 	// Graph Stats

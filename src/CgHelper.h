@@ -47,9 +47,6 @@ struct Config{
 namespace CgHelper {
 
 	bool isConjunction(CgNodePtr node);
-	bool hasUniqueParent(CgNodePtr node);
-
-	CgNodePtr getUniqueParent(CgNodePtr node);
 
 	int uniqueInstrumentationTest(CgNodePtr conjunctionNode);
 	bool isUniquelyInstrumented(CgNodePtr conjunctionNode);

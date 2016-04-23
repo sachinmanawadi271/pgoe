@@ -182,7 +182,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			if (node->hasUniqueChild() && node->hasUniqueParent()) {
 
 				auto uniqueChild = node->getUniqueChild();
-				if (CgHelper::hasUniqueParent(uniqueChild) && (!CgHelper::isOnCycle(node) || node->hasUniqueChild())) {
+				if (uniqueChild->hasUniqueParent() && (!CgHelper::isOnCycle(node) || node->hasUniqueChild())) {
 
 					numChainsRemoved++;
 
@@ -575,9 +575,9 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 		auto minimalCalls = nextAncestor;
 
 		// If it was selected, look for a "cheaper" node upwards
-		while (CgHelper::hasUniqueParent(nextAncestor)) {
+		while (nextAncestor->hasUniqueParent()) {
 
-			nextAncestor = CgHelper::getUniqueParent(nextAncestor);
+			nextAncestor = nextAncestor->getUniqueParent();
 			if (nextAncestor->getChildNodes().size()>1) {
 				break;	// don't move if parent has multiple children
 			}
