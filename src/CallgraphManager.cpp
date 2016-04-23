@@ -79,6 +79,11 @@ void CallgraphManager::thatOneLargeMethod() {
 	finalizeGraph();
 	auto mainFunction = graph.findMain();
 
+	if (mainFunction == nullptr) {
+		std::cerr << "CallgraphManager: Cannot find main function." << std::endl;
+		exit(1);
+	}
+
 	while(!phases.empty()) {
 		EstimatorPhase* phase = phases.front();
 

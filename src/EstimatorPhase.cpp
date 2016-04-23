@@ -147,34 +147,13 @@ RemoveUnrelatedNodesEstimatorPhase::~RemoveUnrelatedNodesEstimatorPhase() {
 }
 
 void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-	if (mainMethod == nullptr) {
-		std::cerr << "Received nullptr as main method." << std::endl;
-		return;
-	}
 
-	/* remove unrelated nodes */
-	CgNodePtrSet nodesReachableFromMain;
-	std::queue<CgNodePtr> workQueue;
-	/** XXX RN: code duplication */
-	workQueue.push(mainMethod);
-	while(!workQueue.empty()) {
-
-		auto node = workQueue.front();
-		workQueue.pop();
-		nodesReachableFromMain.insert(node);
-
-		for (auto childNode : node->getChildNodes()) {
-			if (nodesReachableFromMain.find(childNode) == nodesReachableFromMain.end()) {
-				workQueue.push(childNode);
-			}
-		}
-	}
+	/* remove unrelated nodes (not reachable from main) */
+	CgNodePtrSet nodesReachableFromMain = CgHelper::getDescendants(mainMethod);
 	for (auto node : (*graph)) {
-		// remove nodes that were not reachable from the main method
 		if (nodesReachableFromMain.find(node) == nodesReachableFromMain.end()) {
 			graph->erase(node, false, true);
 			numUnconnectedRemoved++;
-			continue;
 		}
 	}
 
@@ -203,10 +182,7 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			if (node->hasUniqueChild() && node->hasUniqueParent()) {
 
 				auto uniqueChild = node->getUniqueChild();
-
-				if (CgHelper::hasUniqueParent(uniqueChild)
-//					&& (node->getDependentConjunctionsConst() == uniqueChild->getDependentConjunctionsConst())
-						&& !CgHelper::isOnCycle(node)) {
+				if (CgHelper::hasUniqueParent(uniqueChild) && (!CgHelper::isOnCycle(node) || node->hasUniqueChild())) {
 
 					numChainsRemoved++;
 
