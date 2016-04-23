@@ -256,8 +256,22 @@ void CgNode::setFilename(std::string filename) { this->filename = filename; }
 
 void CgNode::setLineNumber(int line) { this->line = line; }
 
-std::ostream &operator<<(std::ostream &stream, const CgNode &n) {
+std::ostream& operator<<(std::ostream& stream, const CgNode& n) {
   stream << "\"" << n.getFunctionName() << "\"";
 
   return stream;
 }
+
+std::ostream& operator<<(std::ostream& stream, const CgNodePtrSet& s) {
+
+	stream << "[ ";
+	for (auto node : s) {
+		stream << node->getFunctionName() << " | ";
+	}
+	stream << " ]";
+
+	return stream;
+}
+
+
+

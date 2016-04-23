@@ -117,6 +117,7 @@ public:
 	double getDominance(CgNodePtr child);
 
 	friend std::ostream& operator<< (std::ostream& stream, const CgNode& n);
+	friend std::ostream& operator<<(std::ostream& stream, const CgNodePtrSet& s);
 
 private:
 	std::string functionName;
