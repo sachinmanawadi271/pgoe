@@ -262,14 +262,23 @@ private:
  * Instrument all conjunction nodes.
  * This assumes that the instrumentation hook contains the call site.
  */
-class ConjunctionEstimatorPhase : public EstimatorPhase {
+class ConjunctionOnlyEstimatorPhase : public EstimatorPhase {
 public:
-	ConjunctionEstimatorPhase(bool instrumentOnlyConjunctions = false);
-	~ConjunctionEstimatorPhase();
+	ConjunctionOnlyEstimatorPhase();
+	~ConjunctionOnlyEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
-private:
-	bool instrumentOnlyConjunctions;
+};
+
+/**
+ * Heuristic to substitute witness instrumentation with conj instrumentation
+ */
+class ConjunctionHeuristicEstimatorPhase : public EstimatorPhase {
+public:
+	ConjunctionHeuristicEstimatorPhase();
+	~ConjunctionHeuristicEstimatorPhase();
+
+	void modifyGraph(CgNodePtr mainMethod);
 };
 
 /**

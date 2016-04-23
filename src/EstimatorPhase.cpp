@@ -610,56 +610,60 @@ void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
 
 //// CONJUNCTION ESTIMATOR PHASE
 
-ConjunctionEstimatorPhase::ConjunctionEstimatorPhase(bool instrumentOnlyConjunctions) :
-		EstimatorPhase(instrumentOnlyConjunctions ? "ConjunctionOnly" : "ConjunctionOrWitness"), instrumentOnlyConjunctions(instrumentOnlyConjunctions) {}
+ConjunctionOnlyEstimatorPhase::ConjunctionOnlyEstimatorPhase() :
+		EstimatorPhase("ConjunctionOnly") {}
 
-ConjunctionEstimatorPhase::~ConjunctionEstimatorPhase() {}
+ConjunctionOnlyEstimatorPhase::~ConjunctionOnlyEstimatorPhase() {}
 
-void ConjunctionEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-
-	if (instrumentOnlyConjunctions) {
-		for (auto node : (*graph)) {
-			if (CgHelper::isConjunction(node)) {
-				node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
-			}
+void ConjunctionOnlyEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	for (auto node : (*graph)) {
+		if (CgHelper::isConjunction(node)) {
+			node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
 		}
-	} else {
+	}
+}
 
-		CgNodePtrQueueMostCalls pq(graph->begin(), graph->end());
-		for (auto node : Container(pq)) {
+ConjunctionHeuristicEstimatorPhase::ConjunctionHeuristicEstimatorPhase() :
+		EstimatorPhase("ConjHeuristic") {}
 
-			if (CgHelper::isConjunction(node)) {
+ConjunctionHeuristicEstimatorPhase::~ConjunctionHeuristicEstimatorPhase() {}
 
-				unsigned long long conjInstrCosts = node->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
+void ConjunctionHeuristicEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-				unsigned long long expectedInstrumentationOverheadNanos =
-						CgHelper::getInstrumentationOverheadOfConjunction(node);
-				unsigned long long expectedActualInstrumentationSavedNanos =
-						CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
-				unsigned long long witnessIntrsCostsSaved =
-						expectedInstrumentationOverheadNanos;
+	CgNodePtrQueueMostCalls pq(graph->begin(), graph->end());
+	for (auto node : Container(pq)) {
+
+		if (CgHelper::isConjunction(node)) {
+
+			unsigned long long conjInstrCosts = node->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
+
+			unsigned long long expectedInstrumentationOverheadNanos =
+					CgHelper::getInstrumentationOverheadOfConjunction(node);
+			unsigned long long expectedActualInstrumentationSavedNanos =
+					CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(node);
+			unsigned long long witnessIntrsCostsSaved =
+					expectedInstrumentationOverheadNanos;
 //						(expectedInstrumentationOverheadNanos + expectedActualInstrumentationSavedNanos) / 2;
 
-				if (conjInstrCosts < witnessIntrsCostsSaved) {
-					node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
-				}
-
-				// TODO remove substituted instr
-				for (auto parentNode : node->getParentNodes()) {
-					bool redundantInstrumentation = true;
-					for (auto childOfParentNode : parentNode->getChildNodes()) {
-						if (!childOfParentNode->isInstrumentedConjunction() && CgHelper::isConjunction(childOfParentNode)) {
-							redundantInstrumentation = false;
-						}
-					}
-					if (redundantInstrumentation) {
-						if (parentNode->isInstrumentedWitness()) {
-							parentNode->setState(CgNodeState::NONE);
-						}
-					}
-				}
-
+			if (conjInstrCosts < witnessIntrsCostsSaved) {
+				node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
 			}
+
+			// TODO remove substituted instr
+			for (auto parentNode : node->getParentNodes()) {
+				bool redundantInstrumentation = true;
+				for (auto childOfParentNode : parentNode->getChildNodes()) {
+					if (!childOfParentNode->isInstrumentedConjunction() && CgHelper::isConjunction(childOfParentNode)) {
+						redundantInstrumentation = false;
+					}
+				}
+				if (redundantInstrumentation) {
+					if (parentNode->isInstrumentedWitness()) {
+						parentNode->setState(CgNodeState::NONE);
+					}
+				}
+			}
+
 		}
 	}
 }

@@ -56,12 +56,12 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(true));
+	cg.registerEstimatorPhase(new ConjunctionOnlyEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
-	cg.registerEstimatorPhase(new ConjunctionEstimatorPhase(false));
+	cg.registerEstimatorPhase(new ConjunctionHeuristicEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 
 }
