@@ -193,34 +193,28 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		graph->erase(node);
 	}
 
-///XXX
-	for (auto node : (*graph)) {
-		if (node->isLeafNode() && !CgHelper::isConjunction(node)) {
-			std::cout << "####################WTF " << node->getFunctionName() << std::endl;
-		}
-	}
-
-
 	/* remove linear chains */
-	for (auto node : (*graph)) {
-		if (node->hasUniqueChild()) {
+	int oldNumChainsRemoved = 42;
+	while (numChainsRemoved != oldNumChainsRemoved) {	// iterate until no change
+		CgNodePtrQueueMostCalls pq(graph->begin(), graph->end());
+		oldNumChainsRemoved = numChainsRemoved;
 
-			if (CgHelper::isConjunction(node)) {
-				continue;
-			}
+		for (auto node : Container(pq)) {
+			if (node->hasUniqueChild() && node->hasUniqueParent()) {
 
-			auto uniqueChild = node->getUniqueChild();
+				auto uniqueChild = node->getUniqueChild();
 
-			if (CgHelper::hasUniqueParent(uniqueChild)
-					&& (node->getDependentConjunctionsConst() == uniqueChild->getDependentConjunctionsConst())
-					&& !CgHelper::isOnCycle(node)) {
+				if (CgHelper::hasUniqueParent(uniqueChild)
+//					&& (node->getDependentConjunctionsConst() == uniqueChild->getDependentConjunctionsConst())
+						&& !CgHelper::isOnCycle(node)) {
 
-				numChainsRemoved++;
+					numChainsRemoved++;
 
-				if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
-					graph->erase(node, true);
-				} else {
-					graph->erase(uniqueChild, true);
+					if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
+						graph->erase(node, true);
+					} else {
+						graph->erase(uniqueChild, true);
+					}
 				}
 			}
 		}
