@@ -458,32 +458,11 @@ InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {
 }
 
 void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
-	if (mainMethod == nullptr) {
-		std::cerr << "Received nullptr as main method." << std::endl;
-		return;
-	}
 
-	std::queue<CgNodePtr> workQueue;
-	CgNodePtrSet doneNodes;
-
-	/** XXX RN: code duplication */
-	workQueue.push(mainMethod);
-	while (!workQueue.empty()) {
-
-		auto node = workQueue.front();
-		workQueue.pop();
-		doneNodes.insert(node);
-
+	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
 			for (auto nodeToInstrument : node->getParentNodes()) {
 				nodeToInstrument->setState(CgNodeState::INSTRUMENT_WITNESS);
-			}
-		}
-
-		// add child to work queue if not done yet
-		for (auto childNode : node->getChildNodes()) {
-			if(doneNodes.find(childNode) == doneNodes.end()) {
-				workQueue.push(childNode);
 			}
 		}
 	}
