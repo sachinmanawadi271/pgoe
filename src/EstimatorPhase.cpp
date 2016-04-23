@@ -184,7 +184,6 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	/* remove leaf nodes */
 	for (auto node : (*graph)) {
-		// leaf nodes that are never unwound or instrumented
 		if (node->isLeafNode()) {
 			checkLeafNodeForRemoval(node);
 		}
@@ -193,6 +192,14 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : nodesToRemove) {
 		graph->erase(node);
 	}
+
+///XXX
+	for (auto node : (*graph)) {
+		if (node->isLeafNode() && !CgHelper::isConjunction(node)) {
+			std::cout << "####################WTF " << node->getFunctionName() << std::endl;
+		}
+	}
+
 
 	/* remove linear chains */
 	for (auto node : (*graph)) {
@@ -209,7 +216,6 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 					&& !CgHelper::isOnCycle(node)) {
 
 				numChainsRemoved++;
-
 
 				if (node->getNumberOfCalls() >= uniqueChild->getNumberOfCalls()) {
 					graph->erase(node, true);
@@ -247,12 +253,6 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			}
 
 			if (uniqueParentHasLessCalls && uniqueParentServesMoreOrEqualsNodes && aggressiveReductionPossible) {
-
-				///XXX
-//				std::cout << "Erased " << node->getFunctionName() << " with " << node->getNumberOfCalls() << " calls." << std::endl;
-				assert(node->getUniqueParent()->getNumberOfCalls() <= node->getNumberOfCalls());
-//				std::cout << node->getUniqueParent()->getNumberOfCalls() << " < " << node->getNumberOfCalls() << std::endl;
-
 				numAdvancedOptimizations++;
 				graph->erase(node, true);
 			}
@@ -261,22 +261,23 @@ void RemoveUnrelatedNodesEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 }
 
-void RemoveUnrelatedNodesEstimatorPhase::checkLeafNodeForRemoval(CgNodePtr node) {
+void RemoveUnrelatedNodesEstimatorPhase::checkLeafNodeForRemoval(CgNodePtr potentialLeaf) {
 
-	for (auto child : node->getChildNodes()) {
+	if (CgHelper::isConjunction(potentialLeaf)) {
+		return;	// conjunctions are never removed
+	}
+
+	for (auto child : potentialLeaf->getChildNodes()) {
 		if (nodesToRemove.find(child) == nodesToRemove.end()) {
-			return;	// if a single child is not deleted yet, this node cannot be deleted anyways
+			return;
 		}
 	}
 
-	if (node->hasUniqueCallPath()
-			|| (aggressiveReduction && node->hasUniqueParent()) ) {
-		nodesToRemove.insert(node);
-		numLeafsRemoved++;
+	nodesToRemove.insert(potentialLeaf);
+	numLeafsRemoved++;
 
-		for (auto parentNode : node->getParentNodes()) {
-			checkLeafNodeForRemoval(parentNode);
-		}
+	for (auto parentNode : potentialLeaf->getParentNodes()) {
+		checkLeafNodeForRemoval(parentNode);
 	}
 }
 
