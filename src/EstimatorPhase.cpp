@@ -575,15 +575,15 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 
 //// DELETE ONE INSTRUMENTATION ESTIMATOR PHASE
 
-DeleteOneInstrumentationEstimatorPhase::DeleteOneInstrumentationEstimatorPhase() :
-		EstimatorPhase("DeleteOneInstrumentation"),
+MinInstrHeuristicEstimatorPhase::MinInstrHeuristicEstimatorPhase() :
+		EstimatorPhase("MinInstrHeuristic"),
 		deletedInstrumentationMarkers(0) {
 }
 
-DeleteOneInstrumentationEstimatorPhase::~DeleteOneInstrumentationEstimatorPhase() {
+MinInstrHeuristicEstimatorPhase::~MinInstrHeuristicEstimatorPhase() {
 }
 
-void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+void MinInstrHeuristicEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	CgNodePtrQueueMostCalls pq;
 	for (auto node : (*graph)) {
@@ -600,7 +600,7 @@ void DeleteOneInstrumentationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 }
 
-void DeleteOneInstrumentationEstimatorPhase::printAdditionalReport() {
+void MinInstrHeuristicEstimatorPhase::printAdditionalReport() {
 	EstimatorPhase::printAdditionalReport();
 	if (!config->tinyReport) {
 		std::cout << "\t" << "deleted " << deletedInstrumentationMarkers

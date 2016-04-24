@@ -246,10 +246,10 @@ private:
 /**
  * For every conjunction, delete instrumentation in the most expensive parent node.
  */
-class DeleteOneInstrumentationEstimatorPhase : public EstimatorPhase {
+class MinInstrHeuristicEstimatorPhase : public EstimatorPhase {
 public:
-	DeleteOneInstrumentationEstimatorPhase();
-	~DeleteOneInstrumentationEstimatorPhase();
+	MinInstrHeuristicEstimatorPhase();
+	~MinInstrHeuristicEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
 protected:
@@ -279,12 +279,14 @@ public:
 	~ConjunctionHeuristicEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
+public:
+
 };
 
 /**
  * Local Unwind from all leaf nodes.
  * Remove redundant instrumentation.
- * TODO RN: this phase can not deal with the advanced instrumentation from NodeBasedOptimum
+ * XXX RN: not sure if this phase can deal with the advanced instrumentation
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
 public:
