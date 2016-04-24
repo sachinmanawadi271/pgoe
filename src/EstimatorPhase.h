@@ -191,7 +191,7 @@ private:
 };
 
 /**
- * Instrument all call conjunctions.
+ * Instrument all parents of conjunctions.
  */
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
@@ -244,7 +244,7 @@ private:
 };
 
 /**
- * For every conjunction, delete instrumentation in the most expensive parent node.
+ * Heuristic for minimal witness instrumentation. Deletes redundant instrumentation.
  */
 class MinInstrHeuristicEstimatorPhase : public EstimatorPhase {
 public:
@@ -260,23 +260,22 @@ private:
 
 /**
  * Instrument all conjunction nodes.
- * This assumes that the instrumentation hook contains the call site.
  */
-class ConjunctionOnlyEstimatorPhase : public EstimatorPhase {
+class ConjunctionInstrumentOnlyEstimatorPhase : public EstimatorPhase {
 public:
-	ConjunctionOnlyEstimatorPhase();
-	~ConjunctionOnlyEstimatorPhase();
+	ConjunctionInstrumentOnlyEstimatorPhase();
+	~ConjunctionInstrumentOnlyEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
 };
 
 /**
- * Heuristic to substitute witness instrumentation with conj instrumentation
+ * Heuristic to substitute witness instrumentation with conjunction instrumentation
  */
-class ConjunctionHeuristicEstimatorPhase : public EstimatorPhase {
+class ConjunctionInstrumentHeuristicEstimatorPhase : public EstimatorPhase {
 public:
-	ConjunctionHeuristicEstimatorPhase();
-	~ConjunctionHeuristicEstimatorPhase();
+	ConjunctionInstrumentHeuristicEstimatorPhase();
+	~ConjunctionInstrumentHeuristicEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
 public:
@@ -284,9 +283,8 @@ public:
 };
 
 /**
- * Local Unwind from all leaf nodes.
- * Remove redundant instrumentation.
- * XXX RN: not sure if this phase can deal with the advanced instrumentation
+ * Heuristic to substitute witness instrumentation with unwinding.
+ * XXX RN: not sure if this phase can deal with the results from MinInstrHeuristic
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
 public:
@@ -308,6 +306,7 @@ private:
 	bool unwindInInstr;
 };
 
+/** reset all instrumented and unwound nodes on the call graph */
 class ResetEstimatorPhase : public EstimatorPhase {
 public:
 	ResetEstimatorPhase();

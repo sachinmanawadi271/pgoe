@@ -610,12 +610,12 @@ void MinInstrHeuristicEstimatorPhase::printAdditionalReport() {
 
 //// CONJUNCTION ESTIMATOR PHASE
 
-ConjunctionOnlyEstimatorPhase::ConjunctionOnlyEstimatorPhase() :
-		EstimatorPhase("ConjunctionOnly") {}
+ConjunctionInstrumentOnlyEstimatorPhase::ConjunctionInstrumentOnlyEstimatorPhase() :
+		EstimatorPhase("ConjInstrOnly") {}
 
-ConjunctionOnlyEstimatorPhase::~ConjunctionOnlyEstimatorPhase() {}
+ConjunctionInstrumentOnlyEstimatorPhase::~ConjunctionInstrumentOnlyEstimatorPhase() {}
 
-void ConjunctionOnlyEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+void ConjunctionInstrumentOnlyEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
 			node->setState(CgNodeState::INSTRUMENT_CONJUNCTION);
@@ -623,12 +623,12 @@ void ConjunctionOnlyEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 }
 
-ConjunctionHeuristicEstimatorPhase::ConjunctionHeuristicEstimatorPhase() :
-		EstimatorPhase("ConjHeuristic") {}
+ConjunctionInstrumentHeuristicEstimatorPhase::ConjunctionInstrumentHeuristicEstimatorPhase() :
+		EstimatorPhase("ConjInstrHeuristic") {}
 
-ConjunctionHeuristicEstimatorPhase::~ConjunctionHeuristicEstimatorPhase() {}
+ConjunctionInstrumentHeuristicEstimatorPhase::~ConjunctionInstrumentHeuristicEstimatorPhase() {}
 
-void ConjunctionHeuristicEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+void ConjunctionInstrumentHeuristicEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	CgNodePtrQueueMostCalls pq(graph->begin(), graph->end());
 	for (auto node : Container(pq)) {
