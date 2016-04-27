@@ -53,6 +53,7 @@ namespace CgHelper {
 	 */
 	// TODO: check because of new nodeBased Conventions
 	bool instrumentationCanBeDeleted(CgNodePtr node) {
+
 		for (auto childNode : node->getChildNodes()) {
 
 			if (	   isConjunction(childNode)
@@ -80,7 +81,7 @@ namespace CgHelper {
 	 *  It should not break for cycles, because cycles have to be instrumented by definition. */
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start) {
 
-		CgNodePtrSet path = { start };	// visited nodes
+		CgNodePtrSet path;	// visited nodes
 		std::queue<CgNodePtr> workQueue;
 		workQueue.push(start);
 
@@ -89,14 +90,15 @@ namespace CgHelper {
 			auto node = workQueue.front();
 			workQueue.pop();
 
+			path.insert(node);
+
 			if (node->isInstrumented() || node->isRootNode()) {
 				continue;
 			}
 
 			for (auto parentNode : node->getParentNodes()) {
-				if (path.find(parentNode) != path.end()) {
+				if (path.find(parentNode) == path.end()) {
 					workQueue.push(parentNode);
-					path.insert(parentNode);
 				}
 			}
 
@@ -136,7 +138,7 @@ namespace CgHelper {
 	/**
 	 * Checks the instrumentation paths (node based!) above a conjunction node for intersection.
 	 * Returns the Number Of Errors ! */
-	int uniqueInstrumentationTest(CgNodePtr conjunctionNode) {
+	int uniqueInstrumentationTest(CgNodePtr conjunctionNode, bool printErrors) {
 
 		int numberOfErrors = 0;
 
@@ -157,10 +159,11 @@ namespace CgHelper {
 
 				if (!intersection.empty()) {
 
-					std::cout << "ERROR in conjunction: " << *conjunctionNode << std::endl;
-					std::cout << "    " << "Paths of " << *(pair.first)
-							<< " and " << *(otherPair.first) << " intersect!" << std::endl;
-
+					if (printErrors) {
+						std::cout << "ERROR in conjunction: " << *conjunctionNode << std::endl;
+						std::cout << "    " << "Paths of " << *(pair.first)
+								<< " and " << *(otherPair.first) << " intersect!" << std::endl;
+					}
 					numberOfErrors++;
 				}
 			}

@@ -73,6 +73,7 @@ public:
 
 
 	void setState(CgNodeState state, int numberOfUnwindSteps = 0);
+	CgNodeState getStateRaw() const;
 	bool isInstrumented();
 	bool isInstrumentedWitness();
 	bool isInstrumentedConjunction();

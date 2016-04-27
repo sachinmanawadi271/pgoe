@@ -191,6 +191,7 @@ double CgNode::getInclusiveRuntimeInSeconds() {
 	return inclusiveRuntimeInSeconds;
 }
 
+CgNodeState CgNode::getStateRaw() const { return state; };
 bool CgNode::isInstrumented() { return isInstrumentedWitness() || isInstrumentedConjunction(); }
 bool CgNode::isInstrumentedWitness() { return state == CgNodeState::INSTRUMENT_WITNESS; }
 bool CgNode::isInstrumentedConjunction() { return state == CgNodeState::INSTRUMENT_CONJUNCTION; }

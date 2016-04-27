@@ -48,7 +48,7 @@ namespace CgHelper {
 
 	bool isConjunction(CgNodePtr node);
 
-	int uniqueInstrumentationTest(CgNodePtr conjunctionNode);
+	int uniqueInstrumentationTest(CgNodePtr conjunctionNode, bool printErrors = true);
 	bool isUniquelyInstrumented(CgNodePtr conjunctionNode);
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start);
 

@@ -593,10 +593,20 @@ void MinInstrHeuristicEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 
 	for (auto node : Container(pq)) {
-		if (CgHelper::instrumentationCanBeDeleted(node)) {
-			node->setState(CgNodeState::NONE);
-			deletedInstrumentationMarkers++;
+
+		CgNodeState oldState = node->getStateRaw();
+
+		node->setState(CgNodeState::NONE);
+		deletedInstrumentationMarkers++;
+
+		for (auto n : (*graph)) {
+			if (CgHelper::isConjunction(n) && CgHelper::uniqueInstrumentationTest(n, false) != 0) {
+				node->setState(oldState);
+				deletedInstrumentationMarkers--;
+				break;
+			}
 		}
+
 	}
 }
 
@@ -729,13 +739,13 @@ unsigned long long UnwindEstimatorPhase::getUnwindOverheadNanos(std::map<CgNodeP
 }
 
 unsigned long long UnwindEstimatorPhase::getInstrOverheadNanos(std::map<CgNodePtr, int>& unwoundNodes) {
-	// optimistic
 	std::set<CgNodePtr> keySet;
 	for (auto pair : unwoundNodes) { keySet.insert(pair.first); }
 
+	// optimistic
 	unsigned long long expectedInstrumentationOverheadNanos =
 			CgHelper::getInstrumentationOverheadOfConjunction(keySet);
-
+	// pessimistic
 	unsigned long long expectedActualInstrumentationSavedNanos =
 			CgHelper::getInstrumentationOverheadServingOnlyThisConjunction(keySet);
 
@@ -811,6 +821,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 						}
 					}
 				}
+
 			}
 		}
 	}
