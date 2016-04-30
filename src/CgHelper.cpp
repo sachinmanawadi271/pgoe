@@ -45,38 +45,6 @@ namespace CgHelper {
 		return getInstrumentedNodeOnPath(parentNode);
 	}
 
-	/**
-	 * returns true if the instrumentation at a node can be deleted
-	 * and all call paths can still be reconstructed.
-	 * The node has to be the direct parent of a call conjunction.
-	 * Checks the call path reconstruction for all child nodes.
-	 */
-	// TODO: check because of new nodeBased Conventions
-	bool instrumentationCanBeDeleted(CgNodePtr node) {
-
-		for (auto childNode : node->getChildNodes()) {
-
-			if (	   isConjunction(childNode)
-					&& !childNode->isUnwound()
-					&& !allParentsPathsInstrumented(childNode)) {
-				return false;
-			}
-
-			for (auto parentOfChildNode : childNode->getParentNodes()) {
-				auto instrumentedParent = getInstrumentedNodeOnPath(parentOfChildNode);
-
-				// if the to be removed instrumentation can be reached from another instrumented nodes
-				// the call paths can not be reconstructed any longer
-				if(		   instrumentedParent
-						&& !parentOfChildNode->isSameFunction(node)
-						&& reachableFrom(instrumentedParent, node)) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
 	/** Returns a set of all nodes from the starting node up to the instrumented nodes.
 	 *  It should not break for cycles, because cycles have to be instrumented by definition. */
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start) {
@@ -116,7 +84,6 @@ namespace CgHelper {
 		}
 
 		while (!workQueue.empty()) {
-
 			auto node = workQueue.front();
 			workQueue.pop();
 
@@ -124,8 +91,7 @@ namespace CgHelper {
 				visited.insert(node);
 			} else {
 				if (printErrors) {
-					std::cerr << "The conjunction: " << *conjunctionNode << " is reached on multiple paths by: "
-							<< *node << std::endl;
+					std::cerr << "Error: the conjunction: " << *conjunctionNode << " is reached on multiple paths by: " << *node << std::endl;
 				}
 				return false;
 			}
@@ -173,16 +139,6 @@ namespace CgHelper {
 		}
 
 		return numberOfErrors;
-	}
-
-	/** returns true if the call paths of EVERY parent of a conjunction is instrumented */
-	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode) {
-		auto parents = conjunctionNode->getParentNodes();
-
-		return std::accumulate(parents.begin(), parents.end(), true,
-				[] (bool b, CgNodePtr parent) {
-					return b && (getInstrumentationOverheadOfPath(parent)!=0);
-				});
 	}
 
 	/** returns the overhead caused by a call path */
@@ -354,7 +310,6 @@ namespace CgHelper {
 			}
 		}
 
-		///XXX
 		assert(potentialMarkerPositions.size() >= (conjunction->getParentNodes().size()-1));
 
 		return potentialMarkerPositions;

@@ -772,7 +772,6 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			if (unwindOverhead < instrumentationOverhead) {
 
 #ifndef NO_DEBUG
-				///XXX
 				double expectedOverheadSavedSeconds
 						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
 				if (expectedOverheadSavedSeconds > 0.1) {
