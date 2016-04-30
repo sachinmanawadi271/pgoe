@@ -76,7 +76,8 @@ namespace CgHelper {
 	}
 
 	bool isUniquelyInstrumented(CgNodePtr conjunctionNode, CgNodePtr unInstrumentedNode, bool printErrors) {
-		if (conjunctionNode->isInstrumentedConjunction() && conjunctionNode != unInstrumentedNode) {
+		if ( (conjunctionNode->isInstrumentedConjunction() && conjunctionNode != unInstrumentedNode)
+				|| conjunctionNode->isUnwound()) {
 			return true;
 		}
 
