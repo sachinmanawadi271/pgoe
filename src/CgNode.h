@@ -26,6 +26,33 @@ S& Container(std::priority_queue<T, S, C>& q) {
 	return HackedQueue::Container(q);
 }
 
+class CgNode;
+
+namespace std {
+template <>
+struct less<std::shared_ptr<CgNode> > {
+		bool operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const;
+};
+template <>
+struct less_equal<std::shared_ptr<CgNode> > {
+		bool operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const;
+};
+
+template <>
+struct equal_to<std::shared_ptr<CgNode> > {
+		bool operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const;
+};
+template <>
+struct greater<std::shared_ptr<CgNode> > {
+		bool operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const;
+};
+
+template <>
+struct greater_equal<std::shared_ptr<CgNode> > {
+		bool operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const;
+};
+}
+
 enum CgNodeState {
 	NONE,
 	INSTRUMENT_WITNESS,
@@ -35,7 +62,7 @@ enum CgNodeState {
 };
 
 
-class CgNode;
+
 typedef std::shared_ptr<CgNode> 		CgNodePtr;	// hopefully this typedef helps readability
 
 typedef std::set<CgNodePtr> 			CgNodePtrSet;

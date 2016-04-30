@@ -25,7 +25,8 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			}
 		}
 
-		numberOfErrors += CgHelper::uniqueInstrumentationTest(node);
+		numberOfErrors += (CgHelper::isUniquelyInstrumented(node, nullptr, true) ? 0 : 1);
+		numberOfErrors += CgHelper::uniquelyInstrumentedConjunctionTest(node, true);
 	}
 
 	// XXX idea: check that there is no instrumentation below unwound nodes

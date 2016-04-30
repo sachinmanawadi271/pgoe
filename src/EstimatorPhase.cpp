@@ -587,26 +587,24 @@ void MinInstrHeuristicEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	CgNodePtrQueueMostCalls pq;
 	for (auto node : (*graph)) {
-		if (node->isInstrumentedWitness()) {
+		if (node->isInstrumented()) {
 			pq.push(node);
 		}
 	}
 
-	for (auto node : Container(pq)) {
+	for (auto instrumentedNode : Container(pq)) {
 
-		CgNodeState oldState = node->getStateRaw();
-
-		node->setState(CgNodeState::NONE);
-		deletedInstrumentationMarkers++;
-
-		for (auto n : (*graph)) {
-			if (CgHelper::isConjunction(n) && CgHelper::uniqueInstrumentationTest(n, false) != 0) {
-				node->setState(oldState);
-				deletedInstrumentationMarkers--;
+		bool canDeleteInstruentation = true;
+		for (auto node : (*graph)) {
+			if (!CgHelper::isUniquelyInstrumented(node, instrumentedNode, false)) {
+				canDeleteInstruentation = false;
 				break;
 			}
 		}
-
+		if (canDeleteInstruentation) {
+			instrumentedNode->setState(CgNodeState::NONE);
+			deletedInstrumentationMarkers++;
+		}
 	}
 }
 

@@ -48,8 +48,8 @@ namespace CgHelper {
 
 	bool isConjunction(CgNodePtr node);
 
-	int uniqueInstrumentationTest(CgNodePtr conjunctionNode, bool printErrors = true);
-	bool isUniquelyInstrumented(CgNodePtr conjunctionNode);
+	int uniquelyInstrumentedConjunctionTest(CgNodePtr conjunctionNode, bool printErrors = true);
+	bool isUniquelyInstrumented(CgNodePtr conjunctionNode, CgNodePtr unInstrumented = nullptr, bool printErrors = true);
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start);
 
 	bool instrumentationCanBeDeleted(CgNodePtr node);

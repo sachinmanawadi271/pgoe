@@ -277,5 +277,24 @@ std::ostream& operator<<(std::ostream& stream, const CgNodePtrSet& s) {
 	return stream;
 }
 
+namespace std {
+bool less<std::shared_ptr<CgNode> >::operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const {
+	return a->getFunctionName() < b-> getFunctionName();
+}
+bool less_equal<std::shared_ptr<CgNode> >::operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const {
+	return a->getFunctionName() <= b-> getFunctionName();
+}
 
+bool equal_to<std::shared_ptr<CgNode> >::operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const {
+	return a->getFunctionName() == b-> getFunctionName();
+}
+
+bool greater<std::shared_ptr<CgNode> >::operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const {
+	return a->getFunctionName() > b-> getFunctionName();
+}
+
+bool greater_equal<std::shared_ptr<CgNode> >::operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const {
+	return a->getFunctionName() >= b-> getFunctionName();
+}
+}
 

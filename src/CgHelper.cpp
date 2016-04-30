@@ -107,11 +107,13 @@ namespace CgHelper {
 		return path;
 	}
 
-	bool isUniquelyInstrumented(CgNodePtr conjunctionNode) {
-
+	bool isUniquelyInstrumented(CgNodePtr conjunctionNode, CgNodePtr unInstrumentedNode, bool printErrors) {
 		CgNodePtrSet visited;	// visited nodes
+
 		std::queue<CgNodePtr> workQueue;
-		workQueue.push(conjunctionNode);
+		for (auto parentNode : conjunctionNode->getParentNodes()) {
+			workQueue.push(parentNode);
+		}
 
 		while (!workQueue.empty()) {
 
@@ -121,10 +123,14 @@ namespace CgHelper {
 			if (visited.find(node) == visited.end()) {
 				visited.insert(node);
 			} else {
+				if (printErrors) {
+					std::cerr << "The conjunction: " << *conjunctionNode << " is reached on multiple paths by: "
+							<< *node << std::endl;
+				}
 				return false;
 			}
 
-			if (node->isInstrumented() || node->isRootNode()) {
+			if ( (node != unInstrumentedNode && node->isInstrumented()) || node->isRootNode()) {
 				continue;
 			}
 
@@ -138,7 +144,7 @@ namespace CgHelper {
 	/**
 	 * Checks the instrumentation paths (node based!) above a conjunction node for intersection.
 	 * Returns the Number Of Errors ! */
-	int uniqueInstrumentationTest(CgNodePtr conjunctionNode, bool printErrors) {
+	int uniquelyInstrumentedConjunctionTest(CgNodePtr conjunctionNode, bool printErrors) {
 
 		int numberOfErrors = 0;
 
@@ -155,10 +161,7 @@ namespace CgHelper {
 
 				if (pair==otherPair) {	continue; }
 
-				auto intersection = setIntersect(pair.second, otherPair.second);
-
-				if (!intersection.empty()) {
-
+				if (intersects(pair.second, otherPair.second)) {
 					if (printErrors) {
 						std::cout << "ERROR in conjunction: " << *conjunctionNode << std::endl;
 						std::cout << "    " << "Paths of " << *(pair.first)
