@@ -70,15 +70,19 @@ void CgNode::updateNodeAttributes() {
   this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
 
   // has unique call path
-  auto parents = getParentNodes();
   CgNodePtrSet visitedNodes;
+  CgNodePtrSet parents = getParentNodes();
+ 	CgNodePtr uniqueParent = nullptr;
   while (parents.size() == 1) {
-  	if (visitedNodes.find(getUniqueParent()) != visitedNodes.end()) {
+  	// dirty hack
+  	uniqueParent = (uniqueParent == nullptr) ? getUniqueParent() : uniqueParent->getUniqueParent();
+
+  	if (visitedNodes.find(uniqueParent) != visitedNodes.end()) {
   		break;	// this can happen in unconnected subgraphs
   	} else {
-  		visitedNodes.insert(getUniqueParent());
+  		visitedNodes.insert(uniqueParent);
   	}
-    parents = getUniqueParent()->getParentNodes();
+    parents = uniqueParent->getParentNodes();
   }
   this->uniqueCallPath = (parents.size() == 0);
 
@@ -90,21 +94,21 @@ void CgNode::updateExpectedNumberOfSamples() {
 	this->expectedNumberOfSamples = (unsigned long long) ( (double) CgConfig::samplesPerSecond * runtimeInSeconds + 1);
 }
 
-bool CgNode::hasUniqueCallPath() { return uniqueCallPath; }
+bool CgNode::hasUniqueCallPath() const { return uniqueCallPath; }
 
-bool CgNode::isLeafNode() { return getChildNodes().empty(); }
-bool CgNode::isRootNode() { return getParentNodes().empty(); }
+bool CgNode::isLeafNode() const { return getChildNodes().empty(); }
+bool CgNode::isRootNode() const { return getParentNodes().empty(); }
 
-bool CgNode::hasUniqueParent() { return getParentNodes().size() == 1; }
-bool CgNode::hasUniqueChild() { return getChildNodes().size() == 1; }
-CgNodePtr CgNode::getUniqueParent() {
+bool CgNode::hasUniqueParent() const { return getParentNodes().size() == 1; }
+bool CgNode::hasUniqueChild() const { return getChildNodes().size() == 1; }
+CgNodePtr CgNode::getUniqueParent() const {
   if (!hasUniqueParent()) {
     std::cerr << "Error: no unique parent." << std::endl;
     exit(1);
   }
   return *(getParentNodes().begin());
 }
-CgNodePtr CgNode::getUniqueChild() {
+CgNodePtr CgNode::getUniqueChild() const {
   if (!hasUniqueChild()) {
     std::cerr << "Error: no unique child." << std::endl;
     exit(1);
@@ -281,6 +285,7 @@ namespace std {
 bool less<std::shared_ptr<CgNode> >::operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const {
 	return a->getFunctionName() < b-> getFunctionName();
 }
+
 bool less_equal<std::shared_ptr<CgNode> >::operator()(const std::shared_ptr<CgNode>& a, const std::shared_ptr<CgNode>& b) const {
 	return a->getFunctionName() <= b-> getFunctionName();
 }

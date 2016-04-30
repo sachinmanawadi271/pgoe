@@ -124,14 +124,14 @@ public:
 	void updateNodeAttributes();
 	void updateExpectedNumberOfSamples();
 
-	bool hasUniqueCallPath();
-	bool isLeafNode();
-	bool isRootNode();
+	bool hasUniqueCallPath() const;
+	bool isLeafNode() const;
+	bool isRootNode() const;
 
-	bool hasUniqueParent();
-	bool hasUniqueChild();
-	CgNodePtr getUniqueParent();
-	CgNodePtr getUniqueChild();
+	bool hasUniqueParent() const;
+	bool hasUniqueChild() const;
+	CgNodePtr getUniqueParent() const;
+	CgNodePtr getUniqueChild() const;
 
 	void setFilename(std::string filename);
 	void setLineNumber(int line);
