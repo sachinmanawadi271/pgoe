@@ -164,7 +164,7 @@ void CgNode::setState(CgNodeState state, int numberOfUnwindSteps) {
 
 	// TODO i think this breaks something
 	if (this->state == CgNodeState::INSTRUMENT_CONJUNCTION && this->state != state) {
-		std::cerr << "# setState old:" << this->state << " new:" << state << std::endl;
+//		std::cerr << "# setState old:" << this->state << " new:" << state << std::endl;
 
 		if (state == CgNodeState::INSTRUMENT_WITNESS) {
 			return;	// instrument conjunction is stronger

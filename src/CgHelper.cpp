@@ -76,6 +76,10 @@ namespace CgHelper {
 	}
 
 	bool isUniquelyInstrumented(CgNodePtr conjunctionNode, CgNodePtr unInstrumentedNode, bool printErrors) {
+		if (conjunctionNode->isInstrumentedConjunction() && conjunctionNode != unInstrumentedNode) {
+			return true;
+		}
+
 		CgNodePtrSet visited;	// visited nodes
 
 		std::queue<CgNodePtr> workQueue;
