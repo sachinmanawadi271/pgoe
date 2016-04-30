@@ -16,6 +16,8 @@ DEP=$(OBJ:.o=.d)
 
 all: CubeCallGraphTool
 
+Debug: all
+
 #check for cube-config in PATH
 cube-config-exists: ; @which cube-config > /dev/null
 

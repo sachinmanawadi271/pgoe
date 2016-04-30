@@ -20,24 +20,26 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false)); 	// remove unrelated
 
-//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
-////	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());	//XXX may unwind cycles
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(true));	// unwind till unique
-////	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());	//XXX may unwind cycles
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
-//
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);		// instrument
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));		// hybrid (unwind all)
-//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
-//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());	//XXX may unwind cycles
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(true));	// unwind till unique
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());	//XXX may unwind cycles
+	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
-//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);
-	cg.registerEstimatorPhase(new ConjunctionInstrumentOnlyEstimatorPhase());
-//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));		// hybrid (unwind leaves)
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);		// instrument
+	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));		// hybrid (unwind all)
+	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new MinInstrHeuristicEstimatorPhase());
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
+
+//	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);
+//	cg.registerEstimatorPhase(new ConjunctionInstrumentOnlyEstimatorPhase());
+//	cg.registerEstimatorPhase(new UnwindEstimatorPhase(true));		// hybrid (unwind leaves)
+//	cg.registerEstimatorPhase(new MinInstrHeuristicEstimatorPhase());
+//	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
+//	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 //	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());
 //	cg.registerEstimatorPhase(new MinInstrHeuristicEstimatorPhase());
