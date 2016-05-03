@@ -52,7 +52,7 @@ namespace CgHelper {
 	bool isUniquelyInstrumented(CgNodePtr conjunctionNode, CgNodePtr unInstrumented = nullptr, bool printErrors = true);
 	CgNodePtrSet getInstrumentationPath(CgNodePtr start);
 
-	bool instrumentationCanBeDeleted(CgNodePtr node);
+	bool deleteInstrumentationIfRedundant(CgNodePtr node);
 	bool allParentsPathsInstrumented(CgNodePtr conjunctionNode);
 
 	unsigned long long getInstrumentationOverheadOfConjunction(CgNodePtr conjunctionNode);

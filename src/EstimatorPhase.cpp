@@ -801,21 +801,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			// remove redundant instrumentation in direct parents
 				for (auto pair : unwoundNodes) {
 					for (auto parentNode : pair.first->getParentNodes()) {
-
-						bool redundantInstrumentation = true;
-						for (auto childOfParentNode : parentNode->getChildNodes()) {
-
-							if (!childOfParentNode->isUnwound()
-									&& CgHelper::isConjunction(childOfParentNode)) {
-								redundantInstrumentation = false;
-							}
-						}
-
-						if (redundantInstrumentation) {
-							if (parentNode->isInstrumented()) {
-								parentNode->setState(CgNodeState::NONE);
-							}
-						}
+						CgHelper::deleteInstrumentationIfRedundant(parentNode);
 					}
 				}
 
@@ -828,7 +814,24 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 #endif
 }
 
-//// UNWIND ESTIMATOR PHASE
+//// UNWIND SPECIAL ESTIMATOR PHASE
+
+UnwStaticLeafEstimatorPhase::UnwStaticLeafEstimatorPhase() :
+		EstimatorPhase("UnwStaticLeaf") {}
+
+void UnwStaticLeafEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+	for (auto node : (*graph)) {
+		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
+			node->setState(CgNodeState::UNWIND_SAMPLE, 1);
+
+			for (auto parentNode : node->getParentNodes()) {
+				CgHelper::deleteInstrumentationIfRedundant(parentNode);
+			}
+		}
+	}
+}
+
+//// RESET ESTIMATOR PHASE
 
 ResetEstimatorPhase::ResetEstimatorPhase() :
 		EstimatorPhase("Reset", true) {

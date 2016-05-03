@@ -75,6 +75,21 @@ namespace CgHelper {
 		return path;
 	}
 
+	bool deleteInstrumentationIfRedundant(CgNodePtr instrumentedNode) {
+		for (auto childOfParentNode : instrumentedNode->getChildNodes()) {
+
+			if (!childOfParentNode->isUnwound()
+					&& CgHelper::isConjunction(childOfParentNode)) {
+				return false;
+			}
+		}
+
+		if (instrumentedNode->isInstrumented()) {
+			instrumentedNode->setState(CgNodeState::NONE);
+		}
+		return true;
+	}
+
 	bool isUniquelyInstrumented(CgNodePtr conjunctionNode, CgNodePtr unInstrumentedNode, bool printErrors) {
 		if ( (conjunctionNode->isInstrumentedConjunction() && conjunctionNode != unInstrumentedNode)
 				|| conjunctionNode->isUnwound()) {

@@ -18,12 +18,20 @@ void SanityCheckEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 		if (node->isUnwound()) {
 			if (CgHelper::isOnCycle(node)) {
-				std::cerr << "ERROR in unwound function is on a circle: "
+				std::cerr << "ERROR: unwound function is on a circle: "
 						<< node->getFunctionName() << std::endl;
+				numberOfErrors++;
 			} else {
 				continue;
 			}
+
+			if (node->getNumberOfUnwindSteps() == 0) {
+				std::cerr << "ERROR: unwound function with 0 unwindSteps" << std::endl;
+				numberOfErrors++;
+			}
 		}
+
+
 
 		numberOfErrors += (CgHelper::isUniquelyInstrumented(node, nullptr, true) ? 0 : 1);
 		numberOfErrors += CgHelper::uniquelyInstrumentedConjunctionTest(node, true);

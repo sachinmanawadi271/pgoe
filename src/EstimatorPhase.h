@@ -284,7 +284,7 @@ public:
 
 /**
  * Heuristic to substitute witness instrumentation with unwinding.
- * XXX RN: not sure if this phase can deal with the results from MinInstrHeuristic
+ * XXX RN: this phase can not deal with the results from MinInstrHeuristic
  */
 class UnwindEstimatorPhase : public EstimatorPhase {
 public:
@@ -304,6 +304,15 @@ private:
 
 	bool unwindOnlyLeafNodes;
 	bool unwindInInstr;
+};
+
+class UnwStaticLeafEstimatorPhase : public EstimatorPhase {
+public:
+	UnwStaticLeafEstimatorPhase();
+	~UnwStaticLeafEstimatorPhase() {}
+
+	void modifyGraph(CgNodePtr mainMethod);
+
 };
 
 /** reset all instrumented and unwound nodes on the call graph */
