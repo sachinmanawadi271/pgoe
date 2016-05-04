@@ -450,8 +450,9 @@ void DiamondPatternSolverEstimatorPhase::printAdditionalReport() {
 
 //// INSTRUMENT ESTIMATOR PHASE
 
-InstrumentEstimatorPhase::InstrumentEstimatorPhase() :
-	EstimatorPhase("Instrument") {
+InstrumentEstimatorPhase::InstrumentEstimatorPhase(bool instrumentAll) :
+	EstimatorPhase(instrumentAll ? "InstrumentAll" : "Instrument"),
+	instrumentAll(instrumentAll) {
 }
 
 InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {}
@@ -459,10 +460,17 @@ InstrumentEstimatorPhase::~InstrumentEstimatorPhase() {}
 void InstrumentEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 	for (auto node : (*graph)) {
-		if (CgHelper::isConjunction(node)) {
-			for (auto nodeToInstrument : node->getParentNodes()) {
-				nodeToInstrument->setState(CgNodeState::INSTRUMENT_WITNESS);
+
+		if (instrumentAll) {
+			node->setState(CgNodeState::INSTRUMENT_WITNESS);
+		} else {
+
+			if (CgHelper::isConjunction(node)) {
+				for (auto nodeToInstrument : node->getParentNodes()) {
+					nodeToInstrument->setState(CgNodeState::INSTRUMENT_WITNESS);
+				}
 			}
+
 		}
 	}
 }

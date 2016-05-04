@@ -195,10 +195,12 @@ private:
  */
 class InstrumentEstimatorPhase : public EstimatorPhase {
 public:
-	InstrumentEstimatorPhase();
+	InstrumentEstimatorPhase(bool instrumentAll = false);
 	~InstrumentEstimatorPhase();
 
 	void modifyGraph(CgNodePtr mainMethod);
+private:
+	bool instrumentAll;
 };
 
 /**
