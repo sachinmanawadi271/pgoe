@@ -76,10 +76,17 @@ namespace CgHelper {
 	}
 
 	bool deleteInstrumentationIfRedundant(CgNodePtr instrumentedNode) {
-		for (auto childOfParentNode : instrumentedNode->getChildNodes()) {
 
-			if (!childOfParentNode->isUnwound()
-					&& CgHelper::isConjunction(childOfParentNode)) {
+		auto childNodes = instrumentedNode->getChildNodes();
+		if (childNodes.find(instrumentedNode) != childNodes.end()) {
+			return false;
+		}
+
+		for (auto childOfParentNode : childNodes) {
+
+			if (CgHelper::isConjunction(childOfParentNode) &&
+					!(childOfParentNode->isUnwound() || childOfParentNode->isInstrumentedConjunction())) {
+
 				return false;
 			}
 		}

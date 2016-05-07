@@ -152,7 +152,7 @@ void CallgraphManager::printDOT(std::string prefix) {
 		}
 		if (node->isInstrumentedConjunction()) {
 			attributes += "style=filled, ";
-			attributes += "fillcolor=blue, ";
+			attributes += "fillcolor=palegreen, ";
 		}
 		if (node->isUnwound()) {
 			attributes += "shape=doubleoctagon, ";

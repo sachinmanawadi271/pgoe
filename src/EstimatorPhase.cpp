@@ -667,17 +667,7 @@ void ConjunctionInstrumentHeuristicEstimatorPhase::modifyGraph(CgNodePtr mainMet
 
 			// TODO remove substituted instr
 			for (auto parentNode : node->getParentNodes()) {
-				bool redundantInstrumentation = true;
-				for (auto childOfParentNode : parentNode->getChildNodes()) {
-					if (!childOfParentNode->isInstrumentedConjunction() && CgHelper::isConjunction(childOfParentNode)) {
-						redundantInstrumentation = false;
-					}
-				}
-				if (redundantInstrumentation) {
-					if (parentNode->isInstrumentedWitness()) {
-						parentNode->setState(CgNodeState::NONE);
-					}
-				}
+				CgHelper::deleteInstrumentationIfRedundant(parentNode);
 			}
 
 		}
@@ -770,7 +760,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			std::map<CgNodePtr, int> unwoundNodes;
 			getNewlyUnwoundNodes(unwoundNodes, node);
 
-			unsigned long long unwindOverhead = getUnwindOverheadNanos(unwoundNodes);;
+			unsigned long long unwindOverhead = getUnwindOverheadNanos(unwoundNodes);
 			if (unwindInInstr) {
 				unwindOverhead = node->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
 			}
@@ -829,7 +819,7 @@ UnwStaticLeafEstimatorPhase::UnwStaticLeafEstimatorPhase() :
 
 void UnwStaticLeafEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
-		if (node->isLeafNode() && CgHelper::isConjunction(node)) {
+		if (node->isLeafNode() && CgHelper::isConjunction(node) && !CgHelper::isOnCycle(node)) {
 			node->setState(CgNodeState::UNWIND_SAMPLE, 1);
 
 			for (auto parentNode : node->getParentNodes()) {
