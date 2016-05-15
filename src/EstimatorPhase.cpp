@@ -342,7 +342,7 @@ void GraphStatsEstimatorPhase::printAdditionalReport() {
 //// OVERHEAD COMPENSATION ESTIMATOR PHASE
 
 OverheadCompensationEstimatorPhase::OverheadCompensationEstimatorPhase(int nanosPerHalpProbe) :
-	EstimatorPhase("OvCompensation", true),
+	EstimatorPhase("OvCompensation", false),
 	nanosPerHalpProbe(nanosPerHalpProbe),
 	overallRuntime(0),
 	numOvercompensatedFunctions(0) {}
