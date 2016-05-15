@@ -29,25 +29,25 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());		// instrument
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());			// instrument
 	cg.registerEstimatorPhase(new UnwindEstimatorPhase(false));			// hybrid (unwind all)
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);		// instrument
-	cg.registerEstimatorPhase(new UnwStaticLeafEstimatorPhase());
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);
+	cg.registerEstimatorPhase(new UnwStaticLeafEstimatorPhase());			// hybrid static
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(false, true)); 	// aggressive reduction
 
-	cg.registerEstimatorPhase(new InstrumentEstimatorPhase());		// instrument
-	cg.registerEstimatorPhase(new MinInstrHeuristicEstimatorPhase());
+	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);
+	cg.registerEstimatorPhase(new MinInstrHeuristicEstimatorPhase());		// min instrument
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
 	cg.registerEstimatorPhase(new InstrumentEstimatorPhase(), true);
-	cg.registerEstimatorPhase(new ConjunctionInstrumentHeuristicEstimatorPhase());
+	cg.registerEstimatorPhase(new ConjunctionInstrumentHeuristicEstimatorPhase());		// conj instrument
 	cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 	cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
