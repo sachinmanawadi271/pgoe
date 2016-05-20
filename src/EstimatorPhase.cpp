@@ -102,7 +102,9 @@ void EstimatorPhase::printReport() {
 		}
 	} else {
 		std::cout << "==" << report.phaseName << "==  " << std::endl;
-		printAdditionalReport();
+		if (!report.metaPhase) {
+			printAdditionalReport();
+		}
 	}
 }
 
