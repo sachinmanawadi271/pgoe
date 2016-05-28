@@ -131,10 +131,11 @@ public:
 
 private:
 	void printAdditionalReport();
-	int nanosPerHalpProbe;
+	int nanosPerHalfProbe;
 
 	double overallRuntime;
 	int numOvercompensatedFunctions;
+	unsigned long long numOvercompensatedCalls;
 };
 
 /**

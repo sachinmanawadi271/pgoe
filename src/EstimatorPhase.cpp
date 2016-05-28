@@ -343,9 +343,10 @@ void GraphStatsEstimatorPhase::printAdditionalReport() {
 
 OverheadCompensationEstimatorPhase::OverheadCompensationEstimatorPhase(int nanosPerHalpProbe) :
 	EstimatorPhase("OvCompensation", false),
-	nanosPerHalpProbe(nanosPerHalpProbe),
+	nanosPerHalfProbe(nanosPerHalpProbe),
 	overallRuntime(0),
-	numOvercompensatedFunctions(0) {}
+	numOvercompensatedFunctions(0),
+	numOvercompensatedCalls(0) {}
 
 void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : *graph) {
@@ -356,13 +357,14 @@ void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			numberOfChildOverheads += child->getNumberOfCalls(node);
 		}
 
-		unsigned long long timestampOverheadNanos = numberOfOwnOverheads * nanosPerHalpProbe + numberOfChildOverheads * nanosPerHalpProbe;
+		unsigned long long timestampOverheadNanos = numberOfOwnOverheads * nanosPerHalfProbe + numberOfChildOverheads * nanosPerHalfProbe;
 		double timestampOverheadSeconds = (double) timestampOverheadNanos / 1e9;
 		double newRuntime = oldRuntime - timestampOverheadSeconds;
 
 		if (newRuntime < 0) {
 			node->setRuntimeInSeconds(0);
 			numOvercompensatedFunctions++;
+			numOvercompensatedCalls += node->getNumberOfCalls();
 		} else {
 			node->setRuntimeInSeconds(newRuntime);
 		}
@@ -377,8 +379,8 @@ void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 void OverheadCompensationEstimatorPhase::printAdditionalReport() {
 	std::cout << "\t" << "new runtime in seconds: " << overallRuntime
-			<< " | overcompensated: " << numOvercompensatedFunctions
-			<< std::endl;
+			<< " | overcompensated: " << numOvercompensatedFunctions << " functions with "
+			<< numOvercompensatedCalls << " calls."	<< std::endl;
 }
 
 //// DIAMOND PATTERN SOLVER ESTIMATOR PHASE
@@ -754,58 +756,66 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 #ifndef NO_DEBUG
 	double overallSavedSeconds = .0;
 #endif
+
+	CgNodePtrQueueUnwHeur pq;
 	for (auto node : (*graph)) {
-
 		if (CgHelper::isConjunction(node) && canBeUnwound(node)) {
-			unwindCandidates++;
+			pq.push(node);
+		}
+	}
 
-			std::map<CgNodePtr, int> unwoundNodes;
-			getNewlyUnwoundNodes(unwoundNodes, node);
+	while (!pq.empty()) {
+		auto node = pq.top();
+		pq.pop();
 
-			unsigned long long unwindOverhead = getUnwindOverheadNanos(unwoundNodes);
-			if (unwindInInstr) {
-				unwindOverhead = node->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
-			}
+		unwindCandidates++;
 
-			unsigned long long instrumentationOverhead = getInstrOverheadNanos(unwoundNodes);
+		std::map<CgNodePtr, int> unwoundNodes;
+		getNewlyUnwoundNodes(unwoundNodes, node);
 
-			if (unwindOverhead < instrumentationOverhead) {
+		unsigned long long unwindOverhead = getUnwindOverheadNanos(unwoundNodes);
+		if (unwindInInstr) {
+			unwindOverhead = node->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
+		}
+
+		unsigned long long instrumentationOverhead = getInstrOverheadNanos(unwoundNodes);
+
+		if (unwindOverhead < instrumentationOverhead) {
 
 #ifndef NO_DEBUG
-				double expectedOverheadSavedSeconds
-						= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
-				if (expectedOverheadSavedSeconds > 0.1) {
-					if (!node->isLeafNode()) {
-						std::cout << "No Leaf - " << unwoundNodes.size() << " nodes unwound" << std::endl;
-					}
-					std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
+			double expectedOverheadSavedSeconds
+			= ((long long) instrumentationOverhead - (long long)unwindOverhead) / 1000000000.0;
+			if (expectedOverheadSavedSeconds > 0.1) {
+				if (!node->isLeafNode()) {
+					std::cout << "No Leaf - " << unwoundNodes.size() << " nodes unwound" << std::endl;
 				}
-				overallSavedSeconds += expectedOverheadSavedSeconds;
+				std::cout << std::setprecision(4) << expectedOverheadSavedSeconds << "s\t save expected in: " << node->getFunctionName() << std::endl;
+			}
+			overallSavedSeconds += expectedOverheadSavedSeconds;
 #endif
 
-				if (unwindInInstr) {
-					node->setState(CgNodeState::UNWIND_INSTR, 1);
-					numUnwoundNodes++;
-				} else {
-					for (auto pair : unwoundNodes) {
-						int numExistingUnwindSteps = pair.first->getNumberOfUnwindSteps();
-						if (numExistingUnwindSteps == 0) {
-							numUnwoundNodes++;
-						}
-						if (pair.second > numExistingUnwindSteps) {
-							pair.first->setState(CgNodeState::UNWIND_SAMPLE, pair.second);
-						}
+			if (unwindInInstr) {
+				node->setState(CgNodeState::UNWIND_INSTR, 1);
+				numUnwoundNodes++;
+			} else {
+				for (auto pair : unwoundNodes) {
+					int numExistingUnwindSteps = pair.first->getNumberOfUnwindSteps();
+					if (numExistingUnwindSteps == 0) {
+						numUnwoundNodes++;
+					}
+					if (pair.second > numExistingUnwindSteps) {
+						pair.first->setState(CgNodeState::UNWIND_SAMPLE, pair.second);
 					}
 				}
+			}
 
 			// remove redundant instrumentation in direct parents
-				for (auto pair : unwoundNodes) {
-					for (auto parentNode : pair.first->getParentNodes()) {
-						CgHelper::deleteInstrumentationIfRedundant(parentNode);
-					}
+			for (auto pair : unwoundNodes) {
+				for (auto parentNode : pair.first->getParentNodes()) {
+					CgHelper::deleteInstrumentationIfRedundant(parentNode);
 				}
-
 			}
+
 		}
 	}
 

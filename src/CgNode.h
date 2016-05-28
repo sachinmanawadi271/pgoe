@@ -192,6 +192,19 @@ struct CalledMoreOften {
 };
 typedef std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> CgNodePtrQueueMostCalls;
 
+struct MoreRuntimeAndLeavesFirst {
+	bool operator() (const CgNodePtr& lhs, const CgNodePtr& rhs) {
+		if (!lhs->isLeafNode() && rhs->isLeafNode()) {
+			return true;
+		}
+		if (lhs->isLeafNode() && !rhs->isLeafNode()) {
+			return false;
+		}
+		return lhs->getRuntimeInSeconds() < rhs->getRuntimeInSeconds();
+	}
+};
+typedef std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, MoreRuntimeAndLeavesFirst> CgNodePtrQueueUnwHeur;
+
 struct CgEdge {
 	CgNodePtr from;
 	CgNodePtr to;
