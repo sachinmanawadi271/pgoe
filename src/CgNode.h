@@ -85,8 +85,8 @@ public:
 	const CgNodePtrSet& getParentNodes() const;
 
 	void addCallData(CgNodePtr parentNode, unsigned long long calls, double timeInSeconds);
-	unsigned long long getNumberOfCalls();
-	unsigned long long getNumberOfCallsWithCurrentEdges();
+	unsigned long long getNumberOfCalls() const;
+	unsigned long long getNumberOfCallsWithCurrentEdges() const;
 	unsigned long long getNumberOfCalls(CgNodePtr parentNode);
 
 	void setNumberOfStatements(int numStmts);
@@ -96,19 +96,19 @@ public:
 	double getInclusiveRuntimeInSeconds();
 	void setInclusiveRuntimeInSeconds(double newInclusiveRuntimeInSeconds);
 	void setRuntimeInSeconds(double newRuntimeInSeconds);
-	unsigned long long getExpectedNumberOfSamples();
+	unsigned long long getExpectedNumberOfSamples() const;
 
 
 	void setState(CgNodeState state, int numberOfUnwindSteps = 0);
 	CgNodeState getStateRaw() const;
-	bool isInstrumented();
-	bool isInstrumentedWitness();
-	bool isInstrumentedConjunction();
-	bool isUnwound();
-	bool isUnwoundSample();
-	bool isUnwoundInstr();
+	bool isInstrumented() const;
+	bool isInstrumentedWitness() const;
+	bool isInstrumentedConjunction() const;
+	bool isUnwound() const;
+	bool isUnwoundSample() const;
+	bool isUnwoundInstr() const;
 
-	int getNumberOfUnwindSteps();
+	int getNumberOfUnwindSteps() const;
 
 	// marker pos & dependent conjunction stuff
 	CgNodePtrSet& getMarkerPositions();

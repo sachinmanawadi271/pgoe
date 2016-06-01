@@ -276,7 +276,7 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
 
-			unsigned long long unwindCostsNanos = node->getExpectedNumberOfSamples() * CgConfig::nanosPerUnwindStep;
+			unsigned long long unwindCostsNanos = node->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
 			unsigned long long instrCostsNanos = 0;
 			for (auto parent : node->getParentNodes()) {
 				instrCostsNanos += parent->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;

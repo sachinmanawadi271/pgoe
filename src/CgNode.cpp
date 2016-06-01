@@ -196,25 +196,25 @@ double CgNode::getInclusiveRuntimeInSeconds() {
 }
 
 CgNodeState CgNode::getStateRaw() const { return state; };
-bool CgNode::isInstrumented() { return isInstrumentedWitness() || isInstrumentedConjunction(); }
-bool CgNode::isInstrumentedWitness() { return state == CgNodeState::INSTRUMENT_WITNESS; }
-bool CgNode::isInstrumentedConjunction() { return state == CgNodeState::INSTRUMENT_CONJUNCTION; }
+bool CgNode::isInstrumented() const { return isInstrumentedWitness() || isInstrumentedConjunction(); }
+bool CgNode::isInstrumentedWitness() const { return state == CgNodeState::INSTRUMENT_WITNESS; }
+bool CgNode::isInstrumentedConjunction() const { return state == CgNodeState::INSTRUMENT_CONJUNCTION; }
 
-bool CgNode::isUnwound() {
+bool CgNode::isUnwound() const {
 	return state == CgNodeState::UNWIND_SAMPLE || state == CgNodeState::UNWIND_INSTR;
 }
-bool CgNode::isUnwoundSample() {
+bool CgNode::isUnwoundSample() const {
 	return state == CgNodeState::UNWIND_SAMPLE;
 }
-bool CgNode::isUnwoundInstr() {
+bool CgNode::isUnwoundInstr() const {
 	return state == CgNodeState::UNWIND_INSTR;
 }
 
-int CgNode::getNumberOfUnwindSteps() { return numberOfUnwindSteps; }
+int CgNode::getNumberOfUnwindSteps() const { return numberOfUnwindSteps; }
 
-unsigned long long CgNode::getNumberOfCalls() { return numberOfCalls; }
+unsigned long long CgNode::getNumberOfCalls() const { return numberOfCalls; }
 
-unsigned long long CgNode::getNumberOfCallsWithCurrentEdges() {
+unsigned long long CgNode::getNumberOfCallsWithCurrentEdges() const {
 
   unsigned long long numberOfCalls = 0;
   for (auto n : numberOfCallsBy) {
@@ -234,7 +234,7 @@ void CgNode::setRuntimeInSeconds(double newRuntimeInSeconds) {
   runtimeInSeconds = newRuntimeInSeconds;
 }
 
-unsigned long long CgNode::getExpectedNumberOfSamples() {
+unsigned long long CgNode::getExpectedNumberOfSamples() const {
   return expectedNumberOfSamples;
 }
 
