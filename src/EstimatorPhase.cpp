@@ -273,6 +273,9 @@ GraphStatsEstimatorPhase::~GraphStatsEstimatorPhase() {
 
 void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
+	CgNodePtrSet nodesWithRemovedInstr;
+	CgNodePtrSet unwoundNodes;
+
 	for (auto node : (*graph)) {
 		if (CgHelper::isConjunction(node)) {
 
@@ -283,14 +286,31 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			}
 
 			if (unwindCostsNanos < instrCostsNanos) {
+				unwoundNodes.insert(node);
 				double secondsSaved = (double) (instrCostsNanos - unwindCostsNanos) / 1e9;
 				if (secondsSaved > 1.) {
+
+					for (auto parent : node->getParentNodes()) {
+						nodesWithRemovedInstr.insert(parent);
+					}
 					std::cout << "max save: " << secondsSaved << " s in " << node->getFunctionName() << std::endl;
 				}
 			}
 
 		}
 	}
+
+	unsigned long long nanosInstrCosts = 0;
+	for (auto notInstrNode : nodesWithRemovedInstr) {
+		nanosInstrCosts += notInstrNode->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
+	}
+	unsigned long long nanosUnwCosts = 0;
+	for (auto unwNode : unwoundNodes) {
+		nanosUnwCosts += unwNode->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
+	}
+	double secondsSavedOverall = (double) (nanosInstrCosts - nanosUnwCosts) / 1e9;
+	std::cout << "overall save is: " << secondsSavedOverall << " s" << std::endl;
+
 
 //	// detect cycles
 //	for (auto node : (*graph)) {
