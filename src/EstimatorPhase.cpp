@@ -3,7 +3,7 @@
 #include <iomanip>
 
 
-#define NO_DEBUG
+//#define NO_DEBUG
 
 EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
 
@@ -273,60 +273,79 @@ GraphStatsEstimatorPhase::~GraphStatsEstimatorPhase() {
 
 void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
-	// detect cycles
 	for (auto node : (*graph)) {
-		if (CgHelper::isOnCycle(node)) {
-			numCyclesDetected++;
-		}
-	}
+		if (CgHelper::isConjunction(node)) {
 
-	// dependent conjunctions
-	for (auto node : (*graph)) {
-
-		if (!CgHelper::isConjunction(node)) {
-			continue;
-		}
-
-		numberOfConjunctions++;
-		if (hasDependencyFor(node)) {
-			continue;
-		}
-
-		CgNodePtrSet dependentConjunctions = {node};
-		CgNodePtrSet validMarkerPositions = node->getMarkerPositions();
-
-		unsigned int numberOfDependentConjunctions = 0;
-		while (numberOfDependentConjunctions != dependentConjunctions.size()) {
-			numberOfDependentConjunctions = dependentConjunctions.size();
-
-			CgNodePtrSet reachableConjunctions = CgHelper::getReachableConjunctions(validMarkerPositions);
-			for (auto depConj : dependentConjunctions) {
-				reachableConjunctions.erase(depConj);
+			unsigned long long unwindCostsNanos = node->getExpectedNumberOfSamples() * CgConfig::nanosPerUnwindStep;
+			unsigned long long instrCostsNanos = 0;
+			for (auto parent : node->getParentNodes()) {
+				instrCostsNanos += parent->getNumberOfCalls() * CgConfig::nanosPerInstrumentedCall;
 			}
 
-			for (auto reachableConjunction : reachableConjunctions) {
-				CgNodePtrSet otherValidMarkerPositions = CgHelper::getPotentialMarkerPositions(reachableConjunction);
-
-				if (!CgHelper::setIntersect(validMarkerPositions, otherValidMarkerPositions).empty()) {
-					dependentConjunctions.insert(reachableConjunction);
-					validMarkerPositions.insert(otherValidMarkerPositions.begin(), otherValidMarkerPositions.end());
+			if (unwindCostsNanos < instrCostsNanos) {
+				double secondsSaved = (double) (instrCostsNanos - unwindCostsNanos) / 1e9;
+				if (secondsSaved > 1.) {
+					std::cout << "max save: " << secondsSaved << " s in " << node->getFunctionName() << std::endl;
 				}
 			}
-		}
 
-		///XXX
-//		if (dependentConjunctions.size() > 100) {
-//			for (auto& dep : dependentConjunctions) {
-//				graph->erase(dep, false, true);
+		}
+	}
+
+//	// detect cycles
+//	for (auto node : (*graph)) {
+//		if (CgHelper::isOnCycle(node)) {
+//			numCyclesDetected++;
+//		}
+//	}
+//
+//	// dependent conjunctions
+//	for (auto node : (*graph)) {
+//
+//		if (!CgHelper::isConjunction(node)) {
+//			continue;
+//		}
+//
+//		numberOfConjunctions++;
+//		if (hasDependencyFor(node)) {
+//			continue;
+//		}
+//
+//		CgNodePtrSet dependentConjunctions = {node};
+//		CgNodePtrSet validMarkerPositions = node->getMarkerPositions();
+//
+//		unsigned int numberOfDependentConjunctions = 0;
+//		while (numberOfDependentConjunctions != dependentConjunctions.size()) {
+//			numberOfDependentConjunctions = dependentConjunctions.size();
+//
+//			CgNodePtrSet reachableConjunctions = CgHelper::getReachableConjunctions(validMarkerPositions);
+//			for (auto depConj : dependentConjunctions) {
+//				reachableConjunctions.erase(depConj);
 //			}
-//			for (auto& marker: allValidMarkerPositions) {
-//				graph->erase(marker, false, true);
+//
+//			for (auto reachableConjunction : reachableConjunctions) {
+//				CgNodePtrSet otherValidMarkerPositions = CgHelper::getPotentialMarkerPositions(reachableConjunction);
+//
+//				if (!CgHelper::setIntersect(validMarkerPositions, otherValidMarkerPositions).empty()) {
+//					dependentConjunctions.insert(reachableConjunction);
+//					validMarkerPositions.insert(otherValidMarkerPositions.begin(), otherValidMarkerPositions.end());
+//				}
 //			}
 //		}
-
-		dependencies.push_back(ConjunctionDependency(dependentConjunctions, validMarkerPositions));
-		allValidMarkerPositions.insert(validMarkerPositions.begin(), validMarkerPositions.end());
-	}
+//
+//		///XXX
+////		if (dependentConjunctions.size() > 100) {
+////			for (auto& dep : dependentConjunctions) {
+////				graph->erase(dep, false, true);
+////			}
+////			for (auto& marker: allValidMarkerPositions) {
+////				graph->erase(marker, false, true);
+////			}
+////		}
+//
+//		dependencies.push_back(ConjunctionDependency(dependentConjunctions, validMarkerPositions));
+//		allValidMarkerPositions.insert(validMarkerPositions.begin(), validMarkerPositions.end());
+//	}
 }
 
 void GraphStatsEstimatorPhase::printAdditionalReport() {
