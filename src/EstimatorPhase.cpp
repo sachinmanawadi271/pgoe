@@ -2,7 +2,7 @@
 #include "EstimatorPhase.h"
 
 
-//#define NO_DEBUG
+#define NO_DEBUG
 
 EstimatorPhase::EstimatorPhase(std::string name, bool isMetaPhase) :
 
