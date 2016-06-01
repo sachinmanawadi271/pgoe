@@ -818,6 +818,10 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		}
 
 		unsigned long long instrumentationOverhead = getInstrOverheadNanos(unwoundNodes);
+		if (unwindInInstr) {
+			std::map<CgNodePtr, int> unwoundNode = {{node, 1}};
+			instrumentationOverhead = getInstrOverheadNanos(unwoundNode);
+		}
 
 		if (unwindOverhead < instrumentationOverhead) {
 
