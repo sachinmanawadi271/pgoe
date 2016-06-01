@@ -1,6 +1,5 @@
 
 #include "EstimatorPhase.h"
-#include <iomanip>
 
 
 //#define NO_DEBUG
@@ -288,11 +287,11 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 			if (unwindCostsNanos < instrCostsNanos) {
 				unwoundNodes.insert(node);
 				double secondsSaved = (double) (instrCostsNanos - unwindCostsNanos) / 1e9;
+				for (auto parent : node->getParentNodes()) {
+					nodesWithRemovedInstr.insert(parent);
+				}
 				if (secondsSaved > 1.) {
 
-					for (auto parent : node->getParentNodes()) {
-						nodesWithRemovedInstr.insert(parent);
-					}
 					std::cout << "max save: " << secondsSaved << " s in " << node->getFunctionName() << std::endl;
 				}
 			}
@@ -309,7 +308,7 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		nanosUnwCosts += unwNode->getNumberOfCalls() * CgConfig::nanosPerUnwindStep;
 	}
 	double secondsSavedOverall = (double) (nanosInstrCosts - nanosUnwCosts) / 1e9;
-	std::cout << "overall save is: " << secondsSavedOverall << " s" << std::endl;
+	std::cout << "overall save is: " << secondsSavedOverall << " s in " << unwoundNodes.size() << " functions " << std::endl;
 
 
 //	// detect cycles
