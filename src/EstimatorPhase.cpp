@@ -286,6 +286,7 @@ void GraphStatsEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 
 			if (unwindCostsNanos < instrCostsNanos) {
 				unwoundNodes.insert(node);
+				node->setState(CgNodeState::UNWIND_INSTR, 1);
 				double secondsSaved = (double) (instrCostsNanos - unwindCostsNanos) / 1e9;
 				for (auto parent : node->getParentNodes()) {
 					nodesWithRemovedInstr.insert(parent);
