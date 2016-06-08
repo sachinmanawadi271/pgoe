@@ -13,6 +13,7 @@
 
 #define PRINT_DOT_AFTER_EVERY_PHASE true
 #define DUMP_INSTRUMENTED_NAMES true
+#define DUMP_UNWOUND_NAMES true
 
 class CallgraphManager {
 
@@ -50,6 +51,7 @@ private:
 	void finalizeGraph();
 
 	void dumpInstrumentedNames(CgReport report);
+	void dumpUnwoundNames(CgReport report);
 };
 
 

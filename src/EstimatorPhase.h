@@ -66,6 +66,8 @@ struct CgReport {
 	std::set<std::string> instrumentedNames;
 	std::priority_queue<CgNodePtr, std::vector<CgNodePtr>, CalledMoreOften> instrumentedNodes;
 
+	std::map<std::string, int> unwoundNames;
+
 };
 
 class EstimatorPhase {

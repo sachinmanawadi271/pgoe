@@ -102,6 +102,9 @@ void CallgraphManager::thatOneLargeMethod() {
 #if DUMP_INSTRUMENTED_NAMES
 		dumpInstrumentedNames(report);
 #endif	// DUMP_INSTRUMENTED_NAMES
+#if DUMP_UNWOUND_NAMES
+		dumpUnwoundNames(report);
+#endif	// DUMP_UNWOUND_NAMES
 
 #if BENCHMARK_PHASES
 		auto endTime = std::chrono::system_clock::now();
@@ -191,3 +194,17 @@ void CallgraphManager::dumpInstrumentedNames(CgReport report) {
 		outfile << name << std::endl;
 	}
 }
+
+void CallgraphManager::dumpUnwoundNames(CgReport report) {
+	std::string filename = "out/unw-" + config->appName + "-" + report.phaseName + ".txt";
+	std::ofstream outfile(filename, std::ofstream::out);
+
+	for (auto pair : report.unwoundNames) {
+		std::string name = pair.first;
+		int unwindSteps = pair.second;
+
+		outfile << unwindSteps << " " << name << std::endl;
+	}
+}
+
+

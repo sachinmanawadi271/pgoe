@@ -38,6 +38,8 @@ void EstimatorPhase::generateReport() {
 			unsigned long long unwindCostsNanos = unwindSamples *
 					(CgConfig::nanosPerUnwindSample + unwindSteps * CgConfig::nanosPerUnwindStep);
 
+			report.unwoundNames[node->getFunctionName()] = unwindSteps;
+
 			report.unwindSamples += unwindSamples;
 			report.unwindOvSeconds += (double) unwindCostsNanos / 1e9;
 
