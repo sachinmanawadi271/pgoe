@@ -1,3 +1,4 @@
+CXX=g++ # out hacked clang version on lcluster is not abi compatible with the cube installation
 CXXFLAGS=-std=c++11 -Wall
 
 INCLUDEFLAGS=`cube-config --cube-cxxflags`
