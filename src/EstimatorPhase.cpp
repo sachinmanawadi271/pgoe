@@ -496,7 +496,7 @@ void DiamondPatternSolverEstimatorPhase::printAdditionalReport() {
 //// INSTRUMENT ESTIMATOR PHASE
 
 InstrumentEstimatorPhase::InstrumentEstimatorPhase(bool instrumentAll) :
-	EstimatorPhase(instrumentAll ? "InstrumentAll" : "Instrument"),
+	EstimatorPhase(instrumentAll ? "ss-all" : "ss-cpd"),
 	instrumentAll(instrumentAll) {
 }
 
@@ -547,7 +547,7 @@ void WLInstrEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 //// LIBUNWIND ESTIMATOR PHASE
 
 LibUnwindEstimatorPhase::LibUnwindEstimatorPhase(bool unwindUntilUniqueCallpath) :
-		EstimatorPhase(unwindUntilUniqueCallpath ? "LibUnwUnique" : "LibUnwStandard"),
+		EstimatorPhase(unwindUntilUniqueCallpath ? "unw-min" : "unw-all"),
 		currentDepth(0),
 		unwindUntilUniqueCallpath(unwindUntilUniqueCallpath) {}
 
@@ -629,7 +629,7 @@ void MoveInstrumentationUpwardsEstimatorPhase::modifyGraph(CgNodePtr mainMethod)
 //// DELETE ONE INSTRUMENTATION ESTIMATOR PHASE
 
 MinInstrHeuristicEstimatorPhase::MinInstrHeuristicEstimatorPhase() :
-		EstimatorPhase("MinInstrHeuristic"),
+		EstimatorPhase("ss-min"),
 		deletedInstrumentationMarkers(0) {
 }
 
@@ -685,7 +685,7 @@ void ConjunctionInstrumentOnlyEstimatorPhase::modifyGraph(CgNodePtr mainMethod) 
 }
 
 ConjunctionInstrumentHeuristicEstimatorPhase::ConjunctionInstrumentHeuristicEstimatorPhase() :
-		EstimatorPhase("ConjInstrHeuristic") {}
+		EstimatorPhase("ss-conj") {}
 
 ConjunctionInstrumentHeuristicEstimatorPhase::~ConjunctionInstrumentHeuristicEstimatorPhase() {}
 
@@ -725,7 +725,7 @@ UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindOnlyLeafNodes, bool unwind
 		EstimatorPhase(
 				unwindOnlyLeafNodes ?
 						(unwindInInstr ? "UnwindInstrLeaf" : "UnwindSampleLeaf") :
-						(unwindInInstr ? "UnwindInstr" : "UnwindSample")),
+						(unwindInInstr ? "UnwindInstr" : "hybrid")),
 		numUnwoundNodes(0),
 		unwindCandidates(0),
 		unwindOnlyLeafNodes(unwindOnlyLeafNodes),
@@ -872,7 +872,7 @@ void UnwindEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 //// UNWIND SPECIAL ESTIMATOR PHASE
 
 UnwStaticLeafEstimatorPhase::UnwStaticLeafEstimatorPhase() :
-		EstimatorPhase("UnwStaticLeaf") {}
+		EstimatorPhase("hybrid-st") {}
 
 void UnwStaticLeafEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	for (auto node : (*graph)) {
