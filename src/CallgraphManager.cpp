@@ -193,6 +193,7 @@ void CallgraphManager::dumpInstrumentedNames(CgReport report) {
 	for (auto name : report.instrumentedNames) {
 		outfile << name << std::endl;
 	}
+	outfile << std::endl;
 }
 
 void CallgraphManager::dumpUnwoundNames(CgReport report) {
