@@ -725,7 +725,7 @@ UnwindEstimatorPhase::UnwindEstimatorPhase(bool unwindOnlyLeafNodes, bool unwind
 		EstimatorPhase(
 				unwindOnlyLeafNodes ?
 						(unwindInInstr ? "UnwindInstrLeaf" : "UnwindSampleLeaf") :
-						(unwindInInstr ? "UnwindInstr" : "hybrid")),
+						(unwindInInstr ? "UnwindInstr" : "hybrid-dyn")),
 		numUnwoundNodes(0),
 		unwindCandidates(0),
 		unwindOnlyLeafNodes(unwindOnlyLeafNodes),
