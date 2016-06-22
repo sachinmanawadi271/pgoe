@@ -42,6 +42,8 @@ struct Config{
 	std::string fastestPhaseName	= "NO_PHASE";
 	double fastestPhaseOvPercent	= 1e9;
 	double fastestPhaseOvSeconds 	= 1e9;
+
+	std::string samplesFile = "";
 };
 
 namespace CgHelper {

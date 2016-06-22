@@ -24,6 +24,7 @@ public:
 			std::string childName, unsigned long long numberOfCalls, double timeInSeconds);
 
 	void putNumberOfStatements(std::string name, int numberOfStatements);
+	void putNumberOfSamples(std::string name, unsigned long long  numberOfSamples);
 	CgNodePtr findOrCreateNode(std::string name, double timeInSeconds = 0.0);
 
 	void registerEstimatorPhase(EstimatorPhase* phase, bool noReport = false);

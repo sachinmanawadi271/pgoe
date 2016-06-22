@@ -121,8 +121,9 @@ public:
 	bool isSpantreeParent(CgNodePtr);
 	void reset();
 
-	void updateNodeAttributes();
+	void updateNodeAttributes(bool updateNumberOfSamples = true);
 	void updateExpectedNumberOfSamples();
+	void setExpectedNumberOfSamples(unsigned long long samples);
 
 	bool hasUniqueCallPath() const;
 	bool isLeafNode() const;

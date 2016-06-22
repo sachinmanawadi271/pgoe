@@ -27,6 +27,10 @@ case $key in
     -t|--tiny)
     PARAMS+=" --tiny"
     ;;
+    -f|--samples-file)
+    PARAMS+=" --samples-file $2"
+    shift
+    ;;
     *)
     # unknown option
     ;;

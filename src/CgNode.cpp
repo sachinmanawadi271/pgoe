@@ -64,34 +64,38 @@ void CgNode::reset() {
   this->spantreeParents.clear();
 }
 
-void CgNode::updateNodeAttributes() {
+void CgNode::updateNodeAttributes(bool updateNumberOfSamples) {
 
-  // this number will not change
-  this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
+    // this number will not change
+    this->numberOfCalls = getNumberOfCallsWithCurrentEdges();
 
-  // has unique call path
-  CgNodePtrSet visitedNodes;
-  CgNodePtrSet parents = getParentNodes();
- 	CgNodePtr uniqueParent = nullptr;
-  while (parents.size() == 1) {
-  	// dirty hack
-  	uniqueParent = (uniqueParent == nullptr) ? getUniqueParent() : uniqueParent->getUniqueParent();
+    // has unique call path
+    CgNodePtrSet visitedNodes;
+    CgNodePtrSet parents = getParentNodes();
+    CgNodePtr uniqueParent = nullptr;
+    while (parents.size() == 1) {
+        // dirty hack
+        uniqueParent = (uniqueParent == nullptr) ? getUniqueParent() : uniqueParent->getUniqueParent();
 
-  	if (visitedNodes.find(uniqueParent) != visitedNodes.end()) {
-  		break;	// this can happen in unconnected subgraphs
-  	} else {
-  		visitedNodes.insert(uniqueParent);
-  	}
-    parents = uniqueParent->getParentNodes();
-  }
-  this->uniqueCallPath = (parents.size() == 0);
-
-  updateExpectedNumberOfSamples();
+        if (visitedNodes.find(uniqueParent) != visitedNodes.end()) {
+            break;    // this can happen in unconnected subgraphs
+        } else {
+            visitedNodes.insert(uniqueParent);
+        }
+        parents = uniqueParent->getParentNodes();
+    }
+    this->uniqueCallPath = (parents.size() == 0);
+    if (updateNumberOfSamples) {
+        updateExpectedNumberOfSamples();
+    }
 }
 
 void CgNode::updateExpectedNumberOfSamples() {
 	// expected samples in this function (always round up)
 	this->expectedNumberOfSamples = (unsigned long long) ( (double) CgConfig::samplesPerSecond * runtimeInSeconds + 1);
+}
+void CgNode::setExpectedNumberOfSamples(unsigned long long samples) {
+    this->expectedNumberOfSamples = samples;
 }
 
 bool CgNode::hasUniqueCallPath() const { return uniqueCallPath; }

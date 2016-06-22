@@ -56,6 +56,24 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 			}
 		}
 
+		// read in samples per second TODO these are hardcoded for 10kHz
+		auto samplesFilename = c->samplesFile;
+		if (!samplesFilename.empty()) {
+			std::ifstream inFile(samplesFilename);
+			if (!inFile.is_open())  {
+				std::cerr << "Can not open samples-file: " << samplesFilename << std::endl;
+				exit(1);
+			}
+			std::string line;
+			while (std::getline(inFile, line)) {
+				std::string name;
+				unsigned long long numberOfSamples;
+
+				inFile >> numberOfSamples >> name;
+				cg->putNumberOfSamples(name, numberOfSamples);
+			}
+		}
+
 		c->actualRuntime = overallRuntime;
 		bool hasRefTime = c->referenceRuntime > .0;
 		unsigned long long normalProbeNanos = overallNumberOfCalls * CgConfig::nanosPerNormalProbe;

@@ -21,6 +21,10 @@ void CallgraphManager::putNumberOfStatements(std::string name, int numberOfState
 	CgNodePtr node = findOrCreateNode(name);
 	node->setNumberOfStatements(numberOfStatements);
 }
+void CallgraphManager::putNumberOfSamples(std::string name, unsigned long long numberOfSamples) {
+	CgNodePtr node = findOrCreateNode(name);
+	node->setExpectedNumberOfSamples(numberOfSamples);
+}
 
 void CallgraphManager::putEdge(std::string parentName, std::string childName) {
 

@@ -105,6 +105,10 @@ int main(int argc, char** argv) {
 			c.ignoreSamplingOv = true;
 			continue;
 		}
+		if (arg=="--samples-file" || arg=="-f") {
+			c.samplesFile = argv[++i];
+			continue;
+		}
 
 		std::cout << "Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
 				<< " [--other|-o /PATH/TO/PROFILE/TO/COMPARE/TO]"
