@@ -16,8 +16,9 @@
 
 void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 
-	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
-
+	if (c->samplesFile.empty()) {
+		cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
+	}
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false)); 	// remove unrelated
 
 	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
@@ -109,6 +110,8 @@ int main(int argc, char** argv) {
 			c.samplesFile = argv[++i];
 			continue;
 		}
+
+		std::cerr << "Unknown option: " << argv[i] << std::endl;
 
 		std::cout << "Usage: " << argv[0] << " /PATH/TO/CUBEX/PROFILE"
 				<< " [--other|-o /PATH/TO/PROFILE/TO/COMPARE/TO]"
