@@ -199,10 +199,14 @@ void CallgraphManager::dumpInstrumentedNames(CgReport report) {
 	std::string filename = "out/instrumented-" + config->appName + "-" + report.phaseName + ".txt";
 	std::ofstream outfile(filename, std::ofstream::out);
 
-	for (auto name : report.instrumentedNames) {
-		outfile << name << std::endl;
+	if (report.instrumentedNodes.empty()) {
+		outfile << "aFunctionThatDoesNotExist" << std::endl;
+	} else {
+		for (auto name : report.instrumentedNames) {
+			outfile << name << std::endl;
+		}
 	}
-	outfile << std::endl;
+
 }
 
 void CallgraphManager::dumpUnwoundNames(CgReport report) {
