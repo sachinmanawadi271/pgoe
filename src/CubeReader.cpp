@@ -70,6 +70,7 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 				unsigned long long numberOfSamples;
 
 				inFile >> numberOfSamples >> name;
+
 				cg->putNumberOfSamples(name, numberOfSamples);
 			}
 		}

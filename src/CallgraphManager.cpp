@@ -22,8 +22,9 @@ void CallgraphManager::putNumberOfStatements(std::string name, int numberOfState
 	node->setNumberOfStatements(numberOfStatements);
 }
 void CallgraphManager::putNumberOfSamples(std::string name, unsigned long long numberOfSamples) {
-	CgNodePtr node = findOrCreateNode(name);
-	node->setExpectedNumberOfSamples(numberOfSamples);
+	if (graphMapping.find(name) != graphMapping.end()) {
+		graphMapping.find(name)->second->setExpectedNumberOfSamples(numberOfSamples);
+	}
 }
 
 void CallgraphManager::putEdge(std::string parentName, std::string childName) {
@@ -68,7 +69,11 @@ void CallgraphManager::finalizeGraph() {
 	// also update all node attributes
 	for (auto node : graph) {
 
-		node->updateNodeAttributes();
+		if (config->samplesFile.empty()) {
+			node->updateNodeAttributes();
+		} else {
+			node->updateNodeAttributes(false);
+		}
 
 		CgNodePtrSet markerPositions = CgHelper::getPotentialMarkerPositions(node);
 		node->getMarkerPositions().insert(markerPositions.begin(), markerPositions.end());
