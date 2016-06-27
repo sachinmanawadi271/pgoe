@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		if (arg=="--samples-file" || arg=="-f") {
-			c.samplesFile = argv[++i];
+			c.samplesFile = "active";	// ugly hack
 			continue;
 		}
 
@@ -118,13 +118,19 @@ int main(int argc, char** argv) {
 				<< " [--samples|-s NUMBER_OF_SAMPLES_PER_SECOND]"
 				<< " [--ref|-r UNINSTRUMENTED_RUNTIME_SECONDS]"
 				<< " [--half|-h NANOS_FOR_OVERHEAD_COMPENSATION"
-				<< " [--mangled|-m]" << " [--tiny|-t]"
+				<< " [--mangled|-m]"
+				<< " [--tiny|-t]"
 				<< std::endl << std::endl;
 	}
 
 	std::string filePath(argv[1]);
 	std::string fileName = filePath.substr(filePath.find_last_of('/')+1);
 	c.appName = fileName.substr(0, fileName.find_last_of('.'));	// remove .*
+
+	if (!c.samplesFile.empty()) {
+		c.samplesFile = filePath.substr(0, filePath.find_last_of('.'))+".samples";
+		std::cout << c.samplesFile << std::endl;
+	}
 
 	CallgraphManager cg(&c);
 	if (stringEndsWith(filePath, ".cubex")) {
