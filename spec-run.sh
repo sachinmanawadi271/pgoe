@@ -37,11 +37,9 @@ esac
 shift # past argument or value
 done
 
-$CCG $S_IN/403.gcc.clang.cubex        -h 105 -r 40.3  $PARAMS 2>&1 | tee $S_OUT/403.gcc.clang.log
 $CCG $S_IN/429.mcf.clang.cubex        -h 105 -r 236.2 $PARAMS 2>&1 | tee $S_OUT/429.mcf.clang.log
 $CCG $S_IN/433.milc.clang.cubex       -h 105 -r 421.7 $PARAMS 2>&1 | tee $S_OUT/433.milc.clang.log
 $CCG $S_IN/444.namd.clang.cubex       -h 105 -r 425.7 $PARAMS 2>&1 | tee $S_OUT/444.namd.clang.log
-$CCG $S_IN/447.dealII.clang.cubex     -h 105 -r 26.5  $PARAMS 2>&1 | tee $S_OUT/447.dealII.clang.log
 $CCG $S_IN/450.soplex.clang.cubex     -h 105 -r 102.9 $PARAMS 2>&1 | tee $S_OUT/450.soplex.clang.log
 $CCG $S_IN/456.hmmer.clang.cubex      -h 105 -r 166.6 $PARAMS 2>&1 | tee $S_OUT/456.hmmer.clang.log
 $CCG $S_IN/458.sjeng.clang.cubex      -h 105 -r 332.9 $PARAMS 2>&1 | tee $S_OUT/458.sjeng.clang.log
@@ -52,6 +50,8 @@ $CCG $S_IN/473.astar.clang.cubex      -h 105 -r 365.7 $PARAMS 2>&1 | tee $S_OUT/
 $CCG $S_IN/482.sphinx3.clang.cubex    -h 105 -r 157.1 $PARAMS 2>&1 | tee $S_OUT/482.sphinx3.clang.log
 $CCG $S_IN/453.povray.gcc.cubex       -h 105 -r 535.2 $PARAMS 2>&1 | tee $S_OUT/453.povray.gcc.log
 	
+$CCG $S_IN/447.dealII.clang.cubex     -h 105 -r 26.5  $PARAMS 2>&1 | tee $S_OUT/447.dealII.clang.log
+$CCG $S_IN/403.gcc.clang.cubex        -h 105 -r 40.3  $PARAMS 2>&1 | tee $S_OUT/403.gcc.clang.log
 #	mv Instrument-callgraph.dot $SPEC_OUTPUT/$FILE.dot
 
 #	generate the dot
