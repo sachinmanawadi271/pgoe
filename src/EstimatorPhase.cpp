@@ -567,6 +567,12 @@ void LibUnwindEstimatorPhase::visit(CgNodePtr from, CgNodePtr current) {
 
 	visitedEdges.insert(CgEdge(from, current));
 
+	///XXX
+//	for (auto v : visitedEdges) {
+//		std::cout << v << std::endl;
+//	}
+//	std::cout << std::endl;
+
 	auto unwindSteps = current->getNumberOfUnwindSteps();
 	if (currentDepth > unwindSteps) {
 		current->setState(CgNodeState::UNWIND_SAMPLE, currentDepth);
@@ -578,6 +584,9 @@ void LibUnwindEstimatorPhase::visit(CgNodePtr from, CgNodePtr current) {
 		}
 	}
 
+	if (config->greedyUnwind) {
+		visitedEdges.erase(CgEdge(from, current));
+	}
 	if (!(unwindUntilUniqueCallpath && current->hasUniqueCallPath())) {
 		currentDepth--;
 	}

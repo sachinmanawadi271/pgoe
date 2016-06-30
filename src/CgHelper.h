@@ -43,6 +43,7 @@ struct Config{
 	double fastestPhaseOvPercent	= 1e9;
 	double fastestPhaseOvSeconds 	= 1e9;
 
+	bool greedyUnwind = false;
 	std::string samplesFile = "";
 };
 

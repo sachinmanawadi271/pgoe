@@ -221,6 +221,11 @@ struct CgEdge {
 		return std::tie(lhs.from, lhs.to)
 						== std::tie(rhs.from, rhs.to);
 	}
+
+	friend std::ostream& operator<< (std::ostream& stream, const CgEdge& e) {
+		stream << *(e.from) << " -> " << *(e.to);
+		return stream;
+	}
 };
 
 

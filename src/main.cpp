@@ -108,6 +108,10 @@ int main(int argc, char** argv) {
 			c.samplesFile = "active";	// ugly hack
 			continue;
 		}
+		if (arg=="--greedy-Unwind" || arg=="-g") {
+			c.greedyUnwind = true;
+			continue;
+		}
 
 		std::cerr << "Unknown option: " << argv[i] << std::endl;
 
