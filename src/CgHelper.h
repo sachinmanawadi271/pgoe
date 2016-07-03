@@ -16,7 +16,7 @@ namespace CgConfig {
 	const unsigned long long nanosPerInstrumentedCall = 7;
 
 	const unsigned long long nanosPerUnwindSample 		= 0;
-	const unsigned long long nanosPerUnwindStep 			= 1000;
+	const unsigned long long nanosPerUnwindStep 			= 1300;
 
 	const unsigned long long nanosPerNormalProbe			= 220;
 	const unsigned long long nanosPerMPIProbe 				= 200;

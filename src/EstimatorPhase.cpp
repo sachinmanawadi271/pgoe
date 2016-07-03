@@ -417,6 +417,20 @@ void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 	}
 
 	config->actualRuntime = overallRuntime;
+
+	if (!config->samplesFile.empty()) {
+		unsigned long long currentOverallSamples = 0;
+		for (auto node : *graph) {
+			currentOverallSamples += node->getExpectedNumberOfSamples();
+		}
+		double expectedRefSamples = config->referenceRuntime * CgConfig::samplesPerSecond;
+		double samplesRatio = expectedRefSamples / (double) currentOverallSamples;
+
+		for (auto node : *graph) {
+			double numSamples = node->getExpectedNumberOfSamples();
+			node->setExpectedNumberOfSamples((unsigned long long) numSamples * samplesRatio);
+		}
+	}
 }
 
 void OverheadCompensationEstimatorPhase::printAdditionalReport() {
