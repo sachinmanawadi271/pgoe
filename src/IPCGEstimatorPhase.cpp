@@ -75,9 +75,65 @@ void StatementCountEstimatorPhase::estimateStatementCount(CgNodePtr startNode) {
 		inclStmtCount = startNode->getNumberOfStatements();
 	}
 
-	if (inclStmtCount > numberOfStatementsThreshold) {
+	if (inclStmtCount >= numberOfStatementsThreshold) {
 		startNode->setState(CgNodeState::INSTRUMENT_WITNESS);
 	}
+
+}
+
+
+//Runtime estimator phase
+
+RuntimeEstimatorPhase::RuntimeEstimatorPhase(double runTimeThreshold, bool inclusiveMetric):
+        EstimatorPhase((inclusiveMetric ? std::string("Incl") : std::string("Excl"))
+                       + std::string("Runtime")
+                       + std::to_string(runTimeThreshold)),
+        runTimeThreshold(runTimeThreshold),
+        inclusiveMetric(inclusiveMetric) {
+}
+
+RuntimeEstimatorPhase::~RuntimeEstimatorPhase() {}
+
+void RuntimeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
+    for (auto node : *graph) {
+        estimateRuntime(node);
+    }
+}
+
+void RuntimeEstimatorPhase::estimateRuntime(CgNodePtr startNode){
+
+    double runTime = 0.0;
+    if (inclusiveMetric) {
+
+        // INCLUSIVE
+        std::queue<CgNodePtr> workQueue;
+        workQueue.push(startNode);
+        std::set<CgNodePtr> visitedNodes;
+
+        while (!workQueue.empty()) {
+            auto node = workQueue.front();
+            workQueue.pop();
+
+            visitedNodes.insert(node);
+
+            runTime = node->getInclusiveRuntimeInSeconds();
+
+            for (auto childNode : node->getChildNodes()) {
+                if (visitedNodes.find(childNode) == visitedNodes.end()) {
+                    workQueue.push(childNode);
+                }
+            }
+        }
+        inclRunTime[startNode] = runTime;
+
+    } else {
+        // EXCLUSIVE
+        runTime = startNode->getRuntimeInSeconds();
+    }
+
+    if (runTime >= runTimeThreshold) {
+        startNode->setState(CgNodeState::INSTRUMENT_WITNESS);
+    }
 
 }
 

@@ -15,8 +15,17 @@
 #include "IPCGEstimatorPhase.h"
 
 void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
+    cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
+    cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false));         // remove unrelated
 
-	cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
+    cg.registerEstimatorPhase(new ResetEstimatorPhase());
+    cg.registerEstimatorPhase(new RuntimeEstimatorPhase(0.0));
+    //cg.registerEstimatorPhase(new StatementCountEstimatorPhase(0));
+    //cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
+    cg.registerEstimatorPhase(new ResetEstimatorPhase());
+
+/*
+    cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
 	cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false)); 	// remove unrelated
 
 	cg.registerEstimatorPhase(new LibUnwindEstimatorPhase(false));	// unwind till main
@@ -55,7 +64,7 @@ void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
 ////		cg.registerEstimatorPhase(new SanityCheckEstimatorPhase());
 //		cg.registerEstimatorPhase(new ResetEstimatorPhase());
 //
-//	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());
+//	cg.registerEstimatorPhase(new GraphStatsEstimatorPhase());*/
 
 }
 
@@ -128,6 +137,9 @@ int main(int argc, char** argv) {
 	std::string filePath(argv[1]);
 	std::string fileName = filePath.substr(filePath.find_last_of('/')+1);
 	c.appName = fileName.substr(0, fileName.find_last_of('.'));	// remove .*
+
+	//std::string filePath_toCompare(argv[2]);
+    //std::string fileName_toCompare = filePath_toCompare.substr(filePath_toCompare.find_last_of('/'+1));
 
 	if (!c.samplesFile.empty()) {
 		c.samplesFile = filePath.substr(0, filePath.find_last_of('.'))+".samples";

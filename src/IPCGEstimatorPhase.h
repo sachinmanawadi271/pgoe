@@ -42,6 +42,20 @@ private:
 	std::map<CgNodePtr, int> inclStmtCounts;
 };
 
+class RuntimeEstimatorPhase : public EstimatorPhase{
+public:
+	RuntimeEstimatorPhase( double runTimeThreshold, bool inclusiveMetric = true);
+	~RuntimeEstimatorPhase();
+
+	void modifyGraph(CgNodePtr mainMethod);
+	void estimateRuntime(CgNodePtr startNode);
+
+private:
+    double runTimeThreshold;
+	bool inclusiveMetric;
+    std::map<CgNodePtr,double> inclRunTime;
+};
+
 /**
  * RN: Gets a file with a whitelist of interesting nodes.
  * Instruments all paths to these nodes with naive callpathDifferentiation.

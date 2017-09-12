@@ -401,7 +401,6 @@ void OverheadCompensationEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 		unsigned long long timestampOverheadNanos = numberOfOwnOverheads * nanosPerHalfProbe + numberOfChildOverheads * nanosPerHalfProbe;
 		double timestampOverheadSeconds = (double) timestampOverheadNanos / 1e9;
 		double newRuntime = oldRuntime - timestampOverheadSeconds;
-
 		if (newRuntime < 0) {
 			node->setRuntimeInSeconds(0);
 			numOvercompensatedFunctions++;
