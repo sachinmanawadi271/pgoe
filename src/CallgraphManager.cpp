@@ -196,8 +196,17 @@ void CallgraphManager::printDOT(std::string prefix) {
 }
 
 void CallgraphManager::dumpInstrumentedNames(CgReport report) {
-	std::string filename = "out/instrumented-" + config->appName + "-" + report.phaseName + ".txt";
-	std::ofstream outfile(filename, std::ofstream::out);
+	//std::string filename = "out/instrumented-" + config->appName + "-" + report.phaseName + ".txt";
+    std::string filename;
+    if((report.phaseName.find("InclSta")!= std::string::npos) ||(report.phaseName.find("InclRun")!= std::string::npos)  ){
+        filename = "out/"+config->appName+".txt";
+    }
+    else{
+            filename = "out/instrumented-" + config->appName + "-" + report.phaseName + ".txt";
+    }
+
+    std::ofstream outfile(filename, std::ofstream::out);
+	//std::ofstream outfile2("out/instrumented_functions.txt",std::ofstream::out);
 
 	if (report.instrumentedNodes.empty()) {
 		outfile << "aFunctionThatDoesNotExist" << std::endl;

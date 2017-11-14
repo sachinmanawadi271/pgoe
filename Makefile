@@ -4,7 +4,7 @@ CXXFLAGS=-std=c++11 -Wall
 INCLUDEFLAGS=`cube-config --cube-cxxflags`
 LDFLAGS=`cube-config --cube-ldflags`
 
-DEBUG=-g -Og
+DEBUG=-g
 
 SOURCES= \
 src/CgNode.cpp src/CallgraphManager.cpp src/Callgraph.cpp src/CubeReader.cpp src/EstimatorPhase.cpp \

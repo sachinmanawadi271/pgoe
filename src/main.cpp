@@ -14,13 +14,21 @@
 #include "ProximityMeasureEstimatorPhase.h"
 #include "IPCGEstimatorPhase.h"
 
-void registerEstimatorPhases(CallgraphManager& cg, Config* c) {
+void registerEstimatorPhases(CallgraphManager& cg, Config* c, int Isipcg) {
     cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
     cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false));         // remove unrelated
 
     cg.registerEstimatorPhase(new ResetEstimatorPhase());
-    cg.registerEstimatorPhase(new RuntimeEstimatorPhase(0.0));
-    //cg.registerEstimatorPhase(new StatementCountEstimatorPhase(0));
+    if(!Isipcg){
+        double threshold_Runtime = 0.0;
+        threshold_Runtime = (50*c->totalRuntime)/100;
+        std::cout << "New threshold runtime for profiling:"<<threshold_Runtime<<std::endl;
+        cg.registerEstimatorPhase(new RuntimeEstimatorPhase(threshold_Runtime));
+    }
+    else{
+        cg.registerEstimatorPhase(new StatementCountEstimatorPhase(50));
+    }
+
     //cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
     cg.registerEstimatorPhase(new ResetEstimatorPhase());
 
@@ -81,8 +89,8 @@ int main(int argc, char** argv) {
 	}
 
 	Config c;
-
-	for(int i = 2; i < argc; ++i) {
+    std::cout<<argc;
+	for(int i = argc; i < argc; ++i) {
 		auto arg = std::string(argv[i]);
 
 		if (arg=="--other") {
@@ -134,33 +142,49 @@ int main(int argc, char** argv) {
 				<< std::endl << std::endl;
 	}
 
-	std::string filePath(argv[1]);
-	std::string fileName = filePath.substr(filePath.find_last_of('/')+1);
-	c.appName = fileName.substr(0, fileName.find_last_of('.'));	// remove .*
 
-	//std::string filePath_toCompare(argv[2]);
-    //std::string fileName_toCompare = filePath_toCompare.substr(filePath_toCompare.find_last_of('/'+1));
+    //for static instrumentation
+    std::string filePath_ipcg(argv[1]);
+    std::string ipcg_fileName = filePath_ipcg.substr(filePath_ipcg.find_last_of('/')+1);
+    c.appName = ipcg_fileName.substr(0, ipcg_fileName.find_last_of('.'));
 
-	if (!c.samplesFile.empty()) {
-		c.samplesFile = filePath.substr(0, filePath.find_last_of('.'))+".samples";
-		std::cout << c.samplesFile << std::endl;
-	}
+    CallgraphManager cg(&c);
+    CallgraphManager cg_ipcg(&c);
+	if(stringEndsWith(filePath_ipcg, ".ipcg")){
+        cg_ipcg = IPCGAnal::build(ipcg_fileName, &c);
+        registerEstimatorPhases(cg_ipcg, &c, 1);
 
-	CallgraphManager cg(&c);
-	if (stringEndsWith(filePath, ".cubex")) {
-		cg = CubeCallgraphBuilder::build(filePath, &c);
-	} else if (stringEndsWith(filePath, ".dot")) {
-		cg = DOTCallgraphBuilder::build(filePath, &c);
-	} else if (stringEndsWith(filePath, ".ipcg")){
-		cg = IPCGAnal::build(filePath, &c);
-	}	else {
-		std::cerr << "ERROR: Unknown file ending in " << filePath << std::endl;
-		exit(-1);
-	}
+        cg_ipcg.thatOneLargeMethod();
+    }
 
-	registerEstimatorPhases(cg, &c);
 
-	cg.thatOneLargeMethod();
+    if(argc > 2) {
+        //for dynamic instrumentation
+        std::string filePath(argv[2]);
+        std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
+        c.appName = fileName.substr(0, fileName.find_last_of('.'));    // remove .*
 
-	return EXIT_SUCCESS;
+        if (!c.samplesFile.empty()) {
+            c.samplesFile = filePath.substr(0, filePath.find_last_of('.'))+".samples";
+            std::cout << c.samplesFile << std::endl;
+        }
+
+        if (stringEndsWith(filePath, ".cubex")) {
+            cg = CubeCallgraphBuilder::build_from_ipcg(filePath, &c, &cg_ipcg);
+            //cg = CubeCallgraphBuilder::build(filePath, &c);
+        } else if (stringEndsWith(filePath, ".dot")) {
+            cg = DOTCallgraphBuilder::build(filePath, &c);
+        } /*else if (stringEndsWith(filePath, ".ipcg")){
+		    cg = IPCGAnal::build(filePath, &c);
+	    }*/    else {
+            std::cerr << "ERROR: Unknown file ending in " << filePath << std::endl;
+            exit(-1);
+        }
+        c.totalRuntime = c.actualRuntime;
+        registerEstimatorPhases(cg, &c, 0);
+
+        cg.thatOneLargeMethod();
+        std::cout << "Total Running time by me : " << c.totalRuntime;
+    }
+    return EXIT_SUCCESS;
 }

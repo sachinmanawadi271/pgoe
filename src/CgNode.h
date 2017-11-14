@@ -58,7 +58,8 @@ enum CgNodeState {
 	INSTRUMENT_WITNESS,
 	UNWIND_SAMPLE,
 	INSTRUMENT_CONJUNCTION,
-	UNWIND_INSTR
+	UNWIND_INSTR,
+	INSTRUMENT_CUBE
 };
 
 
@@ -147,6 +148,7 @@ public:
 
 	friend std::ostream& operator<< (std::ostream& stream, const CgNode& n);
 	friend std::ostream& operator<<(std::ostream& stream, const CgNodePtrSet& s);
+    int isCubeInstr = 0;
 
 private:
 	std::string functionName;
@@ -184,6 +186,7 @@ private:
 	// for later use
 	std::string filename;
 	int line;
+
 };
 
 struct CalledMoreOften {

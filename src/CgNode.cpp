@@ -196,7 +196,8 @@ double CgNode::getInclusiveRuntimeInSeconds() {
   if (childNodes.size() == 0) {
     inclusiveRuntimeInSeconds = runtimeInSeconds;
   }
-	return inclusiveRuntimeInSeconds;
+	//return inclusiveRuntimeInSeconds;
+    return runtimeInSeconds;
 }
 
 CgNodeState CgNode::getStateRaw() const { return state; };

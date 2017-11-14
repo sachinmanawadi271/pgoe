@@ -77,7 +77,8 @@ void StatementCountEstimatorPhase::estimateStatementCount(CgNodePtr startNode) {
 
 	if (inclStmtCount >= numberOfStatementsThreshold) {
 		startNode->setState(CgNodeState::INSTRUMENT_WITNESS);
-	}
+        startNode->isCubeInstr = 1;
+    }
 
 }
 
@@ -105,34 +106,62 @@ void RuntimeEstimatorPhase::estimateRuntime(CgNodePtr startNode){
     double runTime = 0.0;
     if (inclusiveMetric) {
 
+
         // INCLUSIVE
         std::queue<CgNodePtr> workQueue;
         workQueue.push(startNode);
         std::set<CgNodePtr> visitedNodes;
+        std::queue<CgNodePtr> immediatechildNode;
+        bool flag= false;
 
         while (!workQueue.empty()) {
+            flag=false;
             auto node = workQueue.front();
             workQueue.pop();
 
             visitedNodes.insert(node);
 
-            runTime = node->getInclusiveRuntimeInSeconds();
+            runTime += node->getInclusiveRuntimeInSeconds();
+            if(node->isCubeInstr){
+                node->setState(CgNodeState::INSTRUMENT_WITNESS);
+            }
 
-            for (auto childNode : node->getChildNodes()) {
-                if (visitedNodes.find(childNode) == visitedNodes.end()) {
-                    workQueue.push(childNode);
+            std::queue<CgNodePtr> temp_queue = immediatechildNode;
+            while(!temp_queue.empty()){
+                auto temp_node = temp_queue.front();
+                if(temp_node == node){
+                    flag=true;
+                }
+                temp_queue.pop();
+            }
+
+            if(flag == false){
+                for (auto childNode : node->getChildNodes()) {
+                    if (visitedNodes.find(childNode) == visitedNodes.end()) {
+                        workQueue.push(childNode);
+                        immediatechildNode.push(childNode);
+                    }
                 }
             }
+
         }
         inclRunTime[startNode] = runTime;
+        //runTime = startNode->getInclusiveRuntimeInSeconds();
+        //inclRunTime[startNode] = runTime;
 
     } else {
         // EXCLUSIVE
         runTime = startNode->getRuntimeInSeconds();
     }
 
-    if (runTime >= runTimeThreshold) {
+    if (runTime > runTimeThreshold) {
+        std::queue<CgNodePtr> workQueue;
+        workQueue.push(startNode);
+        auto node = workQueue.front();
         startNode->setState(CgNodeState::INSTRUMENT_WITNESS);
+        for (auto childNode : node->getChildNodes()) {
+            childNode->setState(CgNodeState::INSTRUMENT_WITNESS);
+        }
     }
 
 }
