@@ -135,8 +135,9 @@ CallgraphManager CubeCallgraphBuilder::build_from_ipcg(std::string filePath, Con
         cube::Metric* visitsMetric = cube.get_met("visits");
 
         const std::vector<cube::Thread*> threads = cube.get_thrdv();
-
+        //int cube_nodes = 0;
         for(auto cnode : cnodes){
+            //cube_nodes++;
             // I don't know when this happens, but it does.
             if(cnode->get_parent() == nullptr) {
                 cg->findOrCreateNode(c->useMangledNames ? cnode->get_callee()->get_mangled_name() : cnode->get_callee()->get_name(), cube.get_sev(timeMetric, cnode, threads.at(0)));
@@ -167,7 +168,7 @@ CallgraphManager CubeCallgraphBuilder::build_from_ipcg(std::string filePath, Con
                 }
             }
         }
-
+        //std::cout<<"Cube Nodes\n"<<cube_nodes;
         // read in samples per second TODO these are hardcoded for 10kHz
         auto samplesFilename = c->samplesFile;
         if (!samplesFilename.empty()) {

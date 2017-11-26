@@ -82,7 +82,6 @@ void StatementCountEstimatorPhase::estimateStatementCount(CgNodePtr startNode) {
 
 }
 
-
 //Runtime estimator phase
 
 RuntimeEstimatorPhase::RuntimeEstimatorPhase(double runTimeThreshold, bool inclusiveMetric):
@@ -102,68 +101,45 @@ void RuntimeEstimatorPhase::modifyGraph(CgNodePtr mainMethod) {
 }
 
 void RuntimeEstimatorPhase::estimateRuntime(CgNodePtr startNode){
+	double runTime = 0.0;
+	if (inclusiveMetric) {
+		// INCLUSIVE
+		std::queue<CgNodePtr> workQueue;
+		workQueue.push(startNode);
+		std::set<CgNodePtr> visitedNodes;
 
-    double runTime = 0.0;
-    if (inclusiveMetric) {
+		while (!workQueue.empty()) {
+			auto node = workQueue.front();
+			workQueue.pop();
 
+			visitedNodes.insert(node);
 
-        // INCLUSIVE
-        std::queue<CgNodePtr> workQueue;
-        workQueue.push(startNode);
-        std::set<CgNodePtr> visitedNodes;
-        std::queue<CgNodePtr> immediatechildNode;
-        bool flag= false;
+			runTime += node->getInclusiveRuntimeInSeconds();
+			if(node->isCubeInstr && runTime > 0){
+				node->setState(CgNodeState::INSTRUMENT_WITNESS);
+			}
 
-        while (!workQueue.empty()) {
-            flag=false;
-            auto node = workQueue.front();
-            workQueue.pop();
+			for (auto childNode : node->getChildNodes()) {
+				if (visitedNodes.find(childNode) == visitedNodes.end()) {
+					workQueue.push(childNode);
+				}
+			}
+		}
+		inclRunTime[startNode] = runTime;
 
-            visitedNodes.insert(node);
+	} else {
+		// EXCLUSIVE
+		runTime = startNode->getRuntimeInSeconds();
+	}
 
-            runTime += node->getInclusiveRuntimeInSeconds();
-            if(node->isCubeInstr){
-                node->setState(CgNodeState::INSTRUMENT_WITNESS);
+	if (runTime > runTimeThreshold) {
+		startNode->setState(CgNodeState::INSTRUMENT_WITNESS);
+		for (auto childNode : startNode->getChildNodes()) {
+            if(childNode->getInclusiveRuntimeInSeconds() > 0) {
+                childNode->setState(CgNodeState::INSTRUMENT_WITNESS);
             }
-
-            std::queue<CgNodePtr> temp_queue = immediatechildNode;
-            while(!temp_queue.empty()){
-                auto temp_node = temp_queue.front();
-                if(temp_node == node){
-                    flag=true;
-                }
-                temp_queue.pop();
-            }
-
-            if(flag == false){
-                for (auto childNode : node->getChildNodes()) {
-                    if (visitedNodes.find(childNode) == visitedNodes.end()) {
-                        workQueue.push(childNode);
-                        immediatechildNode.push(childNode);
-                    }
-                }
-            }
-
-        }
-        inclRunTime[startNode] = runTime;
-        //runTime = startNode->getInclusiveRuntimeInSeconds();
-        //inclRunTime[startNode] = runTime;
-
-    } else {
-        // EXCLUSIVE
-        runTime = startNode->getRuntimeInSeconds();
-    }
-
-    if (runTime > runTimeThreshold) {
-        std::queue<CgNodePtr> workQueue;
-        workQueue.push(startNode);
-        auto node = workQueue.front();
-        startNode->setState(CgNodeState::INSTRUMENT_WITNESS);
-        for (auto childNode : node->getChildNodes()) {
-            childNode->setState(CgNodeState::INSTRUMENT_WITNESS);
-        }
-    }
-
+		}
+	}
 }
 
 // WL CALLPATH DIFFERENTIATION ESTIMATOR PHASE
