@@ -14,19 +14,20 @@
 #include "ProximityMeasureEstimatorPhase.h"
 #include "IPCGEstimatorPhase.h"
 
-void registerEstimatorPhases(CallgraphManager& cg, Config* c, int Isipcg) {
+void registerEstimatorPhases(CallgraphManager& cg, Config* c, int Isipcg,float threshold_Runtime) {
     cg.registerEstimatorPhase(new OverheadCompensationEstimatorPhase(c->nanosPerHalfProbe));
     cg.registerEstimatorPhase(new RemoveUnrelatedNodesEstimatorPhase(true, false));         // remove unrelated
 
     cg.registerEstimatorPhase(new ResetEstimatorPhase());
     if(!Isipcg){
-        double threshold_Runtime = 0.0;
-        threshold_Runtime = (50*c->totalRuntime)/100;
+        //double threshold_Runtime = 0.0;
+        //threshold_Runtime = (75*threshold_Runtime)/100;
         std::cout << "New threshold runtime for profiling:"<<threshold_Runtime<<std::endl;
         cg.registerEstimatorPhase(new RuntimeEstimatorPhase(threshold_Runtime));
+       // cg.registerEstimatorPhase(new RuntimeEstimatorPhase(0));
     }
     else{
-        cg.registerEstimatorPhase(new StatementCountEstimatorPhase(50));
+        cg.registerEstimatorPhase(new StatementCountEstimatorPhase(150));
     }
 
     //cg.registerEstimatorPhase(new WLCallpathDifferentiationEstimatorPhase());
@@ -148,11 +149,12 @@ int main(int argc, char** argv) {
     std::string ipcg_fileName = filePath_ipcg.substr(filePath_ipcg.find_last_of('/')+1);
     c.appName = ipcg_fileName.substr(0, ipcg_fileName.find_last_of('.'));
 
+    float runTimethreshold = 0;
     CallgraphManager cg(&c);
     CallgraphManager cg_ipcg(&c);
 	if(stringEndsWith(filePath_ipcg, ".ipcg")){
         cg_ipcg = IPCGAnal::build(ipcg_fileName, &c);
-        registerEstimatorPhases(cg_ipcg, &c, 1);
+        registerEstimatorPhases(cg_ipcg, &c, 1,0);
 
         cg_ipcg.thatOneLargeMethod();
     }
@@ -170,7 +172,9 @@ int main(int argc, char** argv) {
         }
 
         if (stringEndsWith(filePath, ".cubex")) {
+
             cg = CubeCallgraphBuilder::build_from_ipcg(filePath, &c, &cg_ipcg);
+            runTimethreshold = CubeCallgraphBuilder::CalculateRuntimeThreshold(filePath,&c);
             //cg = CubeCallgraphBuilder::build(filePath, &c);
         } else if (stringEndsWith(filePath, ".dot")) {
             cg = DOTCallgraphBuilder::build(filePath, &c);
@@ -181,7 +185,7 @@ int main(int argc, char** argv) {
             exit(-1);
         }
         c.totalRuntime = c.actualRuntime;
-        registerEstimatorPhases(cg, &c, 0);
+        registerEstimatorPhases(cg, &c, 0,runTimethreshold);
 
         cg.thatOneLargeMethod();
         std::cout << "Total Running time by me : " << c.totalRuntime;

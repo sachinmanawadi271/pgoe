@@ -34,7 +34,7 @@ struct Config{
 	double actualRuntime		= .0;
     double totalRuntime         = .0;
 	std::string otherPath 	= "";
-	bool useMangledNames 		= false;
+	bool useMangledNames 		= true;
 	int nanosPerHalfProbe		= CgConfig::nanosPerHalfProbe;
 	std::string appName 		= "";
 	bool tinyReport				= false;

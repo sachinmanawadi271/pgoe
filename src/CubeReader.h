@@ -16,7 +16,9 @@
 namespace CubeCallgraphBuilder {
 
 	CallgraphManager build(std::string filePath, Config* c);
+	float CalculateRuntimeThreshold(std::string filePath, Config* c);
     CallgraphManager build_from_ipcg(std::string filePath, Config* c, CallgraphManager* cg);
+    float bucket_sort(float*,int);
 
 
 };
