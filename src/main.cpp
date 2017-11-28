@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
         if (stringEndsWith(filePath, ".cubex")) {
 
             cg = CubeCallgraphBuilder::build_from_ipcg(filePath, &c, &cg_ipcg);
-            runTimethreshold = CubeCallgraphBuilder::CalculateRuntimeThreshold(filePath,&c);
+            runTimethreshold = CubeCallgraphBuilder::CalculateRuntimeThreshold(&cg);
             //cg = CubeCallgraphBuilder::build(filePath, &c);
         } else if (stringEndsWith(filePath, ".dot")) {
             cg = DOTCallgraphBuilder::build(filePath, &c);

@@ -112,6 +112,24 @@ CallgraphManager CubeCallgraphBuilder::build(std::string filePath, Config* c) {
 }
 
 
+float CubeCallgraphBuilder::CalculateRuntimeThreshold(CallgraphManager *cg) {
+    int i=0;
+    //std::cout<<"Node size:"<<cg->size()<<"\n";
+    std::map<std::string, CgNodePtr> graph = cg->getGraphMapping(cg);
+    std::cout<<"Graph Size:"<<graph.size()<<"\n";
+    int nodes_count = graph.size();
+    float data[nodes_count];
+    for(auto it = graph.cbegin(); it != graph.cend(); ++it) {
+        const std::shared_ptr<CgNode> CgNodeptr = it->second;
+        std::cout<<CgNodeptr->getFunctionName()<<"->"<<CgNodeptr->getInclusiveRuntimeInSeconds()<<"\n";
+        data[i++] = CgNodeptr->getInclusiveRuntimeInSeconds();
+    }
+    float ret_val = bucket_sort(data,nodes_count);
+    return ret_val;
+}
+
+/*
+
 float CubeCallgraphBuilder::CalculateRuntimeThreshold(std::string filePath, Config* c) {
 
 	CallgraphManager* cg = new CallgraphManager(c);
@@ -192,6 +210,7 @@ float CubeCallgraphBuilder::CalculateRuntimeThreshold(std::string filePath, Conf
 	}
 
 }
+ */
 
 float CubeCallgraphBuilder::bucket_sort(float arr[],int n) {
     /*float minValue = data[0];

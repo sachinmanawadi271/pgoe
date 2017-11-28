@@ -37,6 +37,7 @@ public:
 	size_t size(){return graph.size();};
 
 	void printDOT(std::string prefix);
+    std::map<std::string, CgNodePtr> getGraphMapping(CallgraphManager* );
 private:
 	// this is a legacy structure used to parse the call graph
 	std::map<std::string, CgNodePtr> graphMapping;

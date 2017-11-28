@@ -220,4 +220,8 @@ void CallgraphManager::dumpUnwoundNames(CgReport report) {
 	}
 }
 
+std::map<std::string, CgNodePtr> CallgraphManager::getGraphMapping(CallgraphManager *cg){
+	return cg->graphMapping;
+};
+
 
