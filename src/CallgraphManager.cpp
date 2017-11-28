@@ -224,4 +224,8 @@ std::map<std::string, CgNodePtr> CallgraphManager::getGraphMapping(CallgraphMana
 	return cg->graphMapping;
 };
 
+Callgraph CallgraphManager::getCallgraph(CallgraphManager *cg){
+    return cg->graph;
+}
+
 

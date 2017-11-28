@@ -38,6 +38,7 @@ public:
 
 	void printDOT(std::string prefix);
     std::map<std::string, CgNodePtr> getGraphMapping(CallgraphManager* );
+    Callgraph getCallgraph(CallgraphManager *);
 private:
 	// this is a legacy structure used to parse the call graph
 	std::map<std::string, CgNodePtr> graphMapping;

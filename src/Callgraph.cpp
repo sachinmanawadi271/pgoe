@@ -114,3 +114,6 @@ size_t Callgraph::size() {
 	return graph.size();
 }
 
+CgNodePtrSet Callgraph::getGraph(){
+	return graph;
+}

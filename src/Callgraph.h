@@ -22,6 +22,7 @@ public:
 	CgNodePtrSet::const_iterator end() const;
 
 	size_t size();
+    CgNodePtrSet getGraph();
 private:
 	// this set represents the call graph during the actual computation
 	CgNodePtrSet graph;
