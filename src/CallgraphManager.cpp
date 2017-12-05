@@ -196,6 +196,10 @@ void CallgraphManager::printDOT(std::string prefix) {
 
 void CallgraphManager::dumpInstrumentedNames(CgReport report) {
 	std::string filename = "out/instrumented-" + config->appName + "-" + report.phaseName + ".txt";
+    std::size_t found = filename.find("out/instrumented-"+config->appName+"-"+"Incl");
+	if (found!=std::string::npos) {
+        filename = "out/instrumented-" + config->appName+".txt";
+    }
 	std::ofstream outfile(filename, std::ofstream::out);
 
 	if (report.instrumentedNodes.empty()) {
